@@ -1,0 +1,123 @@
+# AI Form Coach — Build Plan (v1, due Nov 20, 2026)
+
+Read [PRODUCT-BRIEF.md](PRODUCT-BRIEF.md) first. Every step below is under 1 hour, ends with a
+"Done when" check the owner (Manish) runs by hand, and gets its own git commit.
+Build one step at a time. Do not start the next step until the current one is checked.
+
+---
+
+## Libraries (picked with search-first, Nov 11)
+
+| Need | Decision | Why |
+|---|---|---|
+| Pose tracking | **Adopt** `@mediapipe/tasks-vision` (Pose Landmarker **lite** model) | Google's official package, updated this week, runs fully in the browser. Also ships `DrawingUtils` for skeleton drawing, so no extra library. |
+| App framework | **Adopt** React 19 + TypeScript + Vite 8 | As requested. Fast dev server, deploys to Vercel with zero config. |
+| Styling | **Adopt** Tailwind CSS v4 (`@tailwindcss/vite`) | As requested. v4 needs no config file. |
+| Motion | **Adopt** `motion` (the new name of Framer Motion, same team, same API via `motion/react`) | `framer-motion` still works but `motion` is the current package. |
+| Camera | **Build** (≈20 lines, browser `getUserMedia`) | `react-webcam` hasn't been updated since 2023; we need fine control for phones anyway. |
+| Speech | **Build** thin `voice` module on the browser's `speechSynthesis` | `react-speech-kit` abandoned (2022). We need our own interface anyway so ElevenLabs clips can swap in later. |
+| Angles + rep counting | **Build** (small, pure functions) | No maintained library fits; the math is a few lines (angle between three points + a two-state counter). |
+
+---
+
+## How the code is organised (target shape)
+
+```
+src/
+  pose/        camera.ts, landmarker.ts, drawSkeleton.ts   ← "see the body"
+  coach/       angles.ts, repCounter.ts, cueEngine.ts      ← "judge the body"
+  exercises/   squat.ts, pushup.ts, types.ts               ← one rule pack per exercise
+  voice/       index.ts (interface), browserVoice.ts       ← swappable voice layer
+  screens/     Home.tsx, Setup.tsx, Workout.tsx            ← the 3 screens
+```
+Adding an exercise = adding one file in `exercises/`. Swapping the voice = one new file in `voice/`.
+
+---
+
+## Steps
+
+### Step 1 — Camera on, skeleton drawn on me (laptop)
+- Scaffold Vite + React + TS + Tailwind + motion. Init git.
+- Open the webcam, load Pose Landmarker lite, draw the skeleton over the live video.
+- Plain, unstyled page — design comes in Step 3.
+- **Done when:** `npm run dev` → open the link on the laptop → allow camera → a skeleton follows your body smoothly (no freezing) when you move your arms.
+
+### Step 2 — Same thing on my phone (early phone check)
+- Let the phone open the laptop's dev server over Wi-Fi with https (cameras need https on phones).
+- **Done when:** the phone (same Wi-Fi) opens the link, shows the camera and draws the skeleton. From here on, every "done when" is checked on the phone too.
+
+### Step 3 — Design direction + design tokens
+- Agree colours, fonts and the 3 screens (needs Manish's OK).
+- Put the colours, font and spacing into one theme file (Tailwind `@theme`). Dark-first, so it works in a dim gym.
+- **Done when:** Manish has approved the direction, and a test page shows the font, the accent colour and the big rep-number style.
+
+### Step 4 — Home screen: pick an exercise
+- One screen, two large choices: Squat, Push-up. Nothing else.
+- **Done when:** both choices are tappable on the phone and the laptop.
+
+### Step 5 — Setup screen: where to put the phone + big Start
+- Simple side-view illustration (phone height and distance come from the exercise's rule pack, so push-up and squat can differ).
+- One huge Start button. The tap starts the camera, says a short "Ready" out loud (unlocks sound on iPhone) and keeps the screen awake.
+- **Done when:** on the phone, tapping Start opens the camera with the skeleton and you hear "Ready"; nothing plays before the tap.
+
+### Step 6 — Joint angles, smoothed, live readout
+- `coach/angles.ts`: angle at a joint from three body points. Use the body side the camera sees best, and show which side it picked.
+- Smooth the points over a few frames so numbers don't jitter.
+- **Done when:** standing still, the knee angle stays within ±5°; a deep squat shows < 100°; turning around switches the side label.
+
+### Step 7 — Rule-pack format + squat rule pack + rep counter
+- `exercises/types.ts`: everything a rule pack can contain — angle to watch, separate "down" and "up" thresholds (a gap so jitter can't double-count), camera hint, and cue checks (e.g. torso lean, body line). Defined fully now so later exercises don't change it.
+- `exercises/squat.ts` and `coach/repCounter.ts`.
+- **Done when:** 10 real squats → counter shows 10, twice in a row.
+
+### Step 8 — Workout screen
+- Full-screen camera, one huge rep number, one cue line, a small "End" control.
+- **Done when:** standing 3 m from the phone/laptop you can read the rep number without squinting, and it counts correctly.
+
+### Step 9 — Push-up rule pack
+- `exercises/pushup.ts` only (proves "new exercise = one file").
+- **Done when:** 10 push-ups → counter shows 10, and the only other change is adding it to the exercise list.
+
+### Step 10 — Form cues (text)
+- `coach/cueEngine.ts`: at the end of each rep, check the rule pack's cues and show the single most important one.
+- Squat: not deep enough, chest dropping forward. Push-up: hips sagging, not going low enough.
+- **Done when:** a deliberately shallow squat shows "Go deeper"; 10 normal good reps trigger at most 1 false alarm.
+
+### Step 11 — Spoken cues (swappable voice)
+- `voice/index.ts` defines `speak(cueId, text)`; `voice/browserVoice.ts` uses the browser's speech (waits for voices to load).
+- Speak only at the end of a rep, max once every ~4 s, never the same cue twice in a row.
+- **Done when:** on the phone you hear cues while squatting, it never talks over itself, and switching voice means editing one import line.
+
+### Step 12 — "Can't see you" guidance
+- If key body points are hidden or you're facing the camera, show "Turn side-on" / "Step back" instead of counting.
+- **Done when:** walking out of frame pauses counting and shows the prompt; walking back resumes.
+
+### Step 13 — Deploy to Vercel
+- Push to GitHub, connect Vercel.
+- **Done when:** the Vercel link works on your phone on mobile data (not your Wi-Fi): Start → camera → reps count → cue spoken.
+
+### Step 14 — Speed pass on phones
+- Use the phone's graphics chip when available, fall back if not; skip frames if the phone is slow.
+- **Done when:** a frame-rate readout shows ≥ 20 fps on your phone and a second, older phone runs without freezing.
+
+### Step 15 — End-of-set screen
+- After "End": reps done and the one cue to work on next time. One button: "Go again".
+- **Done when:** finishing a set shows the summary and "Go again" returns to Setup.
+
+### Step 16 — Polish pass (make-interfaces-feel-better)
+- **Done when** all 5 are true: (1) rep number animates on each rep, (2) screen changes slide/fade under 300 ms, (3) every tap target ≥ 44 px, (4) all text readable on the camera feed, (5) light and dark phone settings both look right.
+
+### Step 17 — Tester round + metrics
+- Recruit 3–5 testers by **Nov 14**. Each does 10 squats + 10 push-ups.
+- `TESTING.md` template: rep accuracy = counted ÷ real reps; cue accuracy = correct cues ÷ cues shown; "smooth" = ≥ 20 fps with no freeze; reuse = "would you use it again?" yes/no.
+- **Done when:** `TESTING.md` has results for every tester and the four brief metrics are filled in.
+
+---
+
+## Later (not v1)
+- Run the app on a recorded video file to measure accuracy repeatably (evals).
+- ElevenLabs pre-generated voice clips (swap in via `voice/`).
+- More exercises (one rule-pack file each).
+
+## Schedule guide
+Nov 11: 1 · Nov 12: 2–4 · Nov 13: 5–6 · Nov 14: 7–8 (+ recruit testers) · Nov 15: 9–10 · Nov 16: 11–12 · Nov 17: 13–14 · Nov 18: 15–16 · Nov 19–20: 17 + fixes.
