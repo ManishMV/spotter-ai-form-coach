@@ -77,6 +77,11 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - One huge Start button. The tap starts the camera, says a short "Ready" out loud (unlocks sound on iPhone) and keeps the screen awake.
 - **Done when:** on the phone, tapping Start opens the camera with the skeleton and you hear "Ready"; nothing plays before the tap.
 
+### Step 5b — Device-aware setup screen (added Nov 12, after Step 7 test)
+- Detect laptop vs phone/tablet automatically (no extra question). Laptop: laptop-on-a-table drawing + "Laptop at about hip height, on a table or shelf". Phone: current phone-on-stand drawing.
+- Small "Using a phone instead?" / "Using a laptop instead?" link to switch if the guess is wrong.
+- **Done when:** laptop shows laptop instructions, phone (or devtools phone view) shows phone instructions, the switch link flips them.
+
 ### Step 6 — Joint angles, smoothed, live readout
 - **Status (Nov 12): ✅ passed** — steady 170–180°, squat < 100°, side label switches. Found: facing the camera still shows a side → handled in Step 12.
 - `coach/angles.ts`: angle at a joint from three body points. Use the body side the camera sees best, and show which side it picked.
@@ -99,6 +104,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 ### Step 10 — Form cues (text)
 - `coach/cueEngine.ts`: at the end of each rep, check the rule pack's cues and show the single most important one.
 - Squat: not deep enough, chest dropping forward. Push-up: hips sagging, not going low enough.
+- Note (Nov 12): shallow reps never pass the "down" threshold, so they aren't counted. Detect these as **partial reps** (went partway down and came back up) so "Go deeper" still fires for them.
 - **Done when:** a deliberately shallow squat shows "Go deeper"; 10 normal good reps trigger at most 1 false alarm.
 
 ### Step 11 — Spoken cues (swappable voice)
@@ -137,6 +143,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 ---
 
 ## Later (not v1)
+- **Exercise demo before starting** (Manish, Nov 12; not top priority). Plan: v1-stretch = animated skeleton demo built in code (on-brand, tiny, offline); later = real filmed demo per exercise. Avoid embedding third-party YouTube videos.
 - Run the app on a recorded video file to measure accuracy repeatably (evals).
 - ElevenLabs pre-generated voice clips (swap in via `voice/`).
 - More exercises (one rule-pack file each).
