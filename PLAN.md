@@ -36,6 +36,10 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 
 ## Steps
 
+> **Order change (Nov 12):** design is deferred, so the build order is now
+> 1 → 1b → 2 → **6 → 7** → 3 → 4 → 5 → 8 → 9 … Steps 6–7 (angles, rep counting) only need a
+> temporary debug readout, not designed screens. Step numbers are kept so commits stay traceable.
+
 ### Step 1 — Camera on, skeleton drawn on me (laptop)
 - Scaffold Vite + React + TS + Tailwind + motion. Init git.
 - Open the webcam, load Pose Landmarker lite, draw the skeleton over the live video.
@@ -50,6 +54,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** laptop shows "full" at ≥ 20 fps; with `?model=lite` it still works; covering your legs with a desk hides the leg points instead of drawing guesses.
 
 ### Step 2 — Same thing on my phone (early phone check)
+- **Status (Nov 12):** built (`npm run dev:phone` → https link on Wi-Fi). Phone test still pending — Manish to run it when he has his phone.
 - Let the phone open the laptop's dev server over Wi-Fi with https (cameras need https on phones).
 - **Done when:** the phone (same Wi-Fi) opens the link, shows the camera and draws the skeleton. From here on, every "done when" is checked on the phone too.
 
