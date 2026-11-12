@@ -78,6 +78,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** on the phone, tapping Start opens the camera with the skeleton and you hear "Ready"; nothing plays before the tap.
 
 ### Step 6 — Joint angles, smoothed, live readout
+- **Status (Nov 12): ✅ passed** — steady 170–180°, squat < 100°, side label switches. Found: facing the camera still shows a side → handled in Step 12.
 - `coach/angles.ts`: angle at a joint from three body points. Use the body side the camera sees best, and show which side it picked.
 - Smooth the points over a few frames so numbers don't jitter.
 - **Done when:** standing still, the knee angle stays within ±5°; a deep squat shows < 100°; turning around switches the side label.
@@ -105,9 +106,11 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Speak only at the end of a rep, max once every ~4 s, never the same cue twice in a row.
 - **Done when:** on the phone you hear cues while squatting, it never talks over itself, and switching voice means editing one import line.
 
-### Step 12 — "Can't see you" guidance
-- If key body points are hidden or you're facing the camera, show "Turn side-on" / "Step back" instead of counting.
-- **Done when:** walking out of frame pauses counting and shows the prompt; walking back resumes.
+### Step 12 — Positioning guidance ("Can't see you"), shown + spoken
+- Detect when the user is **facing the camera** (not side-on): show "facing" instead of a side, pause counting.
+- Detect when they're **too close / too far / partly out of frame**.
+- Show one prompt at a time and **speak it** via the voice module (Step 11): "Turn to your side", "Step back a little", "Come a little closer". Same cooldown rules as cues, so it doesn't nag.
+- **Done when:** facing the camera → "Turn to your side" (heard + shown) and counting pauses; walking too close / out of frame → the right prompt; returning side-on in frame → prompt clears and counting resumes.
 
 ### Step 13 — Deploy to Vercel
 - **Status (Nov 12):** live at https://spotter-ai-form-coach.vercel.app. Code at github.com/ManishMV/spotter-ai-form-coach.
