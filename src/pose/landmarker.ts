@@ -1,6 +1,7 @@
 // Loads Google's MediaPipe Pose Landmarker. Runs fully in the browser (video never leaves the device).
 // Two model sizes: "full" (more accurate, heavier) and "lite" (faster, for phones).
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision'
+import { detectDevice } from '../device'
 
 export type ModelSize = 'lite' | 'full'
 
@@ -15,8 +16,7 @@ const MIN_CONFIDENCE = 0.6
 export function pickModelSize(): ModelSize {
   const forced = new URLSearchParams(location.search).get('model')
   if (forced === 'lite' || forced === 'full') return forced
-  const isPhoneOrTablet = matchMedia('(pointer: coarse)').matches
-  return isPhoneOrTablet ? 'lite' : 'full'
+  return detectDevice() === 'phone' ? 'lite' : 'full'
 }
 
 let filesetPromise: ReturnType<typeof FilesetResolver.forVisionTasks> | null = null

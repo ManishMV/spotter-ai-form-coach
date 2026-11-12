@@ -13,7 +13,7 @@ export type Metric =
   //           visible points. Squat ≈ shoulders over feet (small); lunge = shoulders between two far-apart feet (big).
 
 export type CameraHint = {
-  /** Where the phone sits. */
+  /** Where the phone or laptop sits. */
   height: 'hip' | 'floor'
   /** How far away, shown to the user. */
   distance: string
@@ -76,7 +76,7 @@ export type Exercise = {
   /** The form points Spotter checks, in plain words. */
   checks: string[]
   camera: CameraHint
-  /** Short set-up tips shown before starting. */
+  /** Short set-up tips shown before starting (device placement is added automatically from `camera`). */
   tips: string[]
   /** How reps are counted. Missing = counting not built for this exercise yet. */
   reps?: RepRule

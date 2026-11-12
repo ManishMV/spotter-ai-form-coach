@@ -7,8 +7,8 @@ browser. There's no app or account, and your video never leaves your phone.
 
 *Note: As a PM, I built this using Claude Code.*
 
-> 🚧 v1 in progress (target: Nov 20, 2026). Pose tracking, joint angles and the full UI are in place.
-> Rep counting, form cues and voice feedback are next. See [PLAN.md](PLAN.md).
+> 🚧 v1 in progress (target: Nov 20, 2026). Pose tracking, the full UI and research-based squat
+> counting are in place. Push-ups, spoken form cues and voice feedback are next. See [PLAN.md](PLAN.md).
 
 ## Why
 
@@ -32,8 +32,9 @@ Full brief: [PRODUCT-BRIEF.md](PRODUCT-BRIEF.md).
    *lite*, with an automatic fallback to lite if frame rate drops below 20 fps.
 2. **Measure:** knee, hip and elbow angles are computed from 3D points, on the side of the body
    facing the camera, and smoothed with the [1€ filter](https://gery.casiez.net/1euro/).
-3. **Judge (next):** each exercise is one "rule pack" file (angle thresholds and cues), so adding
-   an exercise means adding one file.
+3. **Judge:** each exercise is one "rule pack" file (angle thresholds, rep rules, cues), so adding
+   an exercise means adding one file. Squat rules come from NSCA/ACE research: see
+   [docs/SQUAT-FORM.md](docs/SQUAT-FORM.md).
 4. **Speak (next):** a swappable voice module. Browser speech today; pre-recorded clips later.
 
 ## Tech stack

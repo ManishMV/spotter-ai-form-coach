@@ -1,7 +1,7 @@
 # Spotter (AI Form Coach) — Build Plan (v1, due Nov 20, 2026)
 
 Read [PRODUCT-BRIEF.md](PRODUCT-BRIEF.md) first. Every step below is under 1 hour, ends with a
-"Done when" check the owner (Manish) runs by hand, and gets its own git commit.
+"Done when" check I run by hand, and gets its own git commit.
 Build one step at a time. Do not start the next step until the current one is checked.
 
 ---
@@ -40,7 +40,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 > 1 → 1b → 2 → **6 → 7** → 3 → 4 → 5 → 8 → 9 … Steps 6–7 (angles, rep counting) only need a
 > temporary debug readout, not designed screens. Step numbers are kept so commits stay traceable.
 >
-> **Update (Nov 12, later):** Manish asked for the design now. Steps 3–5 built together: Spotter name,
+> **Update (Nov 12):** design pulled forward. Steps 3–5 built together: Spotter name,
 > supermemory.ai-inspired look (Geist fonts, hairlines, square corners, dotted grids) with Spotter-orange
 > accent, light + dark mode. Home doubles as the landing page. Workout screen layout (part of Step 8) done;
 > the old tracking test view lives at `?debug`. Hosting (Step 13) moves up: GitHub for code + Vercel.
@@ -59,14 +59,14 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** laptop shows "full" at ≥ 20 fps; with `?model=lite` it still works; covering your legs with a desk hides the leg points instead of drawing guesses.
 
 ### Step 2 — Same thing on my phone (early phone check)
-- **Status (Nov 12):** built (`npm run dev:phone` → https link on Wi-Fi). Phone test still pending — Manish to run it when he has his phone.
+- **Status (Nov 12):** built (`npm run dev:phone` → https link on Wi-Fi). Phone test still pending.
 - Let the phone open the laptop's dev server over Wi-Fi with https (cameras need https on phones).
 - **Done when:** the phone (same Wi-Fi) opens the link, shows the camera and draws the skeleton. From here on, every "done when" is checked on the phone too.
 
 ### Step 3 — Design direction + design tokens
-- Agree colours, fonts and the 3 screens (needs Manish's OK).
+- Define colours, fonts and the 3 screens.
 - Put the colours, font and spacing into one theme file (Tailwind `@theme`). Dark-first, so it works in a dim gym.
-- **Done when:** Manish has approved the direction, and a test page shows the font, the accent colour and the big rep-number style.
+- **Done when:** the direction is signed off, and a test page shows the font, the accent colour and the big rep-number style.
 
 ### Step 4 — Home screen: pick an exercise
 - One screen, two large choices: Squat, Push-up. Nothing else.
@@ -77,7 +77,8 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - One huge Start button. The tap starts the camera, says a short "Ready" out loud (unlocks sound on iPhone) and keeps the screen awake.
 - **Done when:** on the phone, tapping Start opens the camera with the skeleton and you hear "Ready"; nothing plays before the tap.
 
-### Step 5b — Device-aware setup screen (added Nov 12, after Step 7 test)
+### Step 5b — Device-aware setup screen (added Nov 12)
+- **Status (Nov 12): ✅ passed** — laptop and phone versions, switch link, and the workout view now shows the full camera frame (no cropping on wide screens).
 - Detect laptop vs phone/tablet automatically (no extra question). Laptop: laptop-on-a-table drawing + "Laptop at about hip height, on a table or shelf". Phone: current phone-on-stand drawing.
 - Small "Using a phone instead?" / "Using a laptop instead?" link to switch if the guess is wrong.
 - **Done when:** laptop shows laptop instructions, phone (or devtools phone view) shows phone instructions, the switch link flips them.
@@ -157,7 +158,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 ---
 
 ## Later (not v1)
-- **Exercise demo before starting** (Manish, Nov 12; not top priority). Plan: v1-stretch = animated skeleton demo built in code (on-brand, tiny, offline); later = real filmed demo per exercise. Avoid embedding third-party YouTube videos.
+- **Exercise demo before starting** (lower priority). Plan: v1-stretch = animated skeleton demo built in code (on-brand, tiny, offline); later = real filmed demo per exercise. Avoid embedding third-party YouTube videos.
 - Run the app on a recorded video file to measure accuracy repeatably (evals).
 - ElevenLabs pre-generated voice clips (swap in via `voice/`).
 - More exercises (one rule-pack file each).

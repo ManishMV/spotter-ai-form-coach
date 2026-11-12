@@ -60,10 +60,11 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-black text-white [color-scheme:dark]">
-      {/* Camera + skeleton, mirrored so it feels like a mirror. */}
+      {/* Camera + skeleton, mirrored so it feels like a mirror. Shown whole ("contain", not cropped)
+          so the user sees exactly what the tracker sees — head and feet included on wide laptop screens. */}
       <div className="absolute inset-0 -scale-x-100">
-        <video ref={videoRef} className="absolute inset-0 size-full object-cover" playsInline muted />
-        <canvas ref={canvasRef} className="absolute inset-0 size-full object-cover" />
+        <video ref={videoRef} className="absolute inset-0 size-full object-contain" playsInline muted />
+        <canvas ref={canvasRef} className="absolute inset-0 size-full object-contain" />
       </div>
 
       {/* Shading so text stays readable on any background. */}

@@ -6,7 +6,7 @@ export const squat: Exercise = {
   summary: 'Bodyweight or barbell. Side view.',
   checks: ['Depth', 'Chest position'],
   camera: { height: 'hip', distance: '2–3 m' },
-  tips: ['Phone at hip height', 'Stand side-on to the camera', 'Whole body in frame'],
+  tips: ['Stand side-on to the camera', 'Whole body in frame'],
   // Rules from NSCA / ACE / biomechanics research — see docs/SQUAT-FORM.md for sources.
   // Standing ≈ 170–180° knee angle; thighs parallel ≈ 70–100°.
   reps: {
