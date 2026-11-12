@@ -9,7 +9,7 @@ export const pushup: Exercise = {
   // Needed to judge depth, lockout and knees. Feet/ankles may be out of frame: the knee-off-the-floor
   // check doesn't need them (body-line check is skipped for that rep if the ankle isn't seen).
   mustSee: ['shoulder', 'elbow', 'wrist', 'hip', 'knee'],
-  tips: ['Body side-on to the camera', 'Head to feet in frame'],
+  tips: ['Body side-on to the camera', 'Head to feet in frame', 'Hands slightly wider than shoulders'],
   // Rules from ACE, CSEP/ACSM, FitnessGram and USMC standards — see docs/PUSHUP-FORM.md for sources.
   reps: {
     // Depth = upper arm parallel to the floor (FitnessGram/USMC standard): the shoulder drops to
@@ -22,7 +22,7 @@ export const pushup: Exercise = {
     minRepMs: 800, // test cadences are 2.4–3 s per rep; under 0.8 s is a bounce or a glitch
     // Went partway down (below 45°) but not to depth → partial rep: not counted, tell them why.
     partialBelow: 45,
-    partialText: 'Go lower',
+    partialText: 'Chest to floor',
     startText: 'Get into a plank, arms straight',
     // Medians over the rep, so a brief tracking error can't decide the result.
     // Order matters: the first rule that fails is the message shown.
@@ -65,4 +65,20 @@ export const pushup: Exercise = {
       },
     ],
   },
+  // Form cues after each counted rep. Wording follows coaching research: 1–3 words, say what to do,
+  // external focus where possible (Wulf; Winkelman; NASM: "lower until the chest nears the floor").
+  // Lower-back safety first, then depth, then piking. Sagging hips (lower-back extension: ACE, Army) is a
+  // safety cue and speaks up on the first rep; the others wait for a pattern. See docs/COACHING.md.
+  // Hip offset 0.06 ≈ body line 165°; bigger faults (< 155°) don't count at all.
+  cues: [
+    { id: 'hips-up', metric: 'hipOffset', stat: 'min', op: '<', value: -0.06, text: 'Hips up', praise: 'Nice straight line', kind: 'safety', priority: 1 },
+    // Resting on the floor at the bottom for over 0.8 s (shoulders well below elbows). A quick
+    // chest-to-floor touch never triggers it. Mentioned only if it keeps happening (3 of 4 reps).
+    { id: 'stay-off-floor', metric: 'collapsedMs', stat: 'max', op: '>', value: 800, text: 'Stay off the floor', praise: 'Strong bottom', kind: 'minor', priority: 2 },
+    // Fast drop to the bottom. Controlled descents are ~0.7–1.5 s; under 0.4 s is a drop. Rep still counts.
+    { id: 'control-descent', metric: 'descentMs', stat: 'max', op: '<', value: 400, text: 'Lower with control', praise: 'Nice control', kind: 'technique', priority: 3 },
+    // Counted (upper arm within 20° of parallel) but only just.
+    { id: 'chest-to-floor', metric: 'upperArm', stat: 'min', op: '>', value: 10, text: 'Chest to floor', praise: 'Nice depth', kind: 'technique', priority: 4 },
+    { id: 'hips-down', metric: 'hipOffset', stat: 'max', op: '>', value: 0.06, text: 'Hips down', praise: 'Nice straight line', kind: 'technique', priority: 5 },
+  ],
 }

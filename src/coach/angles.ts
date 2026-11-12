@@ -7,14 +7,18 @@ export type Side = 'left' | 'right'
 
 // MediaPipe's numbering for the body points we use.
 const POINTS = {
-  left: { shoulder: 11, elbow: 13, wrist: 15, hip: 23, knee: 25, ankle: 27 },
-  right: { shoulder: 12, elbow: 14, wrist: 16, hip: 24, knee: 26, ankle: 28 },
+  left: { shoulder: 11, elbow: 13, wrist: 15, hip: 23, knee: 25, ankle: 27, heel: 29, toe: 31 },
+  right: { shoulder: 12, elbow: 14, wrist: 16, hip: 24, knee: 26, ankle: 28, heel: 30, toe: 32 },
 } as const
 
 /** Every tracked metric in degrees, or null when the joints involved aren't visible. */
 export type Angles = Record<Metric, number | null>
 
-export const NO_ANGLES: Angles = { knee: null, hip: null, elbow: null, torsoLean: null, bodyLine: null, stanceSplit: null, balance: null, upperArm: null, kneeLift: null }
+export const NO_ANGLES: Angles = {
+  knee: null, hip: null, elbow: null, torsoLean: null, bodyLine: null, stanceSplit: null, balance: null,
+  upperArm: null, kneeLift: null, leanVsShin: null, heelLift: null, hipOffset: null, thighTilt: null,
+  hipsRiseFirst: null, footTilt: null, descentMs: null, collapsedMs: null,
+}
 
 /** Angle in degrees at point b, formed by a–b–c (e.g. hip–knee–ankle = knee angle). Uses 3D. */
 export function angleAt(a: Landmark, b: Landmark, c: Landmark): number {
@@ -105,6 +109,26 @@ function upperArmTilt(shoulder: Landmark, elbow: Landmark): number {
   return (Math.atan2(down, across) * 180) / Math.PI
 }
 
+/** Heel→toe line vs horizontal, in degrees. 0 = foot flat; positive = heel raised above the toes. */
+function heelLift(heel: Landmark, toe: Landmark): number {
+  const up = toe.y - heel.y // world y points down: positive = heel higher than toe
+  const along = Math.hypot(toe.x - heel.x, toe.z - heel.z)
+  return (Math.atan2(up, along) * 180) / Math.PI
+}
+
+/**
+ * How far the hip sits above (+) or below (−) the straight line from shoulder to ankle, as a
+ * fraction of shoulder–ankle length. In a straight plank it's ~0; sagging hips go negative,
+ * piked hips go positive.
+ */
+function hipOffset(shoulder: Landmark, hip: Landmark, ankle: Landmark): number | null {
+  const dx = ankle.x - shoulder.x
+  const length = Math.hypot(dx, ankle.y - shoulder.y)
+  if (Math.abs(dx) < 1e-6 || length === 0) return null
+  const lineY = shoulder.y + ((ankle.y - shoulder.y) * (hip.x - shoulder.x)) / dx
+  return (lineY - hip.y) / length // world y points down: positive = hip above the line
+}
+
 /** Knee height above the wrist (hands on the floor = floor level), as a fraction of thigh length. */
 function kneeLift(hip: Landmark, knee: Landmark, wrist: Landmark): number | null {
   const thigh = Math.hypot(hip.x - knee.x, hip.y - knee.y, hip.z - knee.z)
@@ -181,5 +205,15 @@ export function measureAngles(screen: NormalizedLandmark[], world: Landmark[], s
     balance: balance(screen, world, side),
     upperArm: seen(p.shoulder, p.elbow) ? upperArmTilt(world[p.shoulder], world[p.elbow]) : null,
     kneeLift: seen(p.hip, p.knee, p.wrist) ? kneeLift(world[p.hip], world[p.knee], world[p.wrist]) : null,
+    leanVsShin: seen(p.shoulder, p.hip, p.knee, p.ankle)
+      ? tiltFromVertical(world[p.shoulder], world[p.hip]) - tiltFromVertical(world[p.knee], world[p.ankle])
+      : null,
+    heelLift: seen(p.heel, p.toe) ? heelLift(world[p.heel], world[p.toe]) : null,
+    hipOffset: seen(p.shoulder, p.hip, p.ankle) ? hipOffset(world[p.shoulder], world[p.hip], world[p.ankle]) : null,
+    thighTilt: seen(p.hip, p.knee) ? upperArmTilt(world[p.hip], world[p.knee]) : null, // same maths: line vs horizontal
+    footTilt: seen(p.heel, p.toe) ? Math.abs(heelLift(world[p.heel], world[p.toe])) : null,
+    hipsRiseFirst: null, // worked out per rep by the rep counter
+    descentMs: null, // worked out per rep by the rep counter
+    collapsedMs: null, // worked out per rep by the rep counter
   }
 }

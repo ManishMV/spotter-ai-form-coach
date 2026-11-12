@@ -4,6 +4,7 @@ import { LogoMark } from '../components/Logo'
 import type { Exercise } from '../exercises'
 import { usePoseTracking, type FrameHandler } from '../pose/usePoseTracking'
 import { RepCounter, type RepPhase } from '../coach/repCounter'
+import { CoachFeedback } from '../coach/feedback'
 import type { Angles } from '../coach/angles'
 
 const fmt = (deg: number | null) => (deg === null ? '—' : `${Math.round(deg)}°`)
@@ -14,10 +15,12 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
 
   // Rep counting runs on every camera frame, outside React, and only updates the screen when something changes.
   const [counter] = useState(() => (exercise.reps ? new RepCounter(exercise.reps) : null))
+  const [coach] = useState(() => new CoachFeedback(exercise.cues))
   const [reps, setReps] = useState(0)
   const [phase, setPhase] = useState<RepPhase>('waiting')
-  // A short message after a rep that didn't count (e.g. lunge stance). Clears itself.
-  const [notice, setNotice] = useState<string | null>(null)
+  // A short message after each rep, then it clears itself:
+  // why a rep didn't count, the top form fix for a counted rep, or "Good rep".
+  const [notice, setNotice] = useState<{ text: string; good: boolean } | null>(null)
   const noticeTimer = useRef(0)
   useEffect(() => () => clearTimeout(noticeTimer.current), [])
 
@@ -29,13 +32,17 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
       const rep = counter.update(angles, timeMs)
       if (rep) {
         setReps(rep.number)
-        clearTimeout(noticeTimer.current)
-        setNotice(rep.failed ? rep.failed.text : null)
-        if (rep.failed) noticeTimer.current = window.setTimeout(() => setNotice(null), 3000)
+        const feedback = coach.next(rep) // research-based: may stay quiet to avoid nagging
+        if (feedback) {
+          clearTimeout(noticeTimer.current)
+          const good = feedback.tone === 'good'
+          setNotice({ text: feedback.text, good })
+          noticeTimer.current = window.setTimeout(() => setNotice(null), good ? 1500 : 3000)
+        }
       }
       setPhase(counter.phase) // React skips the re-render when the phase hasn't changed
     },
-    [counter],
+    [counter, coach],
   )
 
   // Start position for this exercise: its counting metric is past the "up" threshold.
@@ -71,7 +78,7 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
           : !counter
           ? `${exercise.name} counting is coming soon`
           : notice
-            ? notice
+            ? notice.text
             : phase === 'waiting'
             ? (exercise.reps?.startText ?? '')
             : `Tracking your ${readout.side} side`
@@ -103,7 +110,7 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
       {/* One short cue */}
       <p
         aria-live="polite"
-        className="absolute inset-x-4 top-20 text-center text-[clamp(22px,4.5vw,44px)] leading-tight font-medium tracking-[-0.02em] text-balance sm:top-24"
+        className={`absolute inset-x-4 top-20 text-center text-[clamp(22px,4.5vw,44px)] leading-tight font-medium tracking-[-0.02em] text-balance sm:top-24 ${notice?.good && cue === notice.text ? 'text-accent' : ''}`}
       >
         {status === 'error' ? "Couldn't start the camera" : cue}
       </p>

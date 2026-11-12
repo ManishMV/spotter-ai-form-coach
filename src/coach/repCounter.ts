@@ -23,10 +23,17 @@ export type Rep = {
   partial: boolean
 }
 
+/**
+ * Push-up "on the floor" position: shoulders well below the elbows (upper arm more than 15° below
+ * parallel). A controlled deep rep passes through it in a fraction of a second; resting on the
+ * floor stays there. The time spent here becomes `collapsedMs`, and the cue uses a time limit.
+ */
+const isRestingOnFloor = (a: Angles) => a.upperArm !== null && a.upperArm < -15
+
 /** Anything shorter than this is a tracking blip, not a movement. */
 const GLITCH_MS = 350
 
-const METRICS: Metric[] = ['knee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance', 'upperArm', 'kneeLift']
+const METRICS: Metric[] = ['knee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance', 'upperArm', 'kneeLift', 'leanVsShin', 'heelLift', 'hipOffset', 'thighTilt', 'hipsRiseFirst', 'footTilt', 'descentMs', 'collapsedMs']
 
 const freshStats = (): RepStats =>
   Object.fromEntries(METRICS.map((m) => [m, { min: null, max: null, median: null }])) as RepStats
@@ -46,6 +53,11 @@ export class RepCounter {
   private samples: Record<Metric, number[]> = this.freshSamples()
   private startMs = 0
   private readonly rule: RepRule
+  /** For hipsRiseFirst: torso lean at the deepest point, and the most it leaned after that. */
+  private bottom: { value: number; lean: number | null; leanAfter: number | null; timeMs: number } | null = null
+  /** Time resting on the floor this rep, and the previous frame's time (for frame durations). */
+  private collapsedMs = 0
+  private lastFrameMs: number | null = null
 
   constructor(rule: RepRule) {
     this.rule = rule
@@ -58,6 +70,9 @@ export class RepCounter {
 
     const { downBelow, upAbove, minRepMs } = this.rule
     const atTop = value > upAbove
+    const frameMs = this.lastFrameMs === null ? 0 : Math.min(timeMs - this.lastFrameMs, 100)
+    this.lastFrameMs = timeMs
+    if (this.phase !== 'waiting' && isRestingOnFloor(angles)) this.collapsedMs += frameMs
 
     if (this.phase === 'waiting') {
       if (atTop) this.restart(timeMs, angles)
@@ -88,6 +103,7 @@ export class RepCounter {
 
     // phase === 'down'
     this.record(angles)
+    this.trackAscent(value, angles.torsoLean, timeMs)
     if (!atTop) return null
 
     const durationMs = timeMs - this.startMs
@@ -116,6 +132,8 @@ export class RepCounter {
     this.startMs = timeMs
     this.stats = freshStats()
     this.samples = this.freshSamples()
+    this.bottom = null
+    this.collapsedMs = 0
     // Still at the top: carry over the top's min/max (not medians) so the next rep's stats
     // include the whole start position, e.g. the most upright body angle at the top, which
     // tells a knee push-up from a full one.
@@ -132,10 +150,27 @@ export class RepCounter {
     return Object.fromEntries(METRICS.map((m) => [m, [] as number[]])) as Record<Metric, number[]>
   }
 
-  /** The rep's stats with medians filled in. */
+  /** The rep's stats with medians filled in, plus per-rep metrics. */
   private finishStats(): RepStats {
     for (const m of METRICS) this.stats[m].median = median(this.samples[m])
+    const one = (v: number) => ({ min: v, max: v, median: v })
+    const b = this.bottom
+    if (b && b.lean !== null && b.leanAfter !== null) this.stats.hipsRiseFirst = one(b.leanAfter - b.lean)
+    if (b) this.stats.descentMs = one(b.timeMs - this.startMs)
+    this.stats.collapsedMs = one(this.collapsedMs)
     return this.stats
+  }
+
+  /**
+   * Myer 2014 criterion 10: hips and shoulders should rise together. If the torso tips further
+   * forward after the deepest point, the hips are shooting up first.
+   */
+  private trackAscent(value: number, lean: number | null, timeMs: number) {
+    if (!this.bottom || value < this.bottom.value) {
+      this.bottom = { value, lean, leanAfter: lean, timeMs } // new deepest point
+    } else if (lean !== null) {
+      this.bottom.leanAfter = this.bottom.leanAfter === null ? lean : Math.max(this.bottom.leanAfter, lean)
+    }
   }
 
   private record(angles: Angles) {

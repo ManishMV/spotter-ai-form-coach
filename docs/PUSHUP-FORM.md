@@ -11,14 +11,17 @@ gets body points from MediaPipe. Researched Nov 12, 2026.
 
 | What | Why it matters | How Spotter measures it (side view) | Threshold | Status | Source |
 |---|---|---|---|---|---|
-| **Depth: upper arm parallel to the floor** | Half reps are the #1 progress fault | Lowest **upper-arm angle** in the rep (shoulder drops to elbow level) | Counts if < **20°** from parallel. Below 45° but not 20° = partial rep → **"Go lower"** | ✅ Built | FitnessGram, USMC ("upper arm parallel to the floor"); CSEP/ACSM/ACE (chest to fist or floor). Switched from elbow angle after testing: elbow angle at full depth changes with hand position (under the shoulders vs back near the chest); upper-arm angle doesn't |
+| **Depth: upper arm parallel to the floor** | Half reps are the #1 progress fault | Lowest **upper-arm angle** in the rep (shoulder drops to elbow level) | Counts if < **20°** from parallel. Below 45° but not 20° = partial rep → **"Chest to floor"** | ✅ Built | FitnessGram, USMC ("upper arm parallel to the floor"); CSEP/ACSM/ACE (chest to fist or floor). Switched from elbow angle after testing: elbow angle at full depth changes with hand position (under the shoulders vs back near the chest); upper-arm angle doesn't |
 | **Lockout: arms straight** | A rep ends at full extension | Highest elbow angle in the rep, top included | > **150°** → else **"Straighten your arms at the top"** | ✅ Built | ACE; CSEP; Army hand-release push-up guidance (counters use 145–160°) |
 | **Key points in view** | Can't judge depth, lockout or knees from parts we can't see | Shoulder, elbow, wrist, hip and knee (camera side) inside the picture; feet may be cut off | Any missing → counting pauses, **"Move back so your whole body is in view"** | ✅ Built | Added after testing: a knee just out of frame made the knee check guess |
 | **In a plank** | Bending your arms while standing or kneeling isn't a push-up | Torso tilt from vertical (median over the rep) | Must be > **50°** (body near horizontal) → else **"Get into a plank"** | ✅ Built | Derived from plank geometry (top ≈ 20–25° from horizontal) |
 | **Full push-up, not knees** | Different exercise, different standard | **(1) Knee off the floor:** knee height above the hands (= floor level) at the top, ÷ thigh length; needs only knee + wrist. **(2) Legs straight:** knee angle, when the ankle is visible | Knee lift > **0.2** (full ≈ 0.4, knees down ≈ 0.1) and knee > **150°** → else **"Knees up for full push-ups"** | ✅ Built | ACSM/CSEP use knee push-ups as a separate test, so they get a separate mode later. Knee-lift check added so feet can be out of frame |
 | **Body straight** | Sagging hips stress the lower back; piking dodges the work | Body line (median) | Must be > **155°** (research suggests ~160°) → else **"Keep your body straight"** | ✅ Built | ACE; Army ("rigid torso, no sag or pike") |
-| **Controlled tempo** | Bouncing isn't a controlled rep | Rep duration | ≥ **0.8 s** → else **"Slow down"** | ✅ Built | FitnessGram cadence 20/min (3 s per rep); beep test 25/min |
-| **Hips up / hips down** | Finer sag vs pike feedback | Body line < 165° plus hip above or below the shoulder–ankle line | Cue **"Hips up"** (sag) or **"Hips down"** (pike) | ⏳ Step 10 | ACE; Army |
+| **Controlled tempo** | Bouncing isn't a controlled rep | Rep duration | ≥ **0.8 s** → else **"Slow down"** | ✅ Built | Test cadences are 2.4–3 s per rep (FitnessGram 20/min; beep test 25/min). No published minimum exists; 0.8 s is our cutoff for bounces and glitches, well below those cadences. |
+| **Controlled descent (coaching)** | Dropping fast to the floor | Time from the top to the deepest point | Under **0.4 s** → **"Lower with control"** (the rep still counts) | ✅ Built (Step 10) | Our judgement, based on the cadences above |
+| **Don't rest on the floor (coaching)** | Collapsing at the bottom instead of holding the plank | Time with the shoulders well below the elbows (upper arm > 15° past parallel) | Over **0.8 s**, and in 3 of the last 4 reps → **"Stay off the floor"** (the rep still counts) | ✅ Built (Step 10) | "Don't collapse onto the floor" is common coaching guidance; time limit is our judgement so a quick chest-to-floor touch never triggers it |
+| **Hips up / hips down** | Finer sag vs pike feedback | Hip above or below the shoulder–ankle line, ÷ body length | Beyond **±0.06** (≈ body line 165°) → **"Hips up"** (sag) or **"Hips down"** (pike) | ✅ Built (Step 10) | ACE; Army; NASM |
+| **Chest to floor (coaching)** | Counted, but only just reached depth | Upper arm still > **10°** above parallel at the bottom | → **"Chest to floor"** | ✅ Built (Step 10) | NASM ("lower until the chest nears the floor") |
 
 ## Deliberately *not* checked
 
@@ -39,10 +42,8 @@ gets body points from MediaPipe. Researched Nov 12, 2026.
 - **Lockout:** most say fully extend; pose counters use 145–160°, not 180°.
 - **Knees:** ACSM and CSEP accept knee push-ups with separate norms; Army and FitnessGram don't.
 
-## Spoken cues (Step 10–11), in priority order
-1. **"Hips up"**: sagging (lower-back safety)
-2. **"Go lower"**: not reaching depth
-3. **"Hips down"**: piking
+## Cues
+See [COACHING.md](COACHING.md) for cue wording, priority and how often Spotter speaks.
 
 ## Sources
 - ACE / CSEP-PATH push-up assessment protocol. https://contentcdn.eacefitness.com/assets/certification/ace-answers/forms/pt/36_Push-up_Assessment_Protocol.pdf

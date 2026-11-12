@@ -118,6 +118,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** 10 push-ups → counter shows 10, and the only other change is adding it to the exercise list.
 
 ### Step 10 — Form cues (text)
+- **Status (Nov 13): ✅ passed** — research-based cues for both exercises, weighted by risk (safety / technique / minor), with praise and anti-nagging rules. See [docs/COACHING.md](docs/COACHING.md).
 - `coach/cueEngine.ts`: at the end of each rep, check the rule pack's cues and show the single most important one.
 - Squat: not deep enough, chest dropping forward. Push-up: hips sagging, not going low enough.
 - Note (Nov 12): shallow reps never pass the "down" threshold, so they aren't counted. Detect these as **partial reps** (went partway down and came back up) so "Go deeper" still fires for them.

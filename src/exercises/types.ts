@@ -15,6 +15,19 @@ export type Metric =
   | 'kneeLift' // how high the knee is above the hands (= floor level in a push-up) ÷ thigh length.
   //            Full push-up ≈ 0.3–0.5 at the top; knee push-up ≈ 0.1 (knee resting on the floor).
   //            Needs only the knee and wrist, not the ankle.
+  | 'leanVsShin' // torso lean minus shin lean (both from vertical). ~0 = torso parallel to shins (good squat);
+  //              big positive = chest dropping forward.
+  | 'heelLift' // heel→toe line vs horizontal. ~0 = foot flat; positive = heel raised.
+  | 'hipOffset' // hip above (+) or below (−) the straight shoulder–ankle line, ÷ body length.
+  //             ~0 = straight plank; negative = hips sagging; positive = hips piking.
+  | 'thighTilt' // hip→knee line vs horizontal. Positive = hip above knee; 0 = thigh parallel to the floor
+  //             (the squat depth standard: hips at knee height).
+  | 'hipsRiseFirst' // per rep, not per frame: how much the torso tips further forward on the way up,
+  //                 compared with the bottom (degrees). ~0 = chest and hips rise together.
+  | 'footTilt' // how far the foot tips either way (heel OR toes off the floor), degrees. ~0 = whole foot down.
+  | 'descentMs' // per rep: time from leaving the top to the deepest point, in milliseconds.
+  | 'collapsedMs' // per rep (push-ups): time with the shoulders well below the elbows (on the floor),
+  //               in milliseconds. A controlled deep rep passes through quickly; resting stays there.
   | 'balance' // front-to-back distance between shoulder and the visible ankle ÷ leg length. Uses only
   //           visible points. Squat ≈ shoulders over feet (small); lunge = shoulders between two far-apart feet (big).
 
@@ -77,8 +90,16 @@ export type RepRequirement = {
 /** A form check run at the end of each counted rep (from Step 10). Fires when the condition is true. */
 export type CueCheck = Condition & {
   id: string
-  /** Short line shown on screen and spoken. */
+  /** Short line shown on screen and spoken: what to do, 1–3 words, external focus where possible. */
   text: string
+  /** Said on the first clean rep after this cue, naming the fix (e.g. "Nice depth"). */
+  praise: string
+  /**
+   * 'safety' = injury risk (e.g. lower-back load): said on the first rep it happens.
+   * 'technique' = progress/efficiency: said once it's a pattern (2 of the last 3 reps).
+   * 'minor' = worth mentioning only if it keeps happening (3 of the last 4 reps).
+   */
+  kind: 'safety' | 'technique' | 'minor'
   /** Lower number wins when several checks fail on the same rep. */
   priority: number
 }

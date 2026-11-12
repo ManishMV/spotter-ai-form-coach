@@ -40,7 +40,7 @@ export function Setup({ exercise, onStart, onBack }: { exercise: Exercise; onSta
           <SetupIllustration camera={exercise.camera} exercise={exercise.id} device={device} />
         </div>
 
-        <ul className="mt-6 grid gap-px border border-line bg-line sm:grid-cols-3">
+        <ul className="mt-6 grid gap-px border border-line bg-line sm:grid-cols-2">
           {tips.map((tip, i) => (
             <li key={tip} className="flex items-baseline gap-3 bg-paper px-4 py-3 sm:block sm:p-4">
               <span className="label text-faint">0{i + 1}</span>

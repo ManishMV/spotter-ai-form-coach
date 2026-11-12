@@ -10,12 +10,15 @@ is something we can measure from that view. Researched Nov 12, 2026.
 
 | What | Why it matters | How Spotter measures it (side view) | Threshold | Status | Source |
 |---|---|---|---|---|---|
-| **Depth: thighs at least parallel** | Main driver of progress; shallow reps are the #1 beginner fault | Lowest knee angle in the rep | Counts if < **100°**. Went below 140° but not 100° = partial rep → **"Go deeper"** | ✅ Built (Step 7b) | Myer et al. 2014 (NSCA); Straub & Powers 2024 |
+| **Depth: thighs at least parallel** | Main driver of progress; shallow reps are the #1 beginner fault | Lowest knee angle in the rep | Counts if < **100°**. Went below 140° but not 100° = partial rep → **"Sit deeper"** | ✅ Built (Step 7b) | Myer et al. 2014 (NSCA); Straub & Powers 2024 |
 | **Stand fully back up** | A rep ends at full hip and knee extension | Knee angle back above | > **160°** | ✅ Built | Myer 2014; common rep-counter practice |
 | **Feet side by side (not a lunge)** | A squat has both feet level; one foot forward = lunge or split squat | Two signals, both must say "lunge" to reject: **(1)** front-to-back gap between ankles ÷ leg length; **(2)** balance = shoulder vs visible ankle ÷ leg length (in a squat the shoulders stay over the feet) | Lunge if median gap > **0.35** (research: 0.30) **and** median balance > **0.30** | ✅ Built | Myer 2014; ACE; split-squat step length 85–130% of leg length (Frontiers 2023). Two-signal design added after testing: the hidden far foot is mis-guessed at the bottom of a deep squat when facing right |
-| **Controlled tempo** | Dropping or bouncing into the bottom isn't a controlled rep | Rep duration | ≥ **1.0 s** | ✅ Built | Myer 2014 (descent 2–4× longer than ascent, moderate pace) |
-| **Chest up: torso roughly parallel to shins** | Too much forward lean loads the lower back | Torso lean vs shin lean at the bottom | Cue if torso leans > **20°** more than the shin → **"Chest up"** | ⏳ Step 10 | Straub & Powers 2024; Myer 2014; ACE; NASM |
-| **Heels stay down** | Heel lift = balance and ankle-mobility problem | Heel height vs toe, compared with standing | Lift > ~2 cm or > 8° → **"Heels down"** | ⏳ Step 10 | Myer 2014; ACE |
+| **Controlled tempo** | Bouncing isn't a controlled rep | Rep duration | ≥ **1.0 s** → else **"Slow down"** | ✅ Built | Myer 2014 says "moderate pace" with no number. 1.0 s is our cutoff for bounces and glitches, set well below normal controlled reps. |
+| **Controlled descent (coaching)** | Dropping fast into the bottom | Time from the top to the deepest point | Under **0.5 s** → **"Lower with control"** (the rep still counts) | ✅ Built (Step 10) | Myer 2014 (descent should be slower than ascent); 0.5 s threshold is our judgement |
+| **Chest up: torso roughly parallel to shins** | Too much forward lean loads the lower back | Torso lean vs shin lean at the bottom | Cue if torso leans > **20°** more than the shin → **"Chest up"** | ✅ Built (Step 10) | Straub & Powers 2024; Myer 2014; ACE; NASM |
+| **Whole foot down** | Heel or toes lifting = balance and ankle-mobility problem | Heel-to-toe line tipping either way | > **10°** (≈ 3–4 cm lift) → **"Whole foot down"** (coaching; the rep still counts) | ✅ Built (Step 10) |
+| **Hips and chest rise together** | Hips shooting up first loads the lower back | Torso tipping further forward after the deepest point | > **12°** → **"Lead with your chest"** | ✅ Built (Step 10) | Myer 2014 (criterion 10); Kushner 2015 |
+| **Thighs parallel (coaching)** | The depth standard is hips at knee height | Thigh angle vs horizontal at the bottom | Counted reps with the thigh still > **10°** above parallel → **"Sit deeper"** | ✅ Built (Step 10) | Myer 2014; Kushner 2015 | Myer 2014; ACE |
 
 ## Deliberately *not* checked
 
@@ -31,10 +34,8 @@ is something we can measure from that view. Researched Nov 12, 2026.
 - **Depth:** Myer says at least parallel; ACE says stop earlier if heels lift or the back rounds.
 - **Torso angle:** no fixed number, because it depends on body proportions. That's why we compare the torso with the shin instead.
 
-## Spoken cues (Step 10–11), in priority order
-1. **"Go deeper"**: not reaching parallel
-2. **"Chest up"**: torso leaning too far forward
-3. **"Heels down"**: heels lifting
+## Cues
+See [COACHING.md](COACHING.md) for cue wording, priority and how often Spotter speaks.
 
 ## Sources
 - Myer GD et al. (2014). *The back squat: a proposed assessment of functional deficits and technical factors that limit performance.* Strength & Conditioning Journal (NSCA). https://pubmed.ncbi.nlm.nih.gov/25506270/
