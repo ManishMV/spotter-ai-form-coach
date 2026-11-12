@@ -17,7 +17,8 @@ const isDebug = new URLSearchParams(location.search).has('debug')
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'home' })
-  const [settings, updateSettings] = useSettings()
+  // Coaching/details choices are per exercise and kept for the day (see settings.ts).
+  const [settings, updateSettings] = useSettings(screen.name === 'home' ? '' : screen.exercise.id)
   if (isDebug)
     return (
       <Suspense fallback={null}>
