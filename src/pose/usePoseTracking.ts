@@ -5,28 +5,46 @@ import { startCamera, stopCamera } from './camera'
 import { loadPoseLandmarker, pickModelSize, type ModelSize } from './landmarker'
 import { drawSkeleton } from './drawSkeleton'
 import { PointSmoother } from './smoothing'
-import { isFacingCamera, measureAngles, NO_ANGLES, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
+import type { BodyPart } from '../exercises/types'
+import { isFacingCamera, measureAngles, NO_ANGLES, partsInView, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
 
 export type TrackingStatus = 'idle' | 'loading' | 'running' | 'error'
 /** `facing` = person faces the camera instead of standing side-on (side-view checks don't work then). */
-export type Readout = { side: Side | null; facing: boolean; angles: Angles; diag: StanceDiag | null }
+/** `inView` = every body part the exercise needs is inside the picture. */
+export type Readout = { side: Side | null; facing: boolean; inView: boolean; angles: Angles; diag: StanceDiag | null }
 
-export const EMPTY_READOUT: Readout = { side: null, facing: false, angles: NO_ANGLES, diag: null }
+export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, angles: NO_ANGLES, diag: null }
 
 /** Called on every frame where a person is visible (used for rep counting). */
-export type FrameHandler = (angles: Angles, timeMs: number, facing: boolean) => void
+export type FrameHandler = (angles: Angles, timeMs: number, facing: boolean, inView: boolean) => void
 
 export function usePoseTracking(
   videoRef: RefObject<HTMLVideoElement | null>,
   canvasRef: RefObject<HTMLCanvasElement | null>,
-  onFrame?: FrameHandler,
-  /** Debug view: draw both legs (including the guessed hidden one) and compute diagnostics. */
-  debug = false,
+  options: {
+    /** Called on every frame where a person is visible (rep counting). */
+    onFrame?: FrameHandler
+    /**
+     * Is the person in the exercise's start position (standing tall for squats, arms straight for
+     * push-ups)? Facing vs side-on is only re-checked there: mid-rep, hidden body parts are
+     * guessed and can make a side-on body look like it faces the camera.
+     */
+    isAtTop?: (angles: Angles) => boolean
+    /** Body parts that must be in the picture (else `inView` turns false and counting should pause). */
+    mustSee?: BodyPart[]
+    /** Debug view: draw both legs (including the guessed hidden one) and compute diagnostics. */
+    debug?: boolean
+  } = {},
 ) {
+  const { onFrame, isAtTop, mustSee, debug = false } = options
   const onFrameRef = useRef(onFrame)
+  const isAtTopRef = useRef(isAtTop)
+  const mustSeeRef = useRef(mustSee)
   useEffect(() => {
     onFrameRef.current = onFrame
-  }, [onFrame])
+    isAtTopRef.current = isAtTop
+    mustSeeRef.current = mustSee
+  }, [onFrame, isAtTop, mustSee])
   const [status, setStatus] = useState<TrackingStatus>('idle')
   const [error, setError] = useState('')
   const [fps, setFps] = useState(0)
@@ -81,6 +99,9 @@ export function usePoseTracking(
       const worldSmoother = new PointSmoother()
       let side: Side | null = null
       let facing = false
+      // In view / out of view, debounced so a single flickering frame doesn't toggle the prompt.
+      let inView = true
+      let viewStreak = 0
       let lastReadout = 0
 
       const loop = () => {
@@ -96,17 +117,26 @@ export function usePoseTracking(
             const world = worldSmoother.smooth(rawWorld, now)
             side = pickSide(screen, side)
             const angles = measureAngles(screen, world, side)
-            // Decide facing vs side-on only while upright: folded at the bottom of a squat, the hidden
-            // shoulder's guessed position drifts and can look "wide". People turn while standing anyway.
-            const upright = angles.torsoLean !== null && angles.torsoLean < 30
-            if (upright) facing = isFacingCamera(shoulderSpread(screen, video.videoWidth / video.videoHeight), facing)
+            // Decide facing vs side-on only in the start position (see `isAtTop`). With no exercise
+            // rules (debug view), fall back to "standing upright".
+            const atTop = isAtTopRef.current
+              ? isAtTopRef.current(angles)
+              : angles.torsoLean !== null && angles.torsoLean < 30
+            if (atTop) facing = isFacingCamera(shoulderSpread(screen, video.videoWidth / video.videoHeight), facing)
+            const nowInView = partsInView(screen, side, mustSeeRef.current ?? [])
+            viewStreak = nowInView === inView ? 0 : viewStreak + 1
+            if (viewStreak >= (inView ? 8 : 4)) {
+              inView = nowInView // ~0.25 s out to pause, ~0.1 s back in to resume
+              viewStreak = 0
+            }
             current = {
               side,
               facing,
+              inView,
               angles,
               diag: debug ? stanceDiagnostics(screen, world, side, video.videoWidth / video.videoHeight) : null,
             }
-            onFrameRef.current?.(current.angles, now, facing)
+            onFrameRef.current?.(current.angles, now, facing, inView)
             drawSkeleton(ctx, [screen], debug ? null : side === 'left' ? 'right' : 'left') // draw only the side we track
           } else {
             // Nobody in frame: start smoothing fresh next time.
@@ -114,6 +144,8 @@ export function usePoseTracking(
             worldSmoother.reset()
             side = null
             facing = false
+            inView = true
+            viewStreak = 0
             drawSkeleton(ctx, [])
           }
           // Update on-screen numbers ~10x a second (every frame would slow React down).

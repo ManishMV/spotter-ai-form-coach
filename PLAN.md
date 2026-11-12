@@ -113,6 +113,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** standing 3 m from the phone/laptop you can read the rep number without squinting, and it counts correctly.
 
 ### Step 9 — Push-up rule pack
+- **Status (Nov 12): ✅ passed** — rules from ACE, CSEP/ACSM, FitnessGram and USMC standards ([docs/PUSHUP-FORM.md](docs/PUSHUP-FORM.md)). Depth by upper-arm angle (works with any hand position), lockout, plank, knees off the floor, body line, tempo. Counting pauses when key points are out of frame.
 - `exercises/pushup.ts` only (proves "new exercise = one file").
 - **Done when:** 10 push-ups → counter shows 10, and the only other change is adding it to the exercise list.
 

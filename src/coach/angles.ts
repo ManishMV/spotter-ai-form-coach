@@ -1,7 +1,7 @@
 // Joint angles from MediaPipe body points, measured on the side of the body facing the camera.
 import type { Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { MIN_VISIBILITY } from '../pose/drawSkeleton'
-import type { Metric } from '../exercises/types'
+import type { BodyPart, Metric } from '../exercises/types'
 
 export type Side = 'left' | 'right'
 
@@ -14,7 +14,7 @@ const POINTS = {
 /** Every tracked metric in degrees, or null when the joints involved aren't visible. */
 export type Angles = Record<Metric, number | null>
 
-export const NO_ANGLES: Angles = { knee: null, hip: null, elbow: null, torsoLean: null, bodyLine: null, stanceSplit: null, balance: null }
+export const NO_ANGLES: Angles = { knee: null, hip: null, elbow: null, torsoLean: null, bodyLine: null, stanceSplit: null, balance: null, upperArm: null, kneeLift: null }
 
 /** Angle in degrees at point b, formed by a–b–c (e.g. hip–knee–ankle = knee angle). Uses 3D. */
 export function angleAt(a: Landmark, b: Landmark, c: Landmark): number {
@@ -95,6 +95,35 @@ export function isFacingCamera(spread: number | null, wasFacing: boolean): boole
   return wasFacing
 }
 
+/**
+ * Upper-arm angle vs horizontal, in degrees: 90 = arm vertical, 0 = shoulder level with the elbow
+ * (upper arm parallel to the floor — the push-up depth standard), negative = shoulder below elbow.
+ */
+function upperArmTilt(shoulder: Landmark, elbow: Landmark): number {
+  const down = elbow.y - shoulder.y // world y points down: positive = shoulder above elbow
+  const across = Math.hypot(elbow.x - shoulder.x, elbow.z - shoulder.z)
+  return (Math.atan2(down, across) * 180) / Math.PI
+}
+
+/** Knee height above the wrist (hands on the floor = floor level), as a fraction of thigh length. */
+function kneeLift(hip: Landmark, knee: Landmark, wrist: Landmark): number | null {
+  const thigh = Math.hypot(hip.x - knee.x, hip.y - knee.y, hip.z - knee.z)
+  if (thigh === 0) return null
+  return (wrist.y - knee.y) / thigh // world y points down: positive = knee above the wrist
+}
+
+/**
+ * Are all these body parts (on the side facing the camera) inside the picture and clearly seen?
+ * A small margin keeps points right at the edge from counting as "in view".
+ */
+export function partsInView(screen: NormalizedLandmark[], side: Side, parts: BodyPart[]): boolean {
+  const M = 0.01
+  return parts.every((part) => {
+    const p = screen[POINTS[side][part]]
+    return !!p && (p.visibility ?? 0) >= MIN_VISIBILITY && p.x > M && p.x < 1 - M && p.y > M && p.y < 1 - M
+  })
+}
+
 /** Diagnostics for tuning the lunge check (shown in the ?debug view only). */
 export type StanceDiag = {
   nearAnkleVis: number
@@ -150,5 +179,7 @@ export function measureAngles(screen: NormalizedLandmark[], world: Landmark[], s
     bodyLine: at(p.shoulder, p.hip, p.ankle),
     stanceSplit: stanceSplit(screen, world, side),
     balance: balance(screen, world, side),
+    upperArm: seen(p.shoulder, p.elbow) ? upperArmTilt(world[p.shoulder], world[p.elbow]) : null,
+    kneeLift: seen(p.hip, p.knee, p.wrist) ? kneeLift(world[p.hip], world[p.knee], world[p.wrist]) : null,
   }
 }

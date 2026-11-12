@@ -4,6 +4,7 @@ import { LogoMark } from '../components/Logo'
 import type { Exercise } from '../exercises'
 import { usePoseTracking, type FrameHandler } from '../pose/usePoseTracking'
 import { RepCounter, type RepPhase } from '../coach/repCounter'
+import type { Angles } from '../coach/angles'
 
 const fmt = (deg: number | null) => (deg === null ? '—' : `${Math.round(deg)}°`)
 
@@ -21,8 +22,10 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
   useEffect(() => () => clearTimeout(noticeTimer.current), [])
 
   const onFrame = useCallback<FrameHandler>(
-    (angles, timeMs, facing) => {
-      if (!counter || facing) return // side-view checks don't work facing the camera: pause counting
+    (angles, timeMs, facing, inView) => {
+      // Pause counting when a needed body part is out of frame (can't judge what we can't see)
+      // or when facing the camera (side-view checks don't work).
+      if (!counter || facing || !inView) return
       const rep = counter.update(angles, timeMs)
       if (rep) {
         setReps(rep.number)
@@ -35,7 +38,20 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
     [counter],
   )
 
-  const { status, error, fps, model, readout, start, stop } = usePoseTracking(videoRef, canvasRef, onFrame)
+  // Start position for this exercise: its counting metric is past the "up" threshold.
+  const isAtTop = useCallback(
+    (angles: Angles) => {
+      const rule = exercise.reps
+      const v = rule ? angles[rule.metric] : null
+      return v !== null && rule !== undefined && v > rule.upAbove
+    },
+    [exercise.reps],
+  )
+  const { status, error, fps, model, readout, start, stop } = usePoseTracking(videoRef, canvasRef, {
+    onFrame,
+    isAtTop,
+    mustSee: exercise.mustSee,
+  })
 
   useEffect(() => {
     start()
@@ -48,14 +64,16 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
       ? 'Starting camera…'
       : !readout.side
         ? 'Step into view, side-on'
-        : readout.facing
+        : !readout.inView
+          ? 'Move back so your whole body is in view'
+          : readout.facing
           ? 'Turn to your side'
           : !counter
           ? `${exercise.name} counting is coming soon`
           : notice
             ? notice
             : phase === 'waiting'
-            ? 'Stand tall to start'
+            ? (exercise.reps?.startText ?? '')
             : `Tracking your ${readout.side} side`
 
   return (
@@ -114,6 +132,10 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
           <dd className="text-right">{fmt(readout.angles.hip)}</dd>
           <dt className="text-white/45">Elbow</dt>
           <dd className="text-right">{fmt(readout.angles.elbow)}</dd>
+          <dt className="text-white/45">Arm</dt>
+          <dd className="text-right">{fmt(readout.angles.upperArm)}</dd>
+          <dt className="text-white/45">Knee lift</dt>
+          <dd className="text-right">{readout.angles.kneeLift === null ? '—' : readout.angles.kneeLift.toFixed(2)}</dd>
           <dt className="text-white/45">Split</dt>
           <dd className="text-right">{readout.angles.stanceSplit === null ? '—' : readout.angles.stanceSplit.toFixed(2)}</dd>
           <dt className="text-white/45">Bal</dt>

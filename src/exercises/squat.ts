@@ -6,6 +6,7 @@ export const squat: Exercise = {
   summary: 'Bodyweight or barbell. Side view.',
   checks: ['Depth', 'Chest position'],
   camera: { height: 'hip', distance: '2–3 m' },
+  mustSee: ['shoulder', 'hip', 'knee', 'ankle'],
   tips: ['Stand side-on to the camera', 'Whole body in frame'],
   // Rules from NSCA / ACE / biomechanics research — see docs/SQUAT-FORM.md for sources.
   // Standing ≈ 170–180° knee angle; thighs parallel ≈ 70–100°.
@@ -17,6 +18,7 @@ export const squat: Exercise = {
     // Went below 140° but not to depth → partial rep: not counted, tell them why.
     partialBelow: 140,
     partialText: 'Go deeper',
+    startText: 'Stand tall to start',
     requires: [
       // Not a lunge / split squat. Rejected only when BOTH signals say lunge:
       //  1. Feet split front-to-back (research: > 0.30 × leg length; we use 0.35). Needs the hidden

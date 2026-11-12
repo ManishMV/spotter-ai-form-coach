@@ -8,7 +8,7 @@ const num = (n: number | null | undefined) => (n == null ? '—' : n.toFixed(2))
 export function DebugCamera() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { status, error, fps, model, readout, start } = usePoseTracking(videoRef, canvasRef, undefined, true)
+  const { status, error, fps, model, readout, start } = usePoseTracking(videoRef, canvasRef, { debug: true })
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-black text-white">

@@ -2,7 +2,7 @@
 // lowest/highest value of every metric so form cues (Step 10) can judge the rep afterwards.
 import type { Angles } from './angles'
 import type { Metric, RepRequirement, RepRule } from '../exercises/types'
-import { holds } from './conditions'
+import { passes } from './conditions'
 
 /** waiting = haven't seen the top position yet; up = at/near the top; down = in the bottom half. */
 export type RepPhase = 'waiting' | 'up' | 'down'
@@ -26,7 +26,7 @@ export type Rep = {
 /** Anything shorter than this is a tracking blip, not a movement. */
 const GLITCH_MS = 350
 
-const METRICS: Metric[] = ['knee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance']
+const METRICS: Metric[] = ['knee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance', 'upperArm', 'kneeLift']
 
 const freshStats = (): RepStats =>
   Object.fromEntries(METRICS.map((m) => [m, { min: null, max: null, median: null }])) as RepStats
@@ -60,7 +60,7 @@ export class RepCounter {
     const atTop = value > upAbove
 
     if (this.phase === 'waiting') {
-      if (atTop) this.restart(timeMs)
+      if (atTop) this.restart(timeMs, angles)
       return null
     }
 
@@ -71,12 +71,14 @@ export class RepCounter {
         const lowest = this.stats[this.rule.metric].min
         const durationMs = timeMs - this.startMs
         const stats = this.finishStats()
-        // While standing tall, keep restarting so the rep is timed from the moment you leave the top.
-        this.restart(timeMs)
         if (partialBelow !== undefined && lowest !== null && lowest < partialBelow && durationMs >= minRepMs) {
+          this.restart(timeMs, angles) // a finished (partial) rep: start the next one fresh
           const failed: RepRequirement = { id: 'partial', text: partialText ?? 'Go deeper', anyOf: [] }
           return { number: this.count, durationMs, stats, counted: false, failed, partial: true }
         }
+        // While at the top, keep restarting so the rep is timed from the moment you leave the top —
+        // but keep the top's lowest/highest values, so checks on the start position see all of it.
+        this.restart(timeMs, angles, stats)
         return null
       }
       if (value < downBelow) this.phase = 'down'
@@ -90,14 +92,14 @@ export class RepCounter {
 
     const durationMs = timeMs - this.startMs
     const stats = this.finishStats()
-    this.restart(timeMs)
+    this.restart(timeMs, angles)
     if (durationMs < GLITCH_MS) return null // a blip in tracking, not a real movement
     if (durationMs < minRepMs) {
       // A real but rushed rep (bouncing): don't count it, and say why.
       const failed: RepRequirement = { id: 'too-fast', text: 'Slow down', anyOf: [] }
       return { number: this.count, durationMs, stats, counted: false, failed, partial: false }
     }
-    const failed = this.rule.requires?.find((r) => !r.anyOf.some((c) => holds(c, stats))) ?? null
+    const failed = this.rule.requires?.find((r) => !passes(r, stats)) ?? null
     if (!failed) this.count += 1
     return { number: this.count, durationMs, stats, counted: !failed, failed, partial: false }
   }
@@ -109,11 +111,21 @@ export class RepCounter {
     this.samples = this.freshSamples()
   }
 
-  private restart(timeMs: number) {
+  private restart(timeMs: number, angles?: Angles, carryTopExtremes?: RepStats) {
     this.phase = 'up'
     this.startMs = timeMs
     this.stats = freshStats()
     this.samples = this.freshSamples()
+    // Still at the top: carry over the top's min/max (not medians) so the next rep's stats
+    // include the whole start position, e.g. the most upright body angle at the top, which
+    // tells a knee push-up from a full one.
+    if (carryTopExtremes) {
+      for (const m of METRICS) {
+        this.stats[m].min = carryTopExtremes[m].min
+        this.stats[m].max = carryTopExtremes[m].max
+      }
+    }
+    if (angles) this.record(angles)
   }
 
   private freshSamples() {
