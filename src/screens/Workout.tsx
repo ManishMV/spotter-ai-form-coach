@@ -1,7 +1,9 @@
 // Workout: full-screen camera, one huge rep number, one short cue. Readable from 2–3 m.
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { LogoMark } from '../components/Logo'
 import type { Exercise } from '../exercises'
+import type { Settings } from '../settings'
 import { usePoseTracking, type FrameHandler } from '../pose/usePoseTracking'
 import { RepCounter, type RepPhase } from '../coach/repCounter'
 import { CoachFeedback } from '../coach/feedback'
@@ -9,13 +11,13 @@ import type { Angles } from '../coach/angles'
 
 const fmt = (deg: number | null) => (deg === null ? '—' : `${Math.round(deg)}°`)
 
-export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => void }) {
+export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; settings: Settings; onEnd: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // Rep counting runs on every camera frame, outside React, and only updates the screen when something changes.
   const [counter] = useState(() => (exercise.reps ? new RepCounter(exercise.reps) : null))
-  const [coach] = useState(() => new CoachFeedback(exercise.cues))
+  const [coach] = useState(() => new CoachFeedback(exercise.cues, settings.coaching))
   const [reps, setReps] = useState(0)
   const [phase, setPhase] = useState<RepPhase>('waiting')
   // A short message after each rep, then it clears itself:
@@ -24,11 +26,16 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
   const noticeTimer = useRef(0)
   useEffect(() => () => clearTimeout(noticeTimer.current), [])
 
+  // Start countdown: gives the user time to walk back from the device before counting begins.
+  // null = not started yet / finished; 0 = "Go".
+  const [countdown, setCountdown] = useState<number | null>(null)
+  const counting = useRef(false) // read inside the per-frame handler
+
   const onFrame = useCallback<FrameHandler>(
     (angles, timeMs, facing, inView) => {
       // Pause counting when a needed body part is out of frame (can't judge what we can't see)
       // or when facing the camera (side-view checks don't work).
-      if (!counter || facing || !inView) return
+      if (!counter || facing || !inView || !counting.current) return
       const rep = counter.update(angles, timeMs)
       if (rep) {
         setReps(rep.number)
@@ -64,6 +71,25 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
     start()
     return stop
   }, [start, stop])
+
+  // Run the countdown once the camera is live: 5, 4, 3, 2, 1, Go — then start counting.
+  const COUNTDOWN_FROM = 5
+  useEffect(() => {
+    if (status !== 'running' || counting.current) return
+    setCountdown(COUNTDOWN_FROM)
+    let n = COUNTDOWN_FROM
+    const timer = window.setInterval(() => {
+      n -= 1
+      if (n === 0) counting.current = true // counting starts on "Go"
+      if (n < 0) {
+        window.clearInterval(timer)
+        setCountdown(null)
+        return
+      }
+      setCountdown(n)
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [status])
 
   // Until form cues (Step 10) exist, the cue line shows set-up and tracking status.
   const cue =
@@ -107,6 +133,25 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
         </button>
       </header>
 
+      {/* Start countdown: huge, centred, readable from across the room. */}
+      <AnimatePresence>
+        {countdown !== null && (
+          <motion.div
+            key={countdown}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1, transition: { duration: 0.25, ease: [0.2, 0, 0, 1] } }}
+            exit={{ opacity: 0, scale: 1.1, transition: { duration: 0.2 } }}
+            className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"
+            aria-live="assertive"
+          >
+            <p className="text-[clamp(120px,30vw,320px)] leading-none font-semibold tracking-[-0.05em] text-accent tabular-nums">
+              {countdown === 0 ? 'Go' : countdown}
+            </p>
+            {countdown > 0 && <p className="label mt-4 text-white/80">Get in position</p>}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* One short cue */}
       <p
         aria-live="polite"
@@ -131,7 +176,8 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
           <p className="text-[clamp(120px,28vw,280px)] leading-[0.85] font-semibold tracking-[-0.05em] tabular-nums">{reps}</p>
         </div>
 
-        {/* Temporary dev readout for tuning thresholds. Removed in the polish pass (Step 16). */}
+        {/* Live details (joint angles etc.) — toggled by "Show details" on the setup screen. */}
+        {settings.showDetails && (
         <dl className="label mb-2 grid grid-cols-[auto_auto] gap-x-3 gap-y-1.5 border border-white/15 bg-black/50 p-3 text-white/80 tabular-nums backdrop-blur">
           <dt className="text-white/45">Knee</dt>
           <dd className="text-right">{fmt(readout.angles.knee)}</dd>
@@ -154,6 +200,7 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
           <dt className="text-white/45">{model}</dt>
           <dd className="text-right">{fps} fps</dd>
         </dl>
+        )}
       </div>
     </div>
   )

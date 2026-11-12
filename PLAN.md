@@ -124,9 +124,18 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Note (Nov 12): shallow reps never pass the "down" threshold, so they aren't counted. Detect these as **partial reps** (went partway down and came back up) so "Go deeper" still fires for them.
 - **Done when:** a deliberately shallow squat shows "Go deeper"; 10 normal good reps trigger at most 1 false alarm.
 
+### Step 10b — Built for distance: coaching setting, details switch, countdown (added Nov 13)
+- **Status (Nov 13): ✅ passed** — each coaching mode shows only its cues, details switch works, counting starts at "Go", choices remembered after reload.
+- Users will usually be 2–3 m from the device, so the screen is secondary and mid-set taps aren't possible.
+- Setup screen: **Coaching** = All cues / Safety only / Off (no-reps and position prompts always on), and **Show details** (live angles). Both remembered on the device.
+- 5-second **start countdown** after tapping Start, so there's time to walk back before counting begins.
+- Push-ups on a phone: tip to turn the phone sideways (a lying body fits a landscape frame from closer).
+- **Done when:** each coaching mode shows only its cues; details switch hides/shows the angles; counting starts only after "Go".
+
 ### Step 11 — Spoken cues (swappable voice)
 - `voice/index.ts` defines `speak(cueId, text)`; `voice/browserVoice.ts` uses the browser's speech (waits for voices to load).
 - Speak only at the end of a rep, max once every ~4 s, never the same cue twice in a row.
+- Distance-first audio: optional **rep count out loud** ("one, two…"), a short **sound per rep** and a different one for a **no-rep**, spoken **no-reps**, **position prompts** and **form cues** (following the coaching setting), spoken countdown.
 - **Done when:** on the phone you hear cues while squatting, it never talks over itself, and switching voice means editing one import line.
 
 ### Step 12 — Positioning guidance ("Can't see you"), shown + spoken
@@ -150,6 +159,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** finishing a set shows the summary and "Go again" returns to Setup.
 
 ### Step 16 — Polish pass (make-interfaces-feel-better)
+- Includes a more polished look for the tracking points and skeleton overlay.
 - **Done when** all 5 are true: (1) rep number animates on each rep, (2) screen changes slide/fade under 300 ms, (3) every tap target ≥ 44 px, (4) all text readable on the camera feed, (5) light and dark phone settings both look right.
 
 ### Step 17 — Tester round + metrics
@@ -160,6 +170,9 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 ---
 
 ## Later (not v1)
+- **User-ready mode:** joint-angle details hidden by default (kept visible in v1 to show the reasoning).
+- **Hands-free end:** finish the set by walking back to the device or standing idle ~10 s, no tap needed.
+- **Less space needed:** test how close is "close enough" now that feet can be out of frame for push-ups.
 - **Exercise demo before starting** (lower priority). Plan: v1-stretch = animated skeleton demo built in code (on-brand, tiny, offline); later = real filmed demo per exercise. Avoid embedding third-party YouTube videos.
 - Run the app on a recorded video file to measure accuracy repeatably (evals).
 - ElevenLabs pre-generated voice clips (swap in via `voice/`).

@@ -3,6 +3,18 @@
 The form rules ([squat](SQUAT-FORM.md), [push-up](PUSHUP-FORM.md)) decide what counts and what's a
 fault. This doc covers **what Spotter says and when**, based on motor-learning research. Researched Nov 12, 2026.
 
+## Terms
+
+| Term | Meaning | Example |
+|---|---|---|
+| **No-rep** | The rep didn't meet the standard, so it doesn't count; the reason is shown on that rep, every time | "Sit deeper", "Feet side by side", "Slow down" |
+| **Form cue** | The rep counted, but here's how to do it better. Comes in three weights: safety, technique and minor | "Chest up", "Lower with control" |
+| **Praise** | Positive feedback, naming the fix after a correction | "Nice depth", "Good rep" |
+| **Position prompt** | Where to stand or what to show the camera | "Turn to your side", "Move back so your whole body is in view" |
+
+The **Coaching** setting (All cues / Safety only / Off) controls form cues and praise only. No-reps and
+position prompts are always on, because without them the count would look random.
+
 ## Cue wording
 
 | Principle | What Spotter does | Source |

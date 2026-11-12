@@ -11,6 +11,7 @@
 //   reps (Chiviacowsky & Wulf 2007: feedback after good trials helps learning).
 // Reps that don't count always say why — that's information about the count, not coaching.
 import type { CueCheck } from '../exercises/types'
+import type { CoachingMode } from '../settings'
 import { pickCue } from './cueEngine'
 import type { Rep } from './repCounter'
 
@@ -32,9 +33,15 @@ export class CoachFeedback {
   private awaitingPraise: CueCheck | null = null // last cue said, until a clean rep shows it's fixed
   private cleanSincePraise = PRAISE_EVERY - 1 // so the first clean rep gets a "Good rep"
   private readonly cues: CueCheck[]
+  private readonly praiseOften: boolean
 
-  constructor(cues: CueCheck[] = []) {
-    this.cues = cues
+  /**
+   * @param mode the user's coaching setting: 'all' = every cue + regular praise; 'safety' = safety
+   *   cues only, praise only when one is fixed; 'off' = no form cues or praise (no-reps still shown).
+   */
+  constructor(cues: CueCheck[] = [], mode: CoachingMode = 'all') {
+    this.cues = mode === 'off' ? [] : mode === 'safety' ? cues.filter((c) => c.kind === 'safety') : cues
+    this.praiseOften = mode === 'all'
   }
 
   /** What to show (and later say) after this rep, or null to stay quiet. */
@@ -69,7 +76,7 @@ export class CoachFeedback {
       return { text: praise, tone: 'good' }
     }
     this.cleanSincePraise += 1
-    if (this.cleanSincePraise >= PRAISE_EVERY) {
+    if (this.praiseOften && this.cleanSincePraise >= PRAISE_EVERY) {
       this.cleanSincePraise = 0
       return { text: 'Good rep', tone: 'good' }
     }

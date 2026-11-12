@@ -4,14 +4,34 @@ import { Logo } from '../components/Logo'
 import { detectDevice, type Device } from '../device'
 import { SetupIllustration } from '../components/SetupIllustration'
 import type { Exercise } from '../exercises'
+import type { CoachingMode, Settings } from '../settings'
 
 /** The first tip: where to put the device, for this exercise. */
 function placementTip(device: Device, height: Exercise['camera']['height']) {
   if (device === 'laptop') return height === 'floor' ? 'Laptop on the floor, screen tilted back' : 'Laptop at about hip height, on a table or shelf'
-  return height === 'floor' ? 'Phone on the floor, propped up' : 'Phone at hip height, propped up'
+  // Lying down, the body is wide: a sideways (landscape) phone fits it from closer, so less floor space.
+  return height === 'floor' ? 'Phone on the floor, turned sideways' : 'Phone at hip height, propped up'
 }
 
-export function Setup({ exercise, onStart, onBack }: { exercise: Exercise; onStart: () => void; onBack: () => void }) {
+const COACHING: { mode: CoachingMode; label: string; detail: string }[] = [
+  { mode: 'all', label: 'All cues', detail: 'Form tips, safety warnings and encouragement.' },
+  { mode: 'safety', label: 'Safety only', detail: 'Only warnings that help prevent injury.' },
+  { mode: 'off', label: 'Off', detail: 'Just counting your reps.' },
+]
+
+export function Setup({
+  exercise,
+  settings,
+  onSettings,
+  onStart,
+  onBack,
+}: {
+  exercise: Exercise
+  settings: Settings
+  onSettings: (patch: Partial<Settings>) => void
+  onStart: () => void
+  onBack: () => void
+}) {
   // Guessed automatically; the user can switch if we got it wrong.
   const [device, setDevice] = useState<Device>(detectDevice)
   const other: Device = device === 'laptop' ? 'phone' : 'laptop'
@@ -48,6 +68,48 @@ export function Setup({ exercise, onStart, onBack }: { exercise: Exercise; onSta
             </li>
           ))}
         </ul>
+
+        {/* Options: set here, because mid-set the device is out of reach. */}
+        <section aria-label="Options" className="mt-6 border border-line">
+          <div className="p-4">
+            <p className="label text-muted" id="coaching-label">
+              Coaching
+            </p>
+            <div role="radiogroup" aria-labelledby="coaching-label" className="mt-3 grid grid-cols-3 gap-px border border-line bg-line">
+              {COACHING.map(({ mode, label }) => {
+                const on = settings.coaching === mode
+                return (
+                  <button
+                    key={mode}
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => onSettings({ coaching: mode })}
+                    className={`press h-11 text-[14px] ${on ? 'bg-ink text-paper' : 'bg-paper text-muted hover:text-ink'}`}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="mt-2 text-[13px] text-pretty text-muted">
+              {COACHING.find((c) => c.mode === settings.coaching)?.detail} We'll always say why a rep didn't count.
+            </p>
+          </div>
+          <button
+            role="switch"
+            aria-checked={settings.showDetails}
+            onClick={() => onSettings({ showDetails: !settings.showDetails })}
+            className="press flex h-14 w-full items-center justify-between border-t border-line px-4 text-left"
+          >
+            <span>
+              <span className="text-[15px]">Show details</span>
+              <span className="block text-[13px] text-muted">Live joint angles on screen</span>
+            </span>
+            <span aria-hidden="true" className={`flex h-6 w-10 items-center border px-0.5 transition-colors duration-150 ${settings.showDetails ? 'justify-end border-accent bg-accent' : 'justify-start border-line bg-paper-2'}`}>
+              <span className={`size-4 ${settings.showDetails ? 'bg-accent-ink' : 'bg-faint'}`} />
+            </span>
+          </button>
+        </section>
 
         <div className="mt-auto pt-10">
           <button

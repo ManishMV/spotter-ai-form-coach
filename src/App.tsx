@@ -2,6 +2,7 @@
 import { lazy, Suspense, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import type { Exercise } from './exercises'
+import { useSettings } from './settings'
 import { Home } from './screens/Home'
 import { Setup } from './screens/Setup'
 
@@ -16,6 +17,7 @@ const isDebug = new URLSearchParams(location.search).has('debug')
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>({ name: 'home' })
+  const [settings, updateSettings] = useSettings()
   if (isDebug)
     return (
       <Suspense fallback={null}>
@@ -48,13 +50,15 @@ export default function App() {
         {screen.name === 'setup' && (
           <Setup
             exercise={screen.exercise}
+            settings={settings}
+            onSettings={updateSettings}
             onBack={() => go({ name: 'home' })}
             onStart={() => go({ name: 'workout', exercise: screen.exercise })}
           />
         )}
         {screen.name === 'workout' && (
           <Suspense fallback={<div className="fixed inset-0 bg-black" />}>
-            <Workout exercise={screen.exercise} onEnd={() => go({ name: 'setup', exercise: screen.exercise })} />
+            <Workout exercise={screen.exercise} settings={settings} onEnd={() => go({ name: 'setup', exercise: screen.exercise })} />
           </Suspense>
         )}
       </motion.div>
