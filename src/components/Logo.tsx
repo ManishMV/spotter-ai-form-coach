@@ -1,12 +1,19 @@
-// Spotter mark: a bent leg (hip–knee–ankle) like a pose-tracking skeleton, in an orange square.
+// Spotter mark: a squatting figure drawn like a pose-tracking skeleton, with the hip and knee
+// joints in Spotter orange. Uses currentColor, so it's black on light pages and white on dark ones.
 export function LogoMark({ size = 28 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" aria-hidden="true">
-      <rect width="28" height="28" fill="var(--accent)" />
-      <path d="M8 7 L18 15 L11 22" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx="8" cy="7" r="2.4" fill="#fff" />
-      <circle cx="18" cy="15" r="2.4" fill="#fff" />
-      <circle cx="11" cy="22" r="2.4" fill="#fff" />
+      <circle cx="12" cy="4.5" r="3" fill="none" stroke="currentColor" strokeWidth="2.2" />
+      <path
+        d="M11 9 L8 16 L17 19 L13 26 M10 11 L19 13"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.4"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      <circle cx="8" cy="16" r="2.4" fill="var(--accent)" />
+      <circle cx="17" cy="19" r="2.4" fill="var(--accent)" />
     </svg>
   )
 }
