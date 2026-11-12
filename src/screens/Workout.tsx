@@ -15,11 +15,21 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
   const [counter] = useState(() => (exercise.reps ? new RepCounter(exercise.reps) : null))
   const [reps, setReps] = useState(0)
   const [phase, setPhase] = useState<RepPhase>('waiting')
+  // A short message after a rep that didn't count (e.g. lunge stance). Clears itself.
+  const [notice, setNotice] = useState<string | null>(null)
+  const noticeTimer = useRef(0)
+  useEffect(() => () => clearTimeout(noticeTimer.current), [])
+
   const onFrame = useCallback<FrameHandler>(
     (angles, timeMs) => {
       if (!counter) return
       const rep = counter.update(angles, timeMs)
-      if (rep) setReps(rep.number)
+      if (rep) {
+        setReps(rep.number)
+        clearTimeout(noticeTimer.current)
+        setNotice(rep.failed ? rep.failed.text : null)
+        if (rep.failed) noticeTimer.current = window.setTimeout(() => setNotice(null), 3000)
+      }
       setPhase(counter.phase) // React skips the re-render when the phase hasn't changed
     },
     [counter],
@@ -40,7 +50,9 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
         ? 'Step into view, side-on'
         : !counter
           ? `${exercise.name} counting is coming soon`
-          : phase === 'waiting'
+          : notice
+            ? notice
+            : phase === 'waiting'
             ? 'Stand tall to start'
             : `Tracking your ${readout.side} side`
 
@@ -99,6 +111,12 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
           <dd className="text-right">{fmt(readout.angles.hip)}</dd>
           <dt className="text-white/45">Elbow</dt>
           <dd className="text-right">{fmt(readout.angles.elbow)}</dd>
+          <dt className="text-white/45">Split</dt>
+          <dd className="text-right">{readout.angles.stanceSplit === null ? '—' : readout.angles.stanceSplit.toFixed(2)}</dd>
+          <dt className="text-white/45">Bal</dt>
+          <dd className="text-right">{readout.angles.balance === null ? '—' : readout.angles.balance.toFixed(2)}</dd>
+          <dt className="text-white/45">Lean</dt>
+          <dd className="text-right">{fmt(readout.angles.torsoLean)}</dd>
           <dt className="text-white/45">Phase</dt>
           <dd className="text-right">{phase}</dd>
           <dt className="text-white/45">{model}</dt>

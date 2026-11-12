@@ -94,6 +94,18 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - `exercises/squat.ts` and `coach/repCounter.ts`.
 - **Done when:** 10 real squats → counter shows 10, twice in a row.
 
+### Step 7b — Research-based squat rules + cleaner skeleton (added Nov 12)
+- **Status (Nov 12): ✅ passed** — squats count on both sides, lunges rejected on both sides. Lunge check uses two signals (feet split + balance) because the hidden foot is mis-guessed facing right. Found: squats facing the camera still count → Step 12a.
+- Squat rules from NSCA (Myer 2014), ACE and biomechanics research → [docs/SQUAT-FORM.md](docs/SQUAT-FORM.md).
+- Counts only at about parallel (knee < 100°) and full stand (> 160°), ≥ 1 s per rep.
+- Not counted, with a reason on screen: lunge / split stance ("Feet side by side"), partial rep ("Go deeper"), bouncing ("Slow down").
+- Skeleton draws only the side facing the camera (the hidden leg was being guessed).
+- **Done when:** 10 good squats → 10; 3 lunges → 0 + "Feet side by side"; 3 half squats → 0 + "Go deeper"; no phantom leg behind you.
+
+### Step 12a — "Turn to your side" (on-screen part of Step 12, pulled forward Nov 12)
+- Detect facing the camera (shoulders look wide) vs side-on (shoulders overlap). Pause counting and show "Turn to your side"; resume when side-on.
+- **Done when:** squatting while facing the camera never counts and shows "Turn to your side"; turning side-on resumes counting.
+
 ### Step 8 — Workout screen
 - Full-screen camera, one huge rep number, one cue line, a small "End" control.
 - **Done when:** standing 3 m from the phone/laptop you can read the rep number without squinting, and it counts correctly.

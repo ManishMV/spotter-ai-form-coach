@@ -5,12 +5,12 @@ import { startCamera, stopCamera } from './camera'
 import { loadPoseLandmarker, pickModelSize, type ModelSize } from './landmarker'
 import { drawSkeleton } from './drawSkeleton'
 import { PointSmoother } from './smoothing'
-import { measureAngles, NO_ANGLES, pickSide, type Angles, type Side } from '../coach/angles'
+import { measureAngles, NO_ANGLES, pickSide, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
 
 export type TrackingStatus = 'idle' | 'loading' | 'running' | 'error'
-export type Readout = { side: Side | null; angles: Angles }
+export type Readout = { side: Side | null; angles: Angles; diag: StanceDiag | null }
 
-export const EMPTY_READOUT: Readout = { side: null, angles: NO_ANGLES }
+export const EMPTY_READOUT: Readout = { side: null, angles: NO_ANGLES, diag: null }
 
 /** Called on every frame where a person is visible (used for rep counting). */
 export type FrameHandler = (angles: Angles, timeMs: number) => void
@@ -19,6 +19,8 @@ export function usePoseTracking(
   videoRef: RefObject<HTMLVideoElement | null>,
   canvasRef: RefObject<HTMLCanvasElement | null>,
   onFrame?: FrameHandler,
+  /** Debug view: draw both legs (including the guessed hidden one) and compute diagnostics. */
+  debug = false,
 ) {
   const onFrameRef = useRef(onFrame)
   useEffect(() => {
@@ -91,9 +93,13 @@ export function usePoseTracking(
             const screen = screenSmoother.smooth(raw, now)
             const world = worldSmoother.smooth(rawWorld, now)
             side = pickSide(screen, side)
-            current = { side, angles: measureAngles(screen, world, side) }
+            current = {
+              side,
+              angles: measureAngles(screen, world, side),
+              diag: debug ? stanceDiagnostics(screen, world, side, video.videoWidth / video.videoHeight) : null,
+            }
             onFrameRef.current?.(current.angles, now)
-            drawSkeleton(ctx, [screen])
+            drawSkeleton(ctx, [screen], debug ? null : side === 'left' ? 'right' : 'left') // draw only the side we track
           } else {
             // Nobody in frame: start smoothing fresh next time.
             screenSmoother.reset()
@@ -133,7 +139,7 @@ export function usePoseTracking(
       setError(e instanceof Error ? e.message : String(e))
       setStatus('error')
     }
-  }, [videoRef, canvasRef, stop])
+  }, [videoRef, canvasRef, stop, debug])
 
   return { status, error, fps, model, readout, start, stop }
 }

@@ -3,11 +3,12 @@ import { useRef } from 'react'
 import { usePoseTracking } from '../pose/usePoseTracking'
 
 const fmt = (deg: number | null) => (deg === null ? '—' : `${Math.round(deg)}°`)
+const num = (n: number | null | undefined) => (n == null ? '—' : n.toFixed(2))
 
 export function DebugCamera() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { status, error, fps, model, readout, start } = usePoseTracking(videoRef, canvasRef)
+  const { status, error, fps, model, readout, start } = usePoseTracking(videoRef, canvasRef, undefined, true)
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-black text-white">
@@ -42,6 +43,14 @@ export function DebugCamera() {
             <dd className="text-right">{fmt(readout.angles.hip)}</dd>
             <dt className="text-white/60">elbow</dt>
             <dd className="text-right">{fmt(readout.angles.elbow)}</dd>
+            <dt className="text-white/60">split 3D</dt>
+            <dd className="text-right">{num(readout.diag?.worldSplit)}</dd>
+            <dt className="text-white/60">split 2D</dt>
+            <dd className="text-right">{num(readout.diag?.screenSplit)}</dd>
+            <dt className="text-white/60">near ankle</dt>
+            <dd className="text-right">{num(readout.diag?.nearAnkleVis)}</dd>
+            <dt className="text-white/60">far ankle</dt>
+            <dd className="text-right">{num(readout.diag?.farAnkleVis)}</dd>
           </dl>
         </>
       )}
