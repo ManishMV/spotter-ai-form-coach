@@ -69,6 +69,32 @@ function balance(screen: NormalizedLandmark[], world: Landmark[], side: Side): n
   return Math.abs(world[p.shoulder].x - world[p.ankle].x) / leg
 }
 
+/**
+ * How wide the shoulders look on camera compared with torso height (2D image, aspect-corrected).
+ * Facing the camera: shoulders look wide (≈ 0.6–0.8). Side-on: they overlap (≈ 0–0.25).
+ */
+export function shoulderSpread(screen: NormalizedLandmark[], aspect: number): number | null {
+  const [ls, rs, lh, rh] = [screen[11], screen[12], screen[23], screen[24]]
+  if (!ls || !rs || !lh || !rh) return null
+  const midS = { x: ((ls.x + rs.x) / 2) * aspect, y: (ls.y + rs.y) / 2 }
+  const midH = { x: ((lh.x + rh.x) / 2) * aspect, y: (lh.y + rh.y) / 2 }
+  const torso = Math.hypot(midS.x - midH.x, midS.y - midH.y)
+  if (torso === 0) return null
+  return (Math.abs(ls.x - rs.x) * aspect) / torso
+}
+
+// Two thresholds so the label doesn't flicker when you're half-turned.
+const FACING_ABOVE = 0.5
+const SIDE_ON_BELOW = 0.35
+
+/** True when the person faces the camera (not side-on). Keeps the previous answer in the grey zone. */
+export function isFacingCamera(spread: number | null, wasFacing: boolean): boolean {
+  if (spread === null) return wasFacing
+  if (spread > FACING_ABOVE) return true
+  if (spread < SIDE_ON_BELOW) return false
+  return wasFacing
+}
+
 /** Diagnostics for tuning the lunge check (shown in the ?debug view only). */
 export type StanceDiag = {
   nearAnkleVis: number

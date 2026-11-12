@@ -36,7 +36,7 @@ export function DebugCamera() {
           </p>
           <dl className="absolute top-4 right-4 grid grid-cols-[auto_auto] gap-x-4 gap-y-1 bg-black/70 px-5 py-4 font-mono text-2xl tabular-nums">
             <dt className="text-white/60">side</dt>
-            <dd className="text-right">{readout.side ? `your ${readout.side}` : '—'}</dd>
+            <dd className="text-right">{readout.facing ? 'facing camera' : readout.side ? `your ${readout.side}` : '—'}</dd>
             <dt className="text-white/60">knee</dt>
             <dd className="text-right">{fmt(readout.angles.knee)}</dd>
             <dt className="text-white/60">hip</dt>

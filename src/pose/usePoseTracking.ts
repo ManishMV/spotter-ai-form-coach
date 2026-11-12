@@ -5,15 +5,16 @@ import { startCamera, stopCamera } from './camera'
 import { loadPoseLandmarker, pickModelSize, type ModelSize } from './landmarker'
 import { drawSkeleton } from './drawSkeleton'
 import { PointSmoother } from './smoothing'
-import { measureAngles, NO_ANGLES, pickSide, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
+import { isFacingCamera, measureAngles, NO_ANGLES, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
 
 export type TrackingStatus = 'idle' | 'loading' | 'running' | 'error'
-export type Readout = { side: Side | null; angles: Angles; diag: StanceDiag | null }
+/** `facing` = person faces the camera instead of standing side-on (side-view checks don't work then). */
+export type Readout = { side: Side | null; facing: boolean; angles: Angles; diag: StanceDiag | null }
 
-export const EMPTY_READOUT: Readout = { side: null, angles: NO_ANGLES, diag: null }
+export const EMPTY_READOUT: Readout = { side: null, facing: false, angles: NO_ANGLES, diag: null }
 
 /** Called on every frame where a person is visible (used for rep counting). */
-export type FrameHandler = (angles: Angles, timeMs: number) => void
+export type FrameHandler = (angles: Angles, timeMs: number, facing: boolean) => void
 
 export function usePoseTracking(
   videoRef: RefObject<HTMLVideoElement | null>,
@@ -79,6 +80,7 @@ export function usePoseTracking(
       const screenSmoother = new PointSmoother()
       const worldSmoother = new PointSmoother()
       let side: Side | null = null
+      let facing = false
       let lastReadout = 0
 
       const loop = () => {
@@ -93,18 +95,25 @@ export function usePoseTracking(
             const screen = screenSmoother.smooth(raw, now)
             const world = worldSmoother.smooth(rawWorld, now)
             side = pickSide(screen, side)
+            const angles = measureAngles(screen, world, side)
+            // Decide facing vs side-on only while upright: folded at the bottom of a squat, the hidden
+            // shoulder's guessed position drifts and can look "wide". People turn while standing anyway.
+            const upright = angles.torsoLean !== null && angles.torsoLean < 30
+            if (upright) facing = isFacingCamera(shoulderSpread(screen, video.videoWidth / video.videoHeight), facing)
             current = {
               side,
-              angles: measureAngles(screen, world, side),
+              facing,
+              angles,
               diag: debug ? stanceDiagnostics(screen, world, side, video.videoWidth / video.videoHeight) : null,
             }
-            onFrameRef.current?.(current.angles, now)
+            onFrameRef.current?.(current.angles, now, facing)
             drawSkeleton(ctx, [screen], debug ? null : side === 'left' ? 'right' : 'left') // draw only the side we track
           } else {
             // Nobody in frame: start smoothing fresh next time.
             screenSmoother.reset()
             worldSmoother.reset()
             side = null
+            facing = false
             drawSkeleton(ctx, [])
           }
           // Update on-screen numbers ~10x a second (every frame would slow React down).

@@ -103,6 +103,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** 10 good squats → 10; 3 lunges → 0 + "Feet side by side"; 3 half squats → 0 + "Go deeper"; no phantom leg behind you.
 
 ### Step 12a — "Turn to your side" (on-screen part of Step 12, pulled forward Nov 12)
+- **Status (Nov 12): ✅ passed** — facing the camera doesn't count; side-on counts on both sides. Facing is decided only while upright (the hidden shoulder drifts at the bottom of a squat).
 - Detect facing the camera (shoulders look wide) vs side-on (shoulders overlap). Pause counting and show "Turn to your side"; resume when side-on.
 - **Done when:** squatting while facing the camera never counts and shows "Turn to your side"; turning side-on resumes counting.
 

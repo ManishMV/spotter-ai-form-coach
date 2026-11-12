@@ -21,8 +21,8 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
   useEffect(() => () => clearTimeout(noticeTimer.current), [])
 
   const onFrame = useCallback<FrameHandler>(
-    (angles, timeMs) => {
-      if (!counter) return
+    (angles, timeMs, facing) => {
+      if (!counter || facing) return // side-view checks don't work facing the camera: pause counting
       const rep = counter.update(angles, timeMs)
       if (rep) {
         setReps(rep.number)
@@ -48,7 +48,9 @@ export function Workout({ exercise, onEnd }: { exercise: Exercise; onEnd: () => 
       ? 'Starting camera…'
       : !readout.side
         ? 'Step into view, side-on'
-        : !counter
+        : readout.facing
+          ? 'Turn to your side'
+          : !counter
           ? `${exercise.name} counting is coming soon`
           : notice
             ? notice
