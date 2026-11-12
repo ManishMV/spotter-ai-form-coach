@@ -5,6 +5,8 @@
 Spotter counts your reps and calls out form fixes, out loud, while you train. It runs in your
 browser. There's no app or account, and your video never leaves your phone.
 
+*Note: As a PM, I built this using Claude Code.*
+
 > 🚧 v1 in progress (target: Nov 20, 2026). Pose tracking, joint angles and the full UI are in place.
 > Rep counting, form cues and voice feedback are next. See [PLAN.md](PLAN.md).
 
@@ -33,10 +35,6 @@ Full brief: [PRODUCT-BRIEF.md](PRODUCT-BRIEF.md).
 3. **Judge (next):** each exercise is one "rule pack" file (angle thresholds and cues), so adding
    an exercise means adding one file.
 4. **Speak (next):** a swappable voice module. Browser speech today; pre-recorded clips later.
-
-## How this was built
-
-As a PM, I built this using Claude Code.
 
 ## Tech stack
 
