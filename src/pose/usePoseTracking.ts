@@ -5,17 +5,25 @@ import { startCamera, stopCamera } from './camera'
 import { loadPoseLandmarker, pickModelSize, type ModelSize } from './landmarker'
 import { drawSkeleton } from './drawSkeleton'
 import { PointSmoother } from './smoothing'
-import { measureAngles, pickSide, type Angles, type Side } from '../coach/angles'
+import { measureAngles, NO_ANGLES, pickSide, type Angles, type Side } from '../coach/angles'
 
 export type TrackingStatus = 'idle' | 'loading' | 'running' | 'error'
 export type Readout = { side: Side | null; angles: Angles }
 
-export const EMPTY_READOUT: Readout = { side: null, angles: { knee: null, hip: null, elbow: null } }
+export const EMPTY_READOUT: Readout = { side: null, angles: NO_ANGLES }
+
+/** Called on every frame where a person is visible (used for rep counting). */
+export type FrameHandler = (angles: Angles, timeMs: number) => void
 
 export function usePoseTracking(
   videoRef: RefObject<HTMLVideoElement | null>,
   canvasRef: RefObject<HTMLCanvasElement | null>,
+  onFrame?: FrameHandler,
 ) {
+  const onFrameRef = useRef(onFrame)
+  useEffect(() => {
+    onFrameRef.current = onFrame
+  }, [onFrame])
   const [status, setStatus] = useState<TrackingStatus>('idle')
   const [error, setError] = useState('')
   const [fps, setFps] = useState(0)
@@ -84,6 +92,7 @@ export function usePoseTracking(
             const world = worldSmoother.smooth(rawWorld, now)
             side = pickSide(screen, side)
             current = { side, angles: measureAngles(screen, world, side) }
+            onFrameRef.current?.(current.angles, now)
             drawSkeleton(ctx, [screen])
           } else {
             // Nobody in frame: start smoothing fresh next time.

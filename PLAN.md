@@ -89,6 +89,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** standing still, the knee angle stays within ±5°; a deep squat shows < 100°; turning around switches the side label.
 
 ### Step 7 — Rule-pack format + squat rule pack + rep counter
+- **Status (Nov 12): ✅ passed** — 10/10 twice. Found: far-side leg drawn in wrong places when hidden; lunges/split stance still count as squats → fixed in Step 7b.
 - `exercises/types.ts`: everything a rule pack can contain — angle to watch, separate "down" and "up" thresholds (a gap so jitter can't double-count), camera hint, and cue checks (e.g. torso lean, body line). Defined fully now so later exercises don't change it.
 - `exercises/squat.ts` and `coach/repCounter.ts`.
 - **Done when:** 10 real squats → counter shows 10, twice in a row.

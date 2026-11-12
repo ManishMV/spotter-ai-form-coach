@@ -1,6 +1,7 @@
 // Joint angles from MediaPipe body points, measured on the side of the body facing the camera.
 import type { Landmark, NormalizedLandmark } from '@mediapipe/tasks-vision'
 import { MIN_VISIBILITY } from '../pose/drawSkeleton'
+import type { Metric } from '../exercises/types'
 
 export type Side = 'left' | 'right'
 
@@ -10,7 +11,10 @@ const POINTS = {
   right: { shoulder: 12, elbow: 14, wrist: 16, hip: 24, knee: 26, ankle: 28 },
 } as const
 
-export type Angles = { knee: number | null; hip: number | null; elbow: number | null }
+/** Every tracked metric in degrees, or null when the joints involved aren't visible. */
+export type Angles = Record<Metric, number | null>
+
+export const NO_ANGLES: Angles = { knee: null, hip: null, elbow: null, torsoLean: null, bodyLine: null }
 
 /** Angle in degrees at point b, formed by a–b–c (e.g. hip–knee–ankle = knee angle). Uses 3D. */
 export function angleAt(a: Landmark, b: Landmark, c: Landmark): number {
@@ -20,6 +24,14 @@ export function angleAt(a: Landmark, b: Landmark, c: Landmark): number {
   const len = Math.hypot(...ab) * Math.hypot(...cb)
   if (len === 0) return 0
   return (Math.acos(Math.min(1, Math.max(-1, dot / len))) * 180) / Math.PI
+}
+
+/** How far the a→b line tilts from vertical, in degrees (0 = upright, 90 = horizontal). */
+export function tiltFromVertical(a: Landmark, b: Landmark): number {
+  const d = [a.x - b.x, a.y - b.y, a.z - b.z]
+  const len = Math.hypot(...d)
+  if (len === 0) return 0
+  return (Math.acos(Math.min(1, Math.abs(d[1]) / len)) * 180) / Math.PI
 }
 
 const sideScore = (points: NormalizedLandmark[], side: Side) =>
@@ -38,7 +50,7 @@ export function pickSide(points: NormalizedLandmark[], current: Side | null): Si
 }
 
 /**
- * Knee, hip and elbow angles on one side.
+ * All metrics (knee, hip, elbow, torso lean, body line) on one side.
  * `screen` points tell us what's visible; `world` points (3D, in metres) give the angles,
  * which makes them less sensitive to how the phone is tilted. Hidden joints return null.
  */
@@ -50,5 +62,7 @@ export function measureAngles(screen: NormalizedLandmark[], world: Landmark[], s
     knee: at(p.hip, p.knee, p.ankle),
     hip: at(p.shoulder, p.hip, p.knee),
     elbow: at(p.shoulder, p.elbow, p.wrist),
+    torsoLean: seen(p.shoulder, p.hip) ? tiltFromVertical(world[p.shoulder], world[p.hip]) : null,
+    bodyLine: at(p.shoulder, p.hip, p.ankle),
   }
 }
