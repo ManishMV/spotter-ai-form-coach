@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { PoseLandmarker } from '@mediapipe/tasks-vision'
 import { startCamera, stopCamera } from './pose/camera'
-import { loadPoseLandmarker } from './pose/landmarker'
+import { loadPoseLandmarker, pickModelSize, type ModelSize } from './pose/landmarker'
 import { drawSkeleton } from './pose/drawSkeleton'
 
 type Status = 'idle' | 'loading' | 'running' | 'error'
@@ -13,6 +13,7 @@ export default function App() {
   const [status, setStatus] = useState<Status>('idle')
   const [error, setError] = useState('')
   const [fps, setFps] = useState(0)
+  const [model, setModel] = useState<ModelSize>(pickModelSize)
 
   const stopRef = useRef<() => void>(() => {})
   useEffect(() => () => stopRef.current(), [])
@@ -25,7 +26,9 @@ export default function App() {
     try {
       const video = videoRef.current!
       const canvas = canvasRef.current!
-      ;[stream, landmarker] = await Promise.all([startCamera(video), loadPoseLandmarker()])
+      const size = pickModelSize()
+      ;[stream, landmarker] = await Promise.all([startCamera(video), loadPoseLandmarker(size)])
+      setModel(size)
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
       const ctx = canvas.getContext('2d')!
@@ -33,6 +36,11 @@ export default function App() {
       let lastVideoTime = -1
       let frames = 0
       let fpsStart = performance.now()
+      // Lag guard: if the "full" model runs slow, quietly switch to "lite".
+      const forced = new URLSearchParams(location.search).has('model')
+      const startedAt = performance.now()
+      let slowSeconds = 0
+      let switching = false
       const loop = () => {
         const now = performance.now()
         if (video.currentTime !== lastVideoTime) {
@@ -43,6 +51,16 @@ export default function App() {
         }
         if (now - fpsStart >= 1000) {
           setFps(frames)
+          const warmedUp = now - startedAt > 3000
+          slowSeconds = warmedUp && frames < 20 ? slowSeconds + 1 : 0
+          if (slowSeconds >= 3 && size === 'full' && !forced && !switching) {
+            switching = true
+            loadPoseLandmarker('lite').then((lite) => {
+              landmarker?.close()
+              landmarker = lite
+              setModel('lite')
+            })
+          }
           frames = 0
           fpsStart = now
         }
@@ -82,7 +100,7 @@ export default function App() {
       )}
 
       {status === 'running' && (
-        <p className="absolute top-4 left-4 rounded bg-black/60 px-2 py-1 font-mono text-sm">{fps} fps</p>
+        <p className="absolute top-4 left-4 rounded bg-black/60 px-2 py-1 font-mono text-sm">{fps} fps · {model}</p>
       )}
     </main>
   )

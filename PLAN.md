@@ -42,6 +42,13 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Plain, unstyled page — design comes in Step 3.
 - **Done when:** `npm run dev` → open the link on the laptop → allow camera → a skeleton follows your body smoothly (no freezing) when you move your arms.
 
+### Step 1b — Tracking tune-up (added Nov 12)
+- Use the more accurate **full** pose model on laptops, **lite** on phones. If full runs below 20 fps, switch to lite automatically.
+- Ignore weak detections (raise confidence thresholds from 0.5 to 0.6).
+- Hide body points the tracker isn't sure about, so the skeleton only shows what it can really see.
+- Debug readout shows fps + which model is running. `?model=lite` or `?model=full` in the URL forces one, for testing.
+- **Done when:** laptop shows "full" at ≥ 20 fps; with `?model=lite` it still works; covering your legs with a desk hides the leg points instead of drawing guesses.
+
 ### Step 2 — Same thing on my phone (early phone check)
 - Let the phone open the laptop's dev server over Wi-Fi with https (cameras need https on phones).
 - **Done when:** the phone (same Wi-Fi) opens the link, shows the camera and draws the skeleton. From here on, every "done when" is checked on the phone too.
