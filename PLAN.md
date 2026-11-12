@@ -1,4 +1,4 @@
-# AI Form Coach — Build Plan (v1, due Nov 20, 2026)
+# Spotter (AI Form Coach) — Build Plan (v1, due Nov 20, 2026)
 
 Read [PRODUCT-BRIEF.md](PRODUCT-BRIEF.md) first. Every step below is under 1 hour, ends with a
 "Done when" check the owner (Manish) runs by hand, and gets its own git commit.
@@ -39,6 +39,11 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 > **Order change (Nov 12):** design is deferred, so the build order is now
 > 1 → 1b → 2 → **6 → 7** → 3 → 4 → 5 → 8 → 9 … Steps 6–7 (angles, rep counting) only need a
 > temporary debug readout, not designed screens. Step numbers are kept so commits stay traceable.
+>
+> **Update (Nov 12, later):** Manish asked for the design now. Steps 3–5 built together: Spotter name,
+> supermemory.ai-inspired look (Geist fonts, hairlines, square corners, dotted grids) with Spotter-orange
+> accent, light + dark mode. Home doubles as the landing page. Workout screen layout (part of Step 8) done;
+> the old tracking test view lives at `?debug`. Hosting (Step 13) moves up: GitHub for code + Vercel.
 
 ### Step 1 — Camera on, skeleton drawn on me (laptop)
 - Scaffold Vite + React + TS + Tailwind + motion. Init git.

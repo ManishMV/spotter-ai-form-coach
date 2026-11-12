@@ -1,4 +1,9 @@
-# AI Form Coach — Product Brief
+# Spotter — Product Brief
+
+**Spotter** · AI Form Coach
+
+## Name
+**Spotter** — named after the gym partner who watches your lift. Descriptor: *AI Form Coach*.
 
 ## Who
 Gym-goers aged 18–30 who train without a personal trainer and learn form from YouTube.

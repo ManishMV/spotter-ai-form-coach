@@ -1,0 +1,83 @@
+/* Spotter design tokens. Inspired by supermemory.ai: Geist + Geist Mono, hairlines, square corners,
+   dotted grids, one strong accent. Accent is our own: "Spotter orange". */
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+@import 'tailwindcss';
+
+:root {
+  --paper: #ffffff;
+  --paper-2: #f6f6f4;
+  --ink: #0b1015;
+  --muted: rgb(11 16 21 / 0.64);
+  --faint: rgb(11 16 21 / 0.42);
+  --line: rgb(11 16 21 / 0.1);
+  --dot: rgb(11 16 21 / 0.12);
+  --accent: #ff5a1f;
+  --accent-ink: #ffffff;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0b0d10;
+    --paper-2: #121519;
+    --ink: #f3f4f5;
+    --muted: rgb(243 244 245 / 0.66);
+    --faint: rgb(243 244 245 / 0.42);
+    --line: rgb(243 244 245 / 0.12);
+    --dot: rgb(243 244 245 / 0.14);
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+/* Small uppercase mono labels, the supermemory signature. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+/* Dotted grid background for diagrams. */
+@utility dot-grid {
+  background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+@utility press {
+  transition-property: transform, background-color, color, border-color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+  &:active {
+    transform: scale(0.97);
+  }
+}
