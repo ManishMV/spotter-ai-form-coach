@@ -34,6 +34,10 @@ Full brief: [PRODUCT-BRIEF.md](PRODUCT-BRIEF.md).
    an exercise means adding one file.
 4. **Speak (next):** a swappable voice module. Browser speech today; pre-recorded clips later.
 
+## How this was built
+
+As a PM, I built this using Claude Code.
+
 ## Tech stack
 
 React 19 · TypeScript · Vite · Tailwind CSS v4 · Motion · MediaPipe Tasks Vision · Vercel
