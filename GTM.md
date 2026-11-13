@@ -51,9 +51,9 @@ Three links, so each channel's results can be compared (every event carries `ref
 
 | Link | `ref` in PostHog |
 |---|---|
-| `spotter-ai-form-coach.vercel.app` | `direct` |
-| `spotter-ai-form-coach.vercel.app/?ref=reddit` | `reddit` |
-| `spotter-ai-form-coach.vercel.app/?ref=whatsapp` | `whatsapp` |
+| `tryspotter.vercel.app` | `direct` |
+| `tryspotter.vercel.app/?ref=reddit` | `reddit` |
+| `tryspotter.vercel.app/?ref=whatsapp` | `whatsapp` |
 
 Testers use `/?tester` (`ref` = `tester`). Our own checks use `/?ref=test` and are filtered out.
 

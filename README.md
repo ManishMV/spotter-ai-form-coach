@@ -1,6 +1,6 @@
 # Spotter — AI Form Coach
 
-**Live:** https://spotter-ai-form-coach.vercel.app
+**Live:** https://tryspotter.vercel.app
 
 Spotter counts your reps and calls out form fixes, out loud, while you train. It runs in your
 browser. There's no app or account, and your video never leaves your phone.

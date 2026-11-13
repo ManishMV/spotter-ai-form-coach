@@ -165,7 +165,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** facing the camera → "Turn to your side" (heard + shown) and counting pauses; walking too close / out of frame → the right prompt; returning side-on in frame → prompt clears and counting resumes.
 
 ### Step 13 — Deploy to Vercel
-- **Status (Nov 12):** live at https://spotter-ai-form-coach.vercel.app. Code at github.com/ManishMV/spotter-ai-form-coach.
+- **Status (Nov 12):** live at https://tryspotter.vercel.app. Code at github.com/ManishMV/spotter-ai-form-coach.
   Vercel is connected to GitHub, so every push to `main` updates the live site automatically. Remaining: the phone check below.
 - Push to GitHub, connect Vercel.
 - **Done when:** the Vercel link works on your phone on mobile data (not your Wi-Fi): Start → camera → reps count → cue spoken.
