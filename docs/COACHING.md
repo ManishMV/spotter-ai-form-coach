@@ -59,7 +59,7 @@ Users usually stand 2–3 m from the device, so sound is the main channel.
 | Event | What you hear |
 |---|---|
 | Tap Start | "Get ready" (also unlocks sound on phones) |
-| Countdown | Starts only once you're set (in view, side-on, every needed body part visible, in the start position) for 1 s: "3, 2, 1, Go", a tick under 3-2-1 and a short start tone on "Go". Moving out of position stops it. Before that: nothing is spoken for the first 6 s after the camera comes on (time to prop up the device and step back); then one where-to-stand prompt at a time, spoken after 2 s on screen, at least 4 s apart, at most twice each |
+| Countdown | Starts only once you're set (in view, side-on, every needed body part visible, in the start position) for 1 s: "3, 2, 1, Go", a tick under 3-2-1 and a short start tone on "Go". Moving out of position stops it. Before that: nothing is spoken for the first 4 s after the camera comes on (time to prop up the device and step back); then one where-to-stand prompt at a time, spoken after 2 s on screen, at least 4 s apart, at most twice each |
 | Rep counted | A rising chime. A cue only if needed ("Keep your chest up"), never bundled with the number. Rep numbers out loud are optional (*Count reps out loud*, off by default: the chime is enough) |
 | Rep didn't count | A low double tone, plus the reason: "Sit deeper." |
 | Where to stand | "Turn to your side", "Move back so your feet are in view" (names the part that is cut off: feet, knees or hands; otherwise "your whole body"): see the calm-start rules above |

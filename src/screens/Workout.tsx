@@ -237,7 +237,7 @@ export function Workout({
   const PROMPT_GAP_MS = 4000 // at least this long between any two spoken set-up prompts
   // Quiet start: the first seconds after the camera comes on are for propping up the device and walking
   // back, so prompts are only shown, not spoken, until then.
-  const QUIET_START_MS = 6000
+  const QUIET_START_MS = 4000
   const cameraOnAt = useRef<number | null>(null)
   useEffect(() => {
     if (status === 'running' && cameraOnAt.current === null) {

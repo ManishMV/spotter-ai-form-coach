@@ -1,5 +1,6 @@
 // Setup: show where to place the phone or laptop, then one big Start button.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
 import { Logo } from '../components/Logo'
 import { detectDevice, type Device } from '../device'
 import { SetupIllustration } from '../components/SetupIllustration'
@@ -67,6 +68,7 @@ export function Setup({
   const other: Device = device === 'laptop' ? 'phone' : 'laptop'
   const tips = [placementTip(device, exercise.camera.height), ...exercise.tips]
   const [voiceKey, setVoiceKey] = useState(chosenVoice)
+  const [checking, setChecking] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
   const moreSummary = [
     COACHING.find((c) => c.mode === settings.coaching)?.label,
@@ -236,7 +238,8 @@ export function Setup({
               // Phones only allow sound after a tap: unlock speech and sounds here, inside the tap.
               voice.unlock()
               unlockSounds()
-              onStart()
+              if (checklistSeen()) onStart()
+              else setChecking(true) // first Start of this visit: a quick check before the camera opens
             }}
             className="press flex h-16 w-full items-center justify-center gap-3 bg-accent text-lg font-medium tracking-[-0.01em] text-accent-ink hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:h-[72px] sm:text-xl"
           >
@@ -245,6 +248,102 @@ export function Setup({
           <p className="label mt-3 text-center text-faint">Camera stays on this device</p>
         </div>
       </main>
+
+      <AnimatePresence>
+        {checking && (
+          <QuickCheck
+            exercise={exercise}
+            device={device}
+            onClose={() => setChecking(false)}
+            onGo={() => {
+              markChecklistSeen()
+              voice.unlock()
+              unlockSounds()
+              onStart()
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
+  )
+}
+
+// ---- Quick check before the first set: three things that decide whether tracking works.
+const SEEN_KEY = 'spotter.quickcheck.seen'
+function checklistSeen() {
+  try {
+    return sessionStorage.getItem(SEEN_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+function markChecklistSeen() {
+  try {
+    sessionStorage.setItem(SEEN_KEY, '1') // once per visit, not before every set
+  } catch {
+    // storage blocked: shown again next time, which is harmless
+  }
+}
+
+function quickCheckItems(exercise: Exercise, device: Device): string[] {
+  const pushup = exercise.id === 'pushup'
+  return [
+    'Bright room',
+    pushup
+      ? device === 'phone'
+        ? 'Phone sideways, head to knees in view'
+        : 'Head to knees in view'
+      : 'Head to feet in view',
+    'Side-on. Start after “Go”',
+  ]
+}
+
+function QuickCheck({ exercise, device, onClose, onGo }: { exercise: Exercise; device: Device; onClose: () => void; onGo: () => void }) {
+  const goRef = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    goRef.current?.focus()
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1, transition: { duration: 0.2 } }}
+      exit={{ opacity: 0, transition: { duration: 0.15 } }}
+      onClick={onClose}
+    >
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="quick-check-title"
+        className="w-full max-w-[480px] border border-line bg-paper p-5 sm:p-6"
+        initial={{ y: 16, opacity: 0 }}
+        animate={{ y: 0, opacity: 1, transition: { duration: 0.25, ease: [0.2, 0, 0, 1] } }}
+        exit={{ y: 8, opacity: 0, transition: { duration: 0.15 } }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="quick-check-title" className="text-[24px] leading-tight tracking-[-0.02em]">
+          Quick check
+        </h2>
+        <ol className="mt-4 grid gap-px border border-line bg-line">
+          {quickCheckItems(exercise, device).map((item, i) => (
+            <li key={item} className="flex items-baseline gap-3 bg-paper px-4 py-3">
+              <span className="label text-faint">0{i + 1}</span>
+              <span className="text-[15px] leading-snug text-pretty">{item}</span>
+            </li>
+          ))}
+        </ol>
+        {/* One button. Tapping outside or Escape closes it without starting. */}
+        <button
+          ref={goRef}
+          onClick={onGo}
+          className="press mt-5 h-14 w-full bg-accent text-[17px] font-medium text-accent-ink hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          Got it, start
+        </button>
+      </motion.div>
+    </motion.div>
   )
 }
