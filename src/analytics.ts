@@ -20,7 +20,9 @@ type Props = Record<string, string | number | boolean | null>
 
 // PostHog project keys are public by design (they can only send events, not read data), so it lives here.
 const KEY = (import.meta.env.VITE_POSTHOG_KEY as string | undefined) ?? 'phc_tuV3xbJJKH4JNHyDbagXWYSj5LumqnZsVmtUUw2H4ZNi'
-const HOST = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) ?? 'https://us.i.posthog.com'
+// Sent through Spotter's own address (/ingest, forwarded to PostHog by vercel.json), so privacy browsers
+// like Brave and ad blockers don't silently drop the funnel. Still only the events listed above.
+const HOST = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) ?? '/ingest'
 
 const params = new URLSearchParams(location.search)
 const isLocal = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
@@ -41,6 +43,7 @@ if (enabled) {
     import('posthog-js').then(({ default: posthog }) => {
       posthog.init(KEY!, {
         api_host: HOST,
+        ui_host: 'https://us.posthog.com',
         persistence: 'memory', // no cookies or local storage: each visit is anonymous
         person_profiles: 'identified_only', // never builds a profile of anyone
         autocapture: false,
