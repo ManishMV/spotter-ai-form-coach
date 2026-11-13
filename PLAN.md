@@ -210,10 +210,20 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 
 ### Step 23 — AI demo video (marketing)
 - A short launch video for the home page, README and portfolio, made with an AI video tool (Higgsfield, Runway, Veo or Kling; pick after comparing price and quality). Marketing only, not for teaching form: AI video can get body positions slightly wrong.
-- Mix AI-made scenes (someone training at home with a laptop or phone) with real screen recordings of Spotter counting and coaching.
+- Mix AI-made scenes (someone training at home with a laptop or phone) with real screen recordings of Spotter counting and coaching. No filming (Nov 13): the screen recordings come from playing AI-made exercise clips through Spotter itself (the step 21 eval tool).
+- Also a 15–30 s cut and a GIF for Reddit posts (see [GTM.md](GTM.md)).
 - Before using any AI-made exercise clip, run it through Spotter's own tracking: only clips that count correctly and get no form cues make the cut.
 - Made after polish (16) and less space (22), so the video shows the finished app.
 - **Done when:** a 30–60 s video is on the home page and in the README, and every exercise clip in it passed Spotter's check.
+
+### Step 24 — Analytics + honest v1 note
+- Free, cookieless product analytics with the funnel visited → picked an exercise → camera started → finished a set → opened the feedback form, split by source (`?ref=`), device and exercise. No video, no names.
+- A short line on the home page: early version, two exercises to start, more coming, plus a feedback link for everyone.
+- **Done when:** a test visit with `?ref=test` shows up in the funnel, and the home page has the v1 note.
+
+### Step 25 — Launch (Reddit first, then WhatsApp)
+- Plan in [GTM.md](GTM.md): positioning, channels in order, post copy, tracking links, success measures.
+- **Done when:** posted in the first Reddit communities, comments answered, and the first funnel numbers written up.
 
 ### Step 17 — Tester round + metrics
 - Recruit 3–5 testers by **Nov 14**. Each does 10 squats + 10 push-ups.
@@ -233,4 +243,4 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Hands-free voice commands ("start", "end set") using the browser's speech recognition.
 
 ## Schedule guide
-Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 20 demo → 21 evals → 16 polish → 22 less space → 23 AI demo video → 17 tester round (recruit testers now).
+Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 20 demo → 21 evals → 16 polish → 22 less space → 23 AI demo video → 17 tester round → 24 analytics + v1 note → 25 launch (recruit testers now).
