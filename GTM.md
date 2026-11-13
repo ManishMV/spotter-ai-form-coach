@@ -47,8 +47,15 @@ quick replies.
 
 ## Tracking
 
-Every link shared carries its source, e.g. `spotter-ai-form-coach.vercel.app/?ref=reddit-formcheck`, so
-each community's results can be compared.
+Three links, so each channel's results can be compared (every event carries `ref`):
+
+| Link | `ref` in PostHog |
+|---|---|
+| `spotter-ai-form-coach.vercel.app` | `direct` |
+| `spotter-ai-form-coach.vercel.app/?ref=reddit` | `reddit` |
+| `spotter-ai-form-coach.vercel.app/?ref=whatsapp` | `whatsapp` |
+
+Testers use `/?tester` (`ref` = `tester`). Our own checks use `/?ref=test` and are filtered out.
 
 **Funnel:** visited → picked an exercise → started the camera → camera working → finished a set →
 opened the feedback form. Split by source, device and exercise.
