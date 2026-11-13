@@ -18,6 +18,8 @@ type SquatRep = {
   hipsFirst?: number // extra forward tip on the way up
   downS?: number
   upS?: number
+  /** Stand still for this long after the rep (to test the auto-finish). */
+  idleS?: number
 }
 
 type PushupRep = {
@@ -36,7 +38,7 @@ export type Scenario = { id: string; exercise: 'squat' | 'pushup'; name: string;
 const jitter = (amount: number) => (Math.random() - 0.5) * 2 * amount
 
 function squatFrames(r: SquatRep): SimFrame[] {
-  const { knee = 82, thigh = -3, lean = 6, foot = 1, split = 0.05, balance = 0.12, hipsFirst = 0, downS = 1.1, upS = 1.1 } = r
+  const { knee = 82, thigh = -3, lean = 6, foot = 1, split = 0.05, balance = 0.12, hipsFirst = 0, downS = 1.1, upS = 1.1, idleS = 0 } = r
   const at = (p: number, rising: boolean): Angles => ({
     ...NO_ANGLES,
     knee: 175 - (175 - knee) * p + jitter(1.5),
@@ -54,6 +56,7 @@ function squatFrames(r: SquatRep): SimFrame[] {
   for (let i = 1; i <= down; i++) frames.push({ angles: at(Math.sin((Math.PI / 2) * (i / down)), false) })
   for (let i = 1; i <= up; i++) frames.push({ angles: at(Math.cos((Math.PI / 2) * (i / up)), true) })
   for (let i = 0; i < 20; i++) frames.push({ angles: at(0, false) }) // stand tall between reps
+  for (let i = 0; i < (idleS * 1000) / FRAME_MS; i++) frames.push({ angles: at(0, false) }) // standing still
   return frames
 }
 
@@ -103,6 +106,15 @@ export const SCENARIOS: Scenario[] = [
       { note: 'Just above parallel', knee: 95, thigh: 18 },
       { note: 'Just above parallel again (pattern)', knee: 95, thigh: 18 },
       { note: 'Bouncing (won’t count)', downS: 0.3, upS: 0.3 },
+    ],
+  },
+  {
+    id: 'squat-stop',
+    exercise: 'squat',
+    name: 'Squats: stop early (auto-finish)',
+    reps: [
+      ...Array.from({ length: 3 }, (_, i) => ({ note: `Rep ${i + 1}: clean` })),
+      { note: 'Rep 4, then stands still', idleS: 20 },
     ],
   },
   { id: 'pushup-clean', exercise: 'pushup', name: 'Push-ups: 6 clean reps', reps: Array.from({ length: 6 }, (_, i) => ({ note: `Rep ${i + 1}: clean` })) },

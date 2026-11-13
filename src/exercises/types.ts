@@ -94,6 +94,8 @@ export type CueCheck = Condition & {
   text: string
   /** Said on the first clean rep after this cue, naming the fix (e.g. "Nice depth"). */
   praise: string
+  /** One plain sentence for the end-of-set summary: what to do next time. */
+  tip: string
   /**
    * 'safety' = injury risk (e.g. lower-back load): said on the first rep it happens.
    * 'technique' = progress/efficiency: said once it's a pattern (2 of the last 3 reps).

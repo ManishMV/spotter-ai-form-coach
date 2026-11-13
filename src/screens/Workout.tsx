@@ -7,9 +7,11 @@ import type { Settings } from '../settings'
 import { usePoseTracking, type FrameHandler } from '../pose/usePoseTracking'
 import { RepCounter, type RepPhase } from '../coach/repCounter'
 import { CoachFeedback } from '../coach/feedback'
+import { SetTracker, type SetSummary } from '../coach/setTracker'
+import { SetEnder } from '../coach/setEnd'
 import type { Angles } from '../coach/angles'
 import { voice } from '../voice'
-import { announceRep } from '../voice/announce'
+import { announceRep, announceRestLine, resetSpeechPolicy } from '../voice/announce'
 import { playSound } from '../voice/sounds'
 import { POSITION } from '../voice/lines'
 
@@ -18,13 +20,24 @@ const PROMPT_REPEAT_MS = 6000
 
 const fmt = (deg: number | null) => (deg === null ? '—' : `${Math.round(deg)}°`)
 
-export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; settings: Settings; onEnd: () => void }) {
+export function Workout({
+  exercise,
+  settings,
+  onEnd,
+}: {
+  exercise: Exercise
+  settings: Settings
+  /** Called with the set's summary when the set ends (target reached, inactivity, or End tapped). */
+  onEnd: (summary: SetSummary) => void
+}) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // Rep counting runs on every camera frame, outside React, and only updates the screen when something changes.
   const [counter] = useState(() => (exercise.reps ? new RepCounter(exercise.reps) : null))
   const [coach] = useState(() => new CoachFeedback(exercise.cues, settings.coaching))
+  const [tracker] = useState(() => new SetTracker(exercise.cues, settings.targetReps)) // for the summary
+  const [ender] = useState(() => new SetEnder(settings.targetReps, Date.now())) // target + inactivity finish
   const [reps, setReps] = useState(0)
   const [phase, setPhase] = useState<RepPhase>('waiting')
   // A short message after each rep, then it clears itself:
@@ -38,7 +51,21 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
   const [countdown, setCountdown] = useState<number | null>(null)
   const counting = useRef(false) // read inside the per-frame handler
   const countAloud = useRef(settings.countAloud)
-  useEffect(() => () => voice.stop(), []) // leaving the workout: stop talking
+  // Finishing: once, and without cutting off the last thing said (the summary waits for silence).
+  const finished = useRef(false)
+  const finish = useCallback(() => {
+    if (finished.current) return
+    finished.current = true
+    counting.current = false
+    onEnd(tracker.summary())
+  }, [onEnd, tracker])
+  useEffect(() => {
+    resetSpeechPolicy() // a new set starts with a clean slate
+    return () => {
+      if (!finished.current) voice.stop() // left mid-set: stop talking
+    }
+  }, [])
+  const lastPhase = useRef<RepPhase>('waiting')
 
   const onFrame = useCallback<FrameHandler>(
     (angles, timeMs, facing, inView) => {
@@ -46,11 +73,19 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
       // or when facing the camera (side-view checks don't work).
       if (!counter || facing || !inView || !counting.current) return
       const rep = counter.update(angles, timeMs)
+      // Going down into a rep, or finishing one, is activity: it keeps the set from auto-finishing.
+      if (rep || (counter.phase === 'down' && lastPhase.current !== 'down')) {
+        if (ender.onActivity(Date.now())?.type === 'cancelled') setNotice(null) // kept going: drop the warning
+      }
+      lastPhase.current = counter.phase
       if (rep) {
         setReps(rep.number)
+        tracker.onRep(rep)
         const feedback = coach.next(rep) // research-based: may stay quiet to avoid nagging
 
-        announceRep(rep, feedback, countAloud.current) // sound + voice, for users away from the screen
+        const isFinal = rep.counted && ender.reachedTarget(rep.number)
+        announceRep(rep, feedback, countAloud.current, isFinal) // sound + voice, for users away from the screen
+        if (isFinal) finish()
 
         if (feedback) {
           clearTimeout(noticeTimer.current)
@@ -61,8 +96,27 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
       }
       setPhase(counter.phase) // React skips the re-render when the phase hasn't changed
     },
-    [counter, coach],
+    [counter, coach, tracker, ender, finish],
   )
+
+  // Inactivity finish: check a few times a second once counting has started.
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (!counting.current || !counter) return
+      const event = ender.tick(Date.now(), counter.phase === 'down')
+      if (!event) return
+      if (event.type === 'rest') {
+        if (announceRestLine(event.text)) setNotice({ text: event.text, good: true })
+      } else if (event.type === 'say') {
+        if (event.tick) playSound('tick')
+        voice.say(event.text, { interrupt: true })
+        setNotice({ text: event.text === 'Finishing the set' ? 'Finishing the set…' : event.text, good: false })
+      } else if (event.type === 'end') {
+        finish()
+      }
+    }, 250)
+    return () => window.clearInterval(timer)
+  }, [counter, ender, finish])
 
   // Start position for this exercise: its counting metric is past the "up" threshold.
   const isAtTop = useCallback(
@@ -93,7 +147,10 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
     let n = COUNTDOWN_FROM
     const timer = window.setInterval(() => {
       n -= 1
-      if (n === 0) counting.current = true // counting starts on "Go"
+      if (n === 0) {
+        counting.current = true // counting starts on "Go"
+        tracker.start()
+      }
       if (n < 0) {
         window.clearInterval(timer)
         setCountdown(null)
@@ -106,7 +163,7 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
       }
     }, 1000)
     return () => window.clearInterval(timer)
-  }, [status])
+  }, [status, tracker])
 
   // The cue line: set-up and positioning first, then the latest rep feedback, then status.
   const cue =
@@ -162,7 +219,7 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
           <LogoMark size={24} />
           <span className="label text-white/80">{exercise.name}</span>
         </div>
-        <button onClick={onEnd} className="label press h-11 border border-white/25 bg-black/40 px-5 text-white backdrop-blur hover:bg-white hover:text-black">
+        <button onClick={finish} className="label press h-11 border border-white/25 bg-black/40 px-5 text-white backdrop-blur hover:bg-white hover:text-black">
           End
         </button>
       </header>

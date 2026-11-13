@@ -7,7 +7,7 @@ fault. This doc covers **what Spotter says and when**, based on motor-learning r
 
 | Term | Meaning | Example |
 |---|---|---|
-| **No-rep** | The rep didn't meet the standard, so it doesn't count; the reason is shown on that rep, every time | "Sit deeper", "Feet side by side", "Slow down" |
+| **No-rep** | The rep didn't meet the standard, so it doesn't count; the reason is shown on that rep, every time | "Sit deeper", "Keep your feet side by side", "Slow down" |
 | **Form cue** | The rep counted, but here's how to do it better. Comes in three weights: safety, technique and minor | "Chest up", "Lower with control" |
 | **Praise** | Positive feedback, naming the fix after a correction | "Nice depth", "Good rep" |
 | **Position prompt** | Where to stand or what to show the camera | "Turn to your side", "Move back so your whole body is in view" |
@@ -32,7 +32,7 @@ position prompts are always on, because without them the count would look random
 | **Weighted by risk** | **Safety** cues speak up on the **first** rep and may repeat every **2nd** rep while the fault continues. **Technique** cues wait for a pattern (**2 of the last 3** reps) and repeat at most every **3rd** rep. **Minor** cues only if it keeps happening (**3 of the last 4** reps), at most every **4th** rep. | Staying quiet costs more for injury risk than a rare false alarm. Pattern rule: Myer et al. 2014 (scores a fault at 2+ of 10 reps). No-nag rule: Wulf & Lewthwaite 2021 ("occasionally ignoring mistakes") |
 | **Not too chatty** | At most one cue per rep, and a non-safety cue stays quiet if a cue was shown on the previous rep | Wulf & Lewthwaite 2021; product judgement to avoid irritation |
 | **Praise good reps** | On the first clean rep after a cue, name the fix ("Nice depth"). Otherwise "Good rep" every **4th** clean rep. | Chiviacowsky & Wulf 2002, 2007; Badami 2012 |
-| **Reps that don't count always say why** | "Feet side by side", "Sit deeper", "Slow down"… | Information about the count, not coaching, so it's never held back |
+| **Reps that don't count always say why** | "Keep your feet side by side", "Sit deeper", "Slow down"… | Information about the count, not coaching, so it's never held back |
 
 ## Cues by exercise (priority order)
 
@@ -60,12 +60,27 @@ Users usually stand 2–3 m from the device, so sound is the main channel.
 |---|---|
 | Tap Start | "Get ready" (also unlocks sound on phones) |
 | Countdown | "Get in position… 3, 2, 1, Go", with a tick under 3-2-1 and a short start tone on "Go" |
-| Rep counted | A rising chime, plus the rep number (switch: *Count reps out loud*), plus any cue in the same phrase: "Four. Chest up." |
+| Rep counted | A rising chime. A cue only if needed ("Chest up"), never bundled with the number. Rep numbers out loud are optional (*Count reps out loud*, off by default: the chime is enough) |
 | Rep didn't count | A low double tone, plus the reason: "Sit deeper." |
 | Where to stand | "Turn to your side", "Move back so your whole body is in view": spoken when it appears, at most every 6 s |
 | Praise | Spoken only when it names a fix ("Nice depth"); plain "Good rep" stays on screen |
+| Near a rep target | "Three more / Two more / Last one", only while you rest for a few seconds, never attached to a rep |
+| Set ends | Waits for the coach to finish, then the set-complete sound, then "Nice work" |
 
-**Never talks over itself:** a rep with a cue or a reason interrupts whatever is playing (it's the newest information). A plain rep number waits its turn, so it never cuts off a cue; if reps come faster than speech, the voice skips to the latest number (the screen is always exact).
+**Speech policy (one message at a time):** fast sets produce events faster than speech, so not everything
+can be said. Without rules, cues cut each other off and come out jammed together (found when testing mixed-form
+sets). The rules, like a real coach's:
+1. **Ranked:** safety cue > reason a rep didn't count > technique cue > praise > rep number. A message may only
+   cut off something less important than itself.
+2. **Breathing room:** after the coach speaks, technique cues and praise wait about 3 s, reasons about 1.5 s,
+   safety cues about 1.2 s. Anything held back still shows on screen.
+3. **Nothing said late:** a message that has to wait is dropped if it can't start within about 1 s.
+4. **One short line per rep:** a cue or the number, never bundled ("Chest up", not "Four. Chest up. Two more").
+   Numbers only into silence, and off by default; the chime marks every rep.
+5. **Target countdown only while resting,** so it can't clash with coaching during fast reps.
+
+Tested with a simulated clock on mixed-form and fast, sloppy sets: no cut-offs, and lines start at least
+1.6 s apart.
 
 **Natural voice (ElevenLabs):** every line is a pre-recorded clip, generated once and shipped with the app,
 so there are no API calls during a workout. Four voices, chosen by ear in the Test lab: **Arjun** (Indian

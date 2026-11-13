@@ -28,7 +28,7 @@ export const squat: Exercise = {
       // Medians over the rep, so brief tracking errors don't decide the result.
       {
         id: 'not-a-lunge',
-        text: 'Feet side by side — that was a lunge',
+        text: 'Keep your feet side by side',
         anyOf: [
           { metric: 'stanceSplit', stat: 'median', op: '<', value: 0.35 },
           { metric: 'balance', stat: 'median', op: '<', value: 0.3 },
@@ -42,17 +42,17 @@ export const squat: Exercise = {
   // first rep; technique cues wait for a pattern. See docs/COACHING.md.
   cues: [
     // Torso leaning > 20° more than the shins (Myer: trunk roughly parallel to the shin).
-    { id: 'chest-up', metric: 'leanVsShin', stat: 'max', op: '>', value: 20, text: 'Chest up', praise: 'Nice posture', kind: 'safety', priority: 1 },
+    { id: 'chest-up', metric: 'leanVsShin', stat: 'max', op: '>', value: 20, text: 'Chest up', praise: 'Nice posture', tip: 'Keep your chest lifted as you sit down, so your back stays safe.', kind: 'safety', priority: 1 },
     // Torso tips > 12° further forward on the way up = hips rising first (Myer criterion 10).
-    { id: 'hips-rise-first', metric: 'hipsRiseFirst', stat: 'max', op: '>', value: 12, text: 'Lead with your chest', praise: 'Smooth rise', kind: 'safety', priority: 2 },
+    { id: 'hips-rise-first', metric: 'hipsRiseFirst', stat: 'max', op: '>', value: 12, text: 'Lead with your chest', praise: 'Smooth rise', tip: 'On the way up, lift your chest and hips together instead of pushing your hips up first.', kind: 'safety', priority: 2 },
     // Depth standard = hips at knee height (thigh parallel). Counted at knee < 100°, but the thigh
     // can still be well above parallel: nudge toward it. Thigh > 10° above horizontal at the bottom.
-    { id: 'sit-deeper', metric: 'thighTilt', stat: 'min', op: '>', value: 10, text: 'Sit deeper', praise: 'Nice depth', kind: 'technique', priority: 4 },
+    { id: 'sit-deeper', metric: 'thighTilt', stat: 'min', op: '>', value: 10, text: 'Sit deeper', praise: 'Nice depth', tip: 'Sit down until your thighs are about level with the floor.', kind: 'technique', priority: 4 },
     // Fast drop into the bottom (Myer: descent should be slower than the ascent). The rep still counts.
     // Typical controlled descents are ~1–1.5 s; under 0.5 s is a drop. Pattern, not one-off.
-    { id: 'control-descent', metric: 'descentMs', stat: 'max', op: '<', value: 500, text: 'Lower with control', praise: 'Nice control', kind: 'technique', priority: 3 },
+    { id: 'control-descent', metric: 'descentMs', stat: 'max', op: '<', value: 500, text: 'Lower with control', praise: 'Nice control', tip: 'Lower yourself slowly, taking about a second on the way down.', kind: 'technique', priority: 3 },
     // Foot tipping either way — heel up OR toes up (Myer: whole foot stays down; Kushner: push through
     // the whole foot). ≈ 3–4 cm lift. Coaching only; the rep still counts.
-    { id: 'whole-foot', metric: 'footTilt', stat: 'max', op: '>', value: 10, text: 'Whole foot down', praise: 'Solid feet', kind: 'technique', priority: 5 },
+    { id: 'whole-foot', metric: 'footTilt', stat: 'max', op: '>', value: 10, text: 'Whole foot down', praise: 'Solid feet', tip: 'Keep your whole foot on the floor, heels and toes.', kind: 'technique', priority: 5 },
   ],
 }

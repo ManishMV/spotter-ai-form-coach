@@ -65,7 +65,7 @@ function loadClips(voiceKey: string): Promise<void> {
 // ---- Playback with a single "now playing" chain and at most one waiting phrase.
 let token = 0 // bumps on every interrupt, so an old chain stops at its next step
 let playing = false
-let waiting: string | null = null
+let waiting: { text: string; until: number } | null = null
 let current: AudioBufferSourceNode | null = null
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -97,7 +97,7 @@ async function playPhrase(text: string, myToken: number, voiceKey = choice) {
   if (waiting) {
     const next = waiting
     waiting = null
-    void playPhrase(next, token)
+    if (Date.now() <= next.until) void playPhrase(next.text, token) // else it went stale: drop it
   }
 }
 
@@ -121,16 +121,17 @@ export const clipVoice: Voice = {
     stopAll()
     void playPhrase('Get ready', token)
   },
-  say(text: string, { interrupt }: SayOptions) {
+  say(text: string, { interrupt, expiresInMs = Infinity }: SayOptions) {
     if (!text) return
     void loadClips(choice) // first sound after unlocking starts loading (no-op once loaded)
     if (interrupt || !playing) {
       stopAll()
       void playPhrase(text, token)
     } else {
-      waiting = text // newest waiting phrase wins
+      waiting = { text, until: Date.now() + expiresInMs } // newest waiting phrase wins
     }
   },
+  isSpeaking: () => playing,
   stop: stopAll,
 }
 

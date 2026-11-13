@@ -15,7 +15,8 @@ import type { CoachingMode } from '../settings'
 import { pickCue } from './cueEngine'
 import type { Rep } from './repCounter'
 
-export type Feedback = { text: string; tone: 'fix' | 'good' | 'reject' }
+/** `kind` (for fixes) is the cue's weight, so the voice can decide what's worth saying out loud. */
+export type Feedback = { text: string; tone: 'fix' | 'good' | 'reject'; kind?: CueCheck['kind'] }
 
 const RULES = {
   safety: { window: 3, persist: 1, minGap: 2 }, // first occurrence; repeat at most every 2nd rep
@@ -63,7 +64,7 @@ export class CoachFeedback {
         this.lastCueRep = this.repIndex
         this.awaitingPraise = fault
         this.cleanSincePraise = 0
-        return { text: fault.text, tone: 'fix' }
+        return { text: fault.text, tone: 'fix', kind: fault.kind }
       }
       return null
     }

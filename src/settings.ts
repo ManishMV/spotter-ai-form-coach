@@ -17,9 +17,14 @@ export type Settings = {
   showDetails: boolean
   /** Say each rep number out loud ("one, two, three…"). */
   countAloud: boolean
+  /** Reps to aim for; the set finishes by itself when reached. null = no target. */
+  targetReps: number | null
 }
 
-export const DEFAULT_SETTINGS: Settings = { coaching: 'all', showDetails: true, countAloud: true }
+export const DEFAULT_SETTINGS: Settings = { coaching: 'all', showDetails: true, countAloud: false, targetReps: null }
+
+/** Target choices on the setup screen. */
+export const TARGET_OPTIONS: (number | null)[] = [null, 5, 10, 15, 20]
 
 const KEY = 'spotter.settings.v2'
 

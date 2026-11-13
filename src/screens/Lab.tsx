@@ -5,13 +5,16 @@ import { useEffect, useRef, useState } from 'react'
 import { Logo } from '../components/Logo'
 import { CoachFeedback } from '../coach/feedback'
 import { RepCounter } from '../coach/repCounter'
+import { SetTracker, type SetSummary } from '../coach/setTracker'
+import { SetEnder } from '../coach/setEnd'
+import { Summary } from './Summary'
 import { pushup } from '../exercises/pushup'
 import { squat } from '../exercises/squat'
 import type { Exercise } from '../exercises/types'
 import { buildFrames, FRAME_MS, SCENARIOS, type Scenario } from '../lab/simulate'
 import type { CoachingMode } from '../settings'
 import { voice } from '../voice'
-import { announceRep } from '../voice/announce'
+import { announceRep, announceRestLine, resetSpeechPolicy } from '../voice/announce'
 import { POSITION } from '../voice/lines'
 import { currentVoice, englishVoices, setVoicePrefs } from '../voice/browserVoice'
 import { audition, chooseVoice, chosenVoice, loadedClipCount, pauseBetweenParts, setPauseBetweenParts } from '../voice/clipVoice'
@@ -37,7 +40,7 @@ async function playVariation(id: SoundId, n: number) {
   if (clip) void playClipNode(clip)
 }
 
-const AUDITION_LINES = ['Six. Chest up.', 'Feet side by side — that was a lunge.', 'Nice depth.', 'Move back so your whole body is in view.']
+const AUDITION_LINES = ['Six. Chest up.', 'Keep your feet side by side.', 'Nice depth.', 'Move back so your whole body is in view.']
 
 /** Every line an exercise can say, grouped for the "Hear the lines" section. */
 function linesFor(e: Exercise) {
@@ -118,12 +121,14 @@ export function Lab() {
   // ---- Simulated set
   const [scenario, setScenario] = useState<Scenario>(SCENARIOS[1])
   const [mode, setMode] = useState<CoachingMode>('all')
-  const [countAloud, setCountAloud] = useState(true)
+  const [countAloud, setCountAloud] = useState(false)
+  const [target, setTarget] = useState<number | null>(null)
   const [running, setRunning] = useState(false)
   const [reps, setReps] = useState(0)
   const [note, setNote] = useState('')
   const [message, setMessage] = useState('')
   const [log, setLog] = useState<LogLine[]>([])
+  const [labSummary, setLabSummary] = useState<SetSummary | null>(null)
   const timer = useRef(0)
   const stopSet = () => {
     window.clearInterval(timer.current)
@@ -137,30 +142,53 @@ export function Lab() {
     const exercise = EXERCISES[scenario.exercise]
     const counter = new RepCounter(exercise.reps!)
     const coach = new CoachFeedback(exercise.cues, mode)
+    const tracker = new SetTracker(exercise.cues, target)
+    tracker.start()
+    resetSpeechPolicy()
     const frames = buildFrames(scenario)
     let i = 0
     let t = 0
     let lastNote = ''
+    const ender = new SetEnder(target, 0) // runs on the simulated clock, like a real set
+    let lastPhase = counter.phase
+    const end = () => {
+      stopSet()
+      setLabSummary(tracker.summary()) // the set is over: show the real summary screen
+    }
     setReps(0)
     setLog([])
     setMessage('')
+    setLabSummary(null)
     setRunning(true)
     timer.current = window.setInterval(() => {
       const frame = frames[i++]
-      if (!frame) return stopSet()
+      if (!frame) return end()
       if (frame.note) {
         lastNote = frame.note
         setNote(frame.note)
       }
       t += FRAME_MS
       const rep = counter.update(frame.angles, t)
+      if (rep || (counter.phase === 'down' && lastPhase !== 'down')) ender.onActivity(t)
+      lastPhase = counter.phase
+      const event = ender.tick(t, counter.phase === 'down')
+      if (event?.type === 'rest') {
+        if (announceRestLine(event.text)) setMessage(event.text)
+      } else if (event?.type === 'say') {
+        if (event.tick) playSound('tick')
+        voice.say(event.text, { interrupt: true })
+        setMessage(event.text)
+      } else if (event?.type === 'end') return end()
       if (!rep) return
+      tracker.onRep(rep)
       const feedback = coach.next(rep)
-      announceRep(rep, feedback, countAloud) // exactly what the workout screen does
+      const isFinal = rep.counted && ender.reachedTarget(rep.number)
+      announceRep(rep, feedback, countAloud, isFinal) // exactly what the workout screen does
       setReps(rep.number)
       const text = rep.counted ? (feedback?.text ?? '') : (rep.failed?.text ?? '')
       setMessage(text)
       setLog((prev) => [...prev, { rep: rep.number, counted: rep.counted, text, note: lastNote }])
+      if (isFinal) end()
     }, FRAME_MS)
   }
 
@@ -359,6 +387,21 @@ export function Lab() {
               <input type="checkbox" checked={countAloud} onChange={(e) => setCountAloud(e.target.checked)} />
               Count reps out loud
             </label>
+            <label className="flex min-h-11 items-center gap-2">
+              Rep target
+              <select
+                value={target ?? ''}
+                onChange={(e) => setTarget(e.target.value ? Number(e.target.value) : null)}
+                className="h-9 border border-line bg-paper px-2"
+              >
+                <option value="">None</option>
+                {[3, 5, 10].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           <div>
             <button
@@ -380,6 +423,19 @@ export function Lab() {
               <p className="mt-2 text-[28px] leading-tight font-medium">{message || ' '}</p>
             </div>
           </div>
+
+          {labSummary && (
+            <div className="border border-line bg-paper py-2">
+              <p className="label px-4 pt-2 text-muted sm:px-8">Summary screen preview</p>
+              <Summary
+                exercise={EXERCISES[scenario.exercise]}
+                summary={labSummary}
+                onAgain={playSet}
+                onDone={() => setLabSummary(null)}
+                embedded
+              />
+            </div>
+          )}
 
           {log.length > 0 && (
             <ol className="grid gap-1 text-[14px]">

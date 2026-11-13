@@ -171,10 +171,12 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** the Vercel link works on your phone on mobile data (not your Wi-Fi): Start → camera → reps count → cue spoken.
 
 ### Step 14 — Speed pass on phones
+- **Status (Nov 13):** built and live (smaller phone camera feed, breathing room on slow devices, analysis time shown). Phone test pending.
 - Use the phone's graphics chip when available, fall back if not; skip frames if the phone is slow.
 - **Done when:** a frame-rate readout shows ≥ 20 fps on your phone and a second, older phone runs without freezing.
 
 ### Step 15 — End-of-set screen
+- **Status (Nov 13): ✅ done** — reps and time, the one issue to work on (weighted by risk, with a plain tip), reps that didn't count and why, Done / Go again. Closing line: Great set / Nice work / Good effort / Good start. Checked in the Test lab.
 - After "End": reps done and the one cue to work on next time. One button: "Go again".
 - **Done when:** finishing a set shows the summary and "Go again" returns to Setup.
 
@@ -182,9 +184,14 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Includes a more polished look for the tracking points and skeleton overlay.
 - **Done when** all 5 are true: (1) rep number animates on each rep, (2) screen changes slide/fade under 300 ms, (3) every tap target ≥ 44 px, (4) all text readable on the camera feed, (5) light and dark phone settings both look right.
 
-### Step 15b — Hands-free end
-- Finish the set without touching the device: walk back towards it, or stand idle ~10 s → summary.
-- **Done when:** walking up to the device ends the set; standing still for ~10 s ends it; a normal pause between reps doesn't.
+### Step 15b — Hands-free end: rep target + inactivity
+- **Status (Nov 13): ✅ done** — plus a quieter voice: one short line per rep, numbers off by default, target countdown only while resting, ranked speech with breathing room.
+- Optional **rep target** on the setup screen (None / 5 / 10 / 15 / 20). Near the end: "Three more", "Two more",
+  "Last one"; the set finishes by itself on the target. Only reps that count move towards it.
+- **Inactivity:** about 12 s without a rep (never mid-rep, never before the first rep) → "Finishing the set… 3, 2, 1"
+  → summary. Any rep cancels it. End can still be tapped any time.
+- **Done when:** a target of 5 ends on the fifth good rep with the countdown heard; stopping early finishes after the
+  warning; pauses during a normal set never end it. (Checkable in the Test lab without exercising.)
 
 ### Step 15c — User-ready mode
 - Joint-angle details hidden by default for real users (they stay one switch away, and on for demos).

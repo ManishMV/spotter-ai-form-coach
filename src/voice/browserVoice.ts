@@ -101,6 +101,7 @@ export const browserVoice: Voice = {
       waiting = text // newest waiting line wins
     }
   },
+  isSpeaking: () => !!synth?.speaking,
   stop() {
     waiting = null
     synth?.cancel()

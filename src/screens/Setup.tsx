@@ -4,7 +4,7 @@ import { Logo } from '../components/Logo'
 import { detectDevice, type Device } from '../device'
 import { SetupIllustration } from '../components/SetupIllustration'
 import type { Exercise } from '../exercises'
-import type { CoachingMode, Settings } from '../settings'
+import { TARGET_OPTIONS, type CoachingMode, type Settings } from '../settings'
 import { voice } from '../voice'
 import { audition, chooseVoice, chosenVoice } from '../voice/clipVoice'
 import { VOICE_OPTIONS } from '../voice/voices'
@@ -104,6 +104,32 @@ export function Setup({
 
         {/* Options: set here, because mid-set the device is out of reach. */}
         <section aria-label="Options" className="mt-6 border border-line">
+          <div className="border-b border-line p-4">
+            <p className="label text-muted" id="target-label">
+              Rep target
+            </p>
+            <div role="radiogroup" aria-labelledby="target-label" className="mt-3 grid grid-cols-5 gap-px border border-line bg-line">
+              {TARGET_OPTIONS.map((target) => {
+                const on = settings.targetReps === target
+                return (
+                  <button
+                    key={target ?? 'none'}
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => onSettings({ targetReps: target })}
+                    className={`press h-11 text-[14px] tabular-nums ${on ? 'bg-ink text-paper' : 'bg-paper text-muted hover:text-ink'}`}
+                  >
+                    {target ?? 'None'}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="mt-2 text-[13px] text-pretty text-muted">
+              {settings.targetReps
+                ? `The set finishes by itself after ${settings.targetReps} good reps.`
+                : 'No target: the set finishes when you stop for a few seconds.'}
+            </p>
+          </div>
           <div className="p-4">
             <p className="label text-muted" id="coaching-label">
               Coaching

@@ -5,6 +5,8 @@ import type { Exercise } from './exercises'
 import { useSettings } from './settings'
 import { Home } from './screens/Home'
 import { Setup } from './screens/Setup'
+import { Summary } from './screens/Summary'
+import type { SetSummary } from './coach/setTracker'
 
 // Camera + pose-tracking code loads only when needed, so the landing page stays fast.
 const Workout = lazy(() => import('./screens/Workout').then((m) => ({ default: m.Workout })))
@@ -12,7 +14,11 @@ const DebugCamera = lazy(() => import('./screens/DebugCamera').then((m) => ({ de
 const Lab = lazy(() => import('./screens/Lab').then((m) => ({ default: m.Lab })))
 const preloadWorkout = () => import('./screens/Workout')
 
-type Screen = { name: 'home' } | { name: 'setup'; exercise: Exercise } | { name: 'workout'; exercise: Exercise }
+type Screen =
+  | { name: 'home' }
+  | { name: 'setup'; exercise: Exercise }
+  | { name: 'workout'; exercise: Exercise }
+  | { name: 'summary'; exercise: Exercise; summary: SetSummary }
 
 const params = new URLSearchParams(location.search)
 const isDebug = params.has('debug')
@@ -68,8 +74,20 @@ export default function App() {
         )}
         {screen.name === 'workout' && (
           <Suspense fallback={<div className="fixed inset-0 bg-black" />}>
-            <Workout exercise={screen.exercise} settings={settings} onEnd={() => go({ name: 'setup', exercise: screen.exercise })} />
+            <Workout
+              exercise={screen.exercise}
+              settings={settings}
+              onEnd={(summary) => go({ name: 'summary', exercise: screen.exercise, summary })}
+            />
           </Suspense>
+        )}
+        {screen.name === 'summary' && (
+          <Summary
+            exercise={screen.exercise}
+            summary={screen.summary}
+            onAgain={() => go({ name: 'setup', exercise: screen.exercise })}
+            onDone={() => go({ name: 'home' })}
+          />
         )}
       </motion.div>
     </AnimatePresence>
