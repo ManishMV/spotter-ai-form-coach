@@ -197,10 +197,6 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Joint-angle details hidden by default for real users (they stay one switch away, and on for demos).
 - **Done when:** a fresh visit shows no angle box; the switch brings it back.
 
-### Step 18 — Knee push-up mode
-- A separate "Knee push-up" exercise (ACSM/CSEP have norms for it): its own rule-pack file, same plank and depth rules with knees down.
-- **Done when:** 10 knee push-ups count as 10 in knee mode; full push-ups mode still rejects them.
-
 ### Step 19 — Push-up head-position tip
 - Head drop / forward head (NASM; Myer: neck in line with the torso). Ear points are noisy, so this is an after-set tip, not a live cue.
 - **Done when:** a set with the head dropped gets the tip on the summary; a neutral head doesn't.
@@ -225,8 +221,9 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 ---
 
 ## Later
+- Knee push-up mode: a separate exercise file with the same rules, body line measured shoulder → hip → knee (ACSM/CSEP modified push-up). v1 stays at two exercises.
 - Filmed exercise demos (step 20 starts with an animated one).
 - More exercises (one rule-pack file each).
 
 ## Schedule guide
-Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 15c user-ready mode → 18 knee push-ups → 19 head tip → 20 demo → 21 evals → 16 polish → 22 less space → 17 tester round (recruit testers now).
+Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 19 head tip → 20 demo → 21 evals → 16 polish → 22 less space → 17 tester round (recruit testers now).
