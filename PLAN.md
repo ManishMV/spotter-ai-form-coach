@@ -183,7 +183,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 ### Step 16 — Polish pass (make-interfaces-feel-better)
 - Includes a more polished look for the tracking points and skeleton overlay.
 - **Done when** all 5 are true: (1) rep number animates on each rep, (2) screen changes slide/fade under 300 ms, (3) every tap target ≥ 44 px, (4) all text readable on the camera feed, (5) light and dark phone settings both look right.
-- **Status (Nov 13): built, waiting for your check** — rep number rises in and flashes orange on each rep; tracking overlay matches the logo look (white limbs with a dark edge, orange joints, head circle, no face or finger points); screen changes already fade in 250 ms; all taps ≥ 44 px; animations respect the phone's reduce-motion setting.
+- **Status (Nov 13): ✅ done** — rep number rises in and flashes orange on each rep; screen changes fade in 250 ms; all taps ≥ 44 px; animations respect the phone's reduce-motion setting. A restyled tracking overlay was tried and rolled back (thicker lines made normal jitter more visible). Testing also found and fixed a slow start (~1 fps for 30 s), a standing check that was too strict (160° → 150°), a calmer start (countdown waits until you're in place, prompts spaced out) and a less naggy "Chest up".
 
 ### Step 15b — Hands-free end: rep target + inactivity
 - **Status (Nov 13): ✅ done** — plus a quieter voice: one short line per rep, numbers off by default, target countdown only while resting, ranked speech with breathing room.
