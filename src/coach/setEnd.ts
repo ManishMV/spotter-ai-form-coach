@@ -1,15 +1,15 @@
 // Decides when a set is over, so users don't have to walk back and tap End:
 //   • Rep target reached (optional; chosen on the setup screen). Near the target, "Three more / Two more /
 //     Last one" is said only while the user rests (~3.5 s), never attached to a rep, so it can't clash.
-//   • Inactivity: no rep for a while → "Finishing the set" + 3-2-1 ticks → end. Any rep cancels it.
+//   • Inactivity: no rep for a while → "Finishing the set" + 5-4-3-2-1 ticks → end. Any rep cancels it.
 // Shared by the workout screen and the Test lab, so the lab behaves exactly like a real set.
 
 /** Seconds of no reps before Spotter offers to finish (not counted while mid-rep). */
 export const IDLE_MS = 12000
 /** Pause near the target before a "Two more" nudge. */
 const REST_NUDGE_MS = 3500
-/** The "Finishing the set… 3, 2, 1" warning length. */
-const WARNING_STEPS = ['Finishing the set', '3', '2', '1'] as const
+/** The "Finishing the set… 5, 4, 3, 2, 1" warning: time to start another rep and cancel it. */
+const WARNING_STEPS = ['Finishing the set', '5', '4', '3', '2', '1'] as const
 
 export type EndEvent =
   | { type: 'say'; text: string; tick: boolean } // part of the finishing warning
@@ -59,7 +59,7 @@ export class SetEnder {
   }
 
   /**
-   * Call regularly (e.g. every 250 ms). `midRep` = the user is in the bottom half of a rep, so
+   * Call regularly (every ~100 ms; steps are timed from when the warning began, so they stay 1 s apart). `midRep` = the user is in the bottom half of a rep, so
    * they're clearly not done. Returns at most one event to act on.
    */
   tick(now: number, midRep: boolean): EndEvent | null {

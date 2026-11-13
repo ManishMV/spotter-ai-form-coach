@@ -99,7 +99,7 @@ export function Workout({
     [counter, coach, tracker, ender, finish],
   )
 
-  // Inactivity finish: check a few times a second once counting has started.
+  // Inactivity finish: checked every 0.1 s once counting has started (keeps the 5-4-3-2-1 evenly spaced).
   useEffect(() => {
     const timer = window.setInterval(() => {
       if (!counting.current || !counter) return
@@ -114,7 +114,7 @@ export function Workout({
       } else if (event.type === 'end') {
         finish()
       }
-    }, 250)
+    }, 100) // every 0.1 s, so countdown numbers land within 0.1 s of each exact second
     return () => window.clearInterval(timer)
   }, [counter, ender, finish])
 
