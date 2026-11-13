@@ -213,6 +213,13 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Test how close "close enough" is now that feet can be out of frame for push-ups; update setup distances.
 - **Done when:** the setup screen's distances are the smallest that still pass the in-view and accuracy checks.
 
+### Step 23 — AI demo video (marketing)
+- A short launch video for the home page, README and portfolio, made with an AI video tool (Higgsfield, Runway, Veo or Kling; pick after comparing price and quality). Marketing only, not for teaching form: AI video can get body positions slightly wrong.
+- Mix AI-made scenes (someone training at home with a laptop or phone) with real screen recordings of Spotter counting and coaching.
+- Before using any AI-made exercise clip, run it through Spotter's own tracking: only clips that count correctly and get no form cues make the cut.
+- Made after polish (16) and less space (22), so the video shows the finished app.
+- **Done when:** a 30–60 s video is on the home page and in the README, and every exercise clip in it passed Spotter's check.
+
 ### Step 17 — Tester round + metrics
 - Recruit 3–5 testers by **Nov 14**. Each does 10 squats + 10 push-ups.
 - `TESTING.md` template: rep accuracy = counted ÷ real reps; cue accuracy = correct cues ÷ cues shown; "smooth" = ≥ 20 fps with no freeze; reuse = "would you use it again?" yes/no.
@@ -226,4 +233,4 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - More exercises (one rule-pack file each).
 
 ## Schedule guide
-Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 19 head tip → 20 demo → 21 evals → 16 polish → 22 less space → 17 tester round (recruit testers now).
+Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 19 head tip → 20 demo → 21 evals → 16 polish → 22 less space → 23 AI demo video → 17 tester round (recruit testers now).
