@@ -6,7 +6,7 @@ import { loadPoseLandmarker, pickModelSize, type ModelSize } from './landmarker'
 import { drawSkeleton } from './drawSkeleton'
 import { PointSmoother } from './smoothing'
 import type { BodyPart } from '../exercises/types'
-import { isFacingCamera, measureAngles, NO_ANGLES, partsInView, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
+import { edgeRoom, isFacingCamera, measureAngles, NO_ANGLES, partsInView, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
 
 /** Analyses right after a model loads that are left out of speed measurements (set-up time). */
 const WARMUP_ANALYSES = 5
@@ -14,9 +14,19 @@ const WARMUP_ANALYSES = 5
 export type TrackingStatus = 'idle' | 'loading' | 'running' | 'error'
 /** `facing` = person faces the camera instead of standing side-on (side-view checks don't work then). */
 /** `inView` = every body part the exercise needs is inside the picture. */
-export type Readout = { side: Side | null; facing: boolean; inView: boolean; angles: Angles; diag: StanceDiag | null }
+export type Readout = {
+  side: Side | null
+  facing: boolean
+  inView: boolean
+  angles: Angles
+  diag: StanceDiag | null
+  /** Debug view: room left between the needed body parts and the picture's edge (0–0.5), or null. */
+  room: number | null
+  /** Debug view: the tightest `room` over the last 5 s (covers a whole rep); null if a part left the picture. */
+  roomTightest: number | null
+}
 
-export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, angles: NO_ANGLES, diag: null }
+export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, angles: NO_ANGLES, diag: null, room: null, roomTightest: null }
 
 /** Called on every frame where a person is visible (used for rep counting). */
 export type FrameHandler = (angles: Angles, timeMs: number, facing: boolean, inView: boolean) => void
@@ -108,6 +118,7 @@ export function usePoseTracking(
       let inView = true
       let viewStreak = 0
       let lastReadout = 0
+      let roomLog: { at: number; room: number | null }[] = [] // debug view: last 5 s of `room`
       // Speed: average analysis time, and when the last analysis ran. On a slow device, back-to-back
       // analyses would leave no time for the screen, sounds and voice, so leave a short gap after each.
       // The first analyses after a model loads are very slow (the graphics card is being set up: seconds,
@@ -157,6 +168,15 @@ export function usePoseTracking(
               inView,
               angles,
               diag: debug ? stanceDiagnostics(screen, world, side, video.videoWidth / video.videoHeight) : null,
+              room: null,
+              roomTightest: null,
+            }
+            if (debug) {
+              const room = edgeRoom(screen, side, mustSeeRef.current ?? [])
+              roomLog = [...roomLog.filter((x) => now - x.at < 5000), { at: now, room }]
+              const out = roomLog.some((x) => x.room === null)
+              current.room = room
+              current.roomTightest = out ? null : Math.min(...roomLog.map((x) => x.room!))
             }
             onFrameRef.current?.(current.angles, now, facing, inView)
             drawSkeleton(ctx, [screen], debug ? null : side === 'left' ? 'right' : 'left') // draw only the side we track

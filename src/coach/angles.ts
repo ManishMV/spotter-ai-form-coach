@@ -148,6 +148,21 @@ export function partsInView(screen: NormalizedLandmark[], side: Side, parts: Bod
   })
 }
 
+/**
+ * How much room is left around the needed body parts: the smallest gap between any of them and the
+ * picture's edge, as a share of the picture (0.1 = 10%). null if one isn't visible. Used to find the
+ * closest workable distance (debug view, step 22).
+ */
+export function edgeRoom(screen: NormalizedLandmark[], side: Side, parts: BodyPart[]): number | null {
+  let room = Infinity
+  for (const part of parts) {
+    const p = screen[POINTS[side][part]]
+    if (!p || (p.visibility ?? 0) < MIN_VISIBILITY) return null
+    room = Math.min(room, p.x, 1 - p.x, p.y, 1 - p.y)
+  }
+  return room === Infinity ? null : room
+}
+
 /** Diagnostics for tuning the lunge check (shown in the ?debug view only). */
 export type StanceDiag = {
   nearAnkleVis: number

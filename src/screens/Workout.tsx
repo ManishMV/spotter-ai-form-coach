@@ -1,4 +1,4 @@
-// Workout: full-screen camera, one huge rep number, one short cue. Readable from 2–3 m.
+// Workout: full-screen camera, one huge rep number, one short cue. Readable from across the room.
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { LogoMark } from '../components/Logo'

@@ -5,11 +5,13 @@ export const pushup: Exercise = {
   name: 'Push-up',
   summary: 'Standard push-ups. Side view.',
   checks: ['Straight body line', 'Depth'],
-  camera: { height: 'floor', distance: '1.5–2 m' },
+  // Distances from camera geometry (step 22): wrist→knee plus the head (~1.3 m) has to fit the picture's
+  // width; feet may be cut off. Laptop (~60° wide) needs ~1.3 m, a sideways phone (~68° wide) ~1.1 m.
+  camera: { height: 'floor', distance: { laptop: '1.5 m', phone: '1–1.5 m' } },
   // Needed to judge depth, lockout and knees. Feet/ankles may be out of frame: the knee-off-the-floor
   // check doesn't need them (body-line check is skipped for that rep if the ankle isn't seen).
   mustSee: ['shoulder', 'elbow', 'wrist', 'hip', 'knee'],
-  tips: ['Body side-on to the camera', 'Head to feet in frame', 'Hands slightly wider than shoulders'],
+  tips: ['Body side-on to the camera', 'Head to knees in frame', 'Hands slightly wider than shoulders'],
   // Rules from ACE, CSEP/ACSM, FitnessGram and USMC standards — see docs/PUSHUP-FORM.md for sources.
   reps: {
     // Depth = upper arm parallel to the floor (FitnessGram/USMC standard): the shoulder drops to

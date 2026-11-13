@@ -1,6 +1,6 @@
 # Push-up form rules — what Spotter checks and why
 
-Spotter sees the user **from the side**, with the phone or laptop on the floor 1.5–2 m away, and
+Spotter sees the user **from the side**, with the phone or laptop on the floor about 1–1.5 m away, and
 gets body points from MediaPipe. Researched Nov 12, 2026.
 
 **Elbow angle** = inside angle shoulder–elbow–wrist (180° = straight arm).

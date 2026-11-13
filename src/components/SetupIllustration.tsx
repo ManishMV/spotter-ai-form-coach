@@ -14,7 +14,7 @@ export function SetupIllustration({ camera, exercise, device }: { camera: Camera
   const deviceName = device === 'laptop' ? 'Laptop' : 'Phone'
 
   return (
-    <svg viewBox="0 0 400 230" className="h-auto w-full" role="img" aria-label={`${deviceName} ${onFloor ? 'on the floor' : 'at hip height'}, ${camera.distance} away, side-on`}>
+    <svg viewBox="0 0 400 230" className="h-auto w-full" role="img" aria-label={`${deviceName} ${onFloor ? 'on the floor' : 'at hip height'}, ${camera.distance[device]} away, side-on`}>
       {/* ground */}
       <line x1="16" y1="190" x2="384" y2="190" stroke="var(--line)" strokeWidth="1.5" />
 
@@ -89,7 +89,7 @@ export function SetupIllustration({ camera, exercise, device }: { camera: Camera
         <line x1="300" y1="202" x2="300" y2="214" />
       </g>
       <text x="182" y="226" textAnchor="middle" fill="var(--muted)" style={{ font: '500 11px var(--font-mono)', letterSpacing: '0.08em' }}>
-        {camera.distance.toUpperCase()}
+        {camera.distance[device].toUpperCase()}
       </text>
     </svg>
   )

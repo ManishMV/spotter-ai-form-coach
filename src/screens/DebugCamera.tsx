@@ -1,6 +1,12 @@
 // Developer view (open with ?debug): plain camera + skeleton + big angle readout. Used for testing tracking.
+// `?debug&ex=pushup` checks the push-up's body parts (default: squat) for the "room to spare" readout, used
+// to find the closest workable distance: step closer until the tightest room during a rep nears 0.
 import { useRef } from 'react'
+import { EXERCISES } from '../exercises'
 import { usePoseTracking } from '../pose/usePoseTracking'
+
+const exercise = EXERCISES.find((e) => e.id === new URLSearchParams(location.search).get('ex')) ?? EXERCISES[0]
+const pct = (n: number | null) => (n === null ? 'out' : `${Math.round(n * 100)}%`)
 
 const fmt = (deg: number | null) => (deg === null ? '—' : `${Math.round(deg)}°`)
 const num = (n: number | null | undefined) => (n == null ? '—' : n.toFixed(2))
@@ -8,7 +14,11 @@ const num = (n: number | null | undefined) => (n == null ? '—' : n.toFixed(2))
 export function DebugCamera() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const { status, error, fps, analysisMs, model, readout, start } = usePoseTracking(videoRef, canvasRef, { debug: true })
+  const { status, error, fps, analysisMs, model, readout, start } = usePoseTracking(videoRef, canvasRef, {
+    debug: true,
+    mustSee: exercise.mustSee,
+  })
+  const tightest = readout.roomTightest
 
   return (
     <main className="fixed inset-0 flex items-center justify-center bg-black text-white">
@@ -35,6 +45,10 @@ export function DebugCamera() {
             {fps} fps · {model} · {analysisMs} ms per analysis
           </p>
           <dl className="absolute top-4 right-4 grid grid-cols-[auto_auto] gap-x-4 gap-y-1 bg-black/70 px-5 py-4 font-mono text-2xl tabular-nums">
+            <dt className="text-white/60">{exercise.id} room</dt>
+            <dd className="text-right">{pct(readout.room)}</dd>
+            <dt className="text-white/60">tightest 5 s</dt>
+            <dd className={`text-right ${tightest === null ? 'text-red-400' : tightest < 0.03 ? 'text-amber-300' : 'text-emerald-300'}`}>{pct(tightest)}</dd>
             <dt className="text-white/60">side</dt>
             <dd className="text-right">{readout.facing ? 'facing camera' : readout.side ? `your ${readout.side}` : '—'}</dd>
             <dt className="text-white/60">knee</dt>

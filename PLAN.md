@@ -210,6 +210,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 ### Step 22 — Less space needed
 - Test how close "close enough" is now that feet can be out of frame for push-ups; update setup distances.
 - **Done when:** the setup screen's distances are the smallest that still pass the in-view and accuracy checks.
+- **Status (Nov 13): built, measuring next** — distances are now per device, from camera geometry: squat laptop 2–3 m, phone upright 1.5–2 m; push-up laptop 1.5 m, phone sideways 1–1.5 m. `?debug&ex=squat|pushup` shows "room to spare" (gap between the needed body parts and the picture edge, tightest over 5 s) to confirm them with real reps; accuracy at those distances is checked in the step 21 evals.
 
 ### Step 23 — AI demo video (marketing)
 - A short launch video for the home page, README and portfolio, made with an AI video tool (Higgsfield, Runway, Veo or Kling; pick after comparing price and quality). Marketing only, not for teaching form: AI video can get body positions slightly wrong.

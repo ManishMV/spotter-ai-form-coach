@@ -16,7 +16,8 @@ import { unlockSounds } from '../voice/sounds'
 function placementTip(device: Device, height: Exercise['camera']['height']) {
   if (device === 'laptop') return height === 'floor' ? 'Laptop on the floor, screen tilted back' : 'Laptop at about hip height, on a table or shelf'
   // Lying down, the body is wide: a sideways (landscape) phone fits it from closer, so less floor space.
-  return height === 'floor' ? 'Phone on the floor, turned sideways' : 'Phone at hip height, propped up'
+  // Standing, the body is tall: an upright (portrait) phone fits it from closer.
+  return height === 'floor' ? 'Phone on the floor, turned sideways' : 'Phone upright at hip height, propped up'
 }
 
 const COACHING: { mode: CoachingMode; label: string; detail: string }[] = [

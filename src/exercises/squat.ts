@@ -5,7 +5,9 @@ export const squat: Exercise = {
   name: 'Squat',
   summary: 'Bodyweight or barbell. Side view.',
   checks: ['Depth', 'Chest position'],
-  camera: { height: 'hip', distance: '2–3 m' },
+  // Distances from camera geometry (step 22): shoulder→ankle has to fit the picture's height. A laptop
+  // webcam (~36–40° tall view) needs ~2.3–2.5 m; an upright phone (~68° tall) ~1.2–1.5 m.
+  camera: { height: 'hip', distance: { laptop: '2–3 m', phone: '1.5–2 m' } },
   mustSee: ['shoulder', 'hip', 'knee', 'ankle'],
   tips: ['Stand side-on to the camera', 'Whole body in frame', 'Feet shoulder-width, toes slightly out'],
   // Rules from NSCA / ACE / biomechanics research — see docs/SQUAT-FORM.md for sources.

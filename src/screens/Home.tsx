@@ -65,7 +65,7 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
           </h2>
           <ol className="dot-grid grid gap-px border border-line sm:grid-cols-3">
             {[
-              ['Place your phone', 'Side-on, about 2–3 m away, with your whole body in view.'],
+              ['Place your phone', 'Side-on, 1–3 m away, with your body in view.'],
               ['Tap start', 'Spotter finds your body and starts tracking straight away.'],
               ['Train', 'Reps are counted on screen. Form fixes are spoken after each rep.'],
             ].map(([title, body], i) => (

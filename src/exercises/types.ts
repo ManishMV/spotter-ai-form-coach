@@ -38,8 +38,8 @@ export type BodyPart = 'shoulder' | 'elbow' | 'wrist' | 'hip' | 'knee' | 'ankle'
 export type CameraHint = {
   /** Where the phone or laptop sits. */
   height: 'hip' | 'floor'
-  /** How far away, shown to the user. */
-  distance: string
+  /** How far away, shown to the user, per device (cameras differ: laptop webcams are narrower). */
+  distance: { laptop: string; phone: string }
 }
 
 /**
