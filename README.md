@@ -35,11 +35,13 @@ Full brief: [PRODUCT-BRIEF.md](PRODUCT-BRIEF.md).
 3. **Judge:** each exercise is one "rule pack" file (angle thresholds, rep rules, cues), so adding
    an exercise means adding one file. Squat rules come from NSCA/ACE research: see
    [docs/SQUAT-FORM.md](docs/SQUAT-FORM.md).
-4. **Speak (next):** a swappable voice module. Browser speech today; pre-recorded clips later.
+4. **Speak:** natural voice coaching from pre-recorded ElevenLabs clips (4 voices), played with short
+   pauses between the rep number and the cue. Clips are generated once (`npm run voice:generate`) and ship
+   with the app, so there are no API calls during a workout.
 
 ## Tech stack
 
-React 19 · TypeScript · Vite · Tailwind CSS v4 · Motion · MediaPipe Tasks Vision · Vercel
+React 19 · TypeScript · Vite · Tailwind CSS v4 · Motion · MediaPipe Tasks Vision · ElevenLabs (pre-generated voice) · Vercel
 
 ## Run locally
 
@@ -49,8 +51,9 @@ npm run dev          # laptop: http://localhost:5173
 npm run dev:phone    # phone on same Wi-Fi (https, needed for the camera)
 ```
 
-Add `?debug` to the URL for the raw tracking view (skeleton, angles, fps), and `?model=lite` or
-`?model=full` to force a model.
+Add `?debug` to the URL for the raw tracking view (skeleton, angles, fps), `?lab` for the Test lab
+(hear every voice line and play simulated sets without exercising), and `?model=lite` or `?model=full`
+to force a model.
 
 ## Project docs
 

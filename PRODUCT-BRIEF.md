@@ -30,7 +30,7 @@ A real-time coach for every exercise that adapts to your body.
 - No workout logging
 - No accounts
 - No nutrition
-- No paid AI APIs
+- No paid AI APIs at runtime (voice clips are generated once with ElevenLabs and shipped with the app)
 - No extra hardware
 - No video uploads
 

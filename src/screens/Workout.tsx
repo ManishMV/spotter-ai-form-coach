@@ -8,6 +8,12 @@ import { usePoseTracking, type FrameHandler } from '../pose/usePoseTracking'
 import { RepCounter, type RepPhase } from '../coach/repCounter'
 import { CoachFeedback } from '../coach/feedback'
 import type { Angles } from '../coach/angles'
+import { voice } from '../voice'
+import { announceRep } from '../voice/announce'
+import { POSITION } from '../voice/lines'
+
+/** Prompts about where to stand. Spoken when they appear, at most every few seconds each. */
+const PROMPT_REPEAT_MS = 6000
 
 const fmt = (deg: number | null) => (deg === null ? '—' : `${Math.round(deg)}°`)
 
@@ -30,6 +36,8 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
   // null = not started yet / finished; 0 = "Go".
   const [countdown, setCountdown] = useState<number | null>(null)
   const counting = useRef(false) // read inside the per-frame handler
+  const countAloud = useRef(settings.countAloud)
+  useEffect(() => () => voice.stop(), []) // leaving the workout: stop talking
 
   const onFrame = useCallback<FrameHandler>(
     (angles, timeMs, facing, inView) => {
@@ -40,6 +48,9 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
       if (rep) {
         setReps(rep.number)
         const feedback = coach.next(rep) // research-based: may stay quiet to avoid nagging
+
+        announceRep(rep, feedback, countAloud.current) // sound + voice, for users away from the screen
+
         if (feedback) {
           clearTimeout(noticeTimer.current)
           const good = feedback.tone === 'good'
@@ -77,6 +88,7 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
   useEffect(() => {
     if (status !== 'running' || counting.current) return
     setCountdown(COUNTDOWN_FROM)
+    voice.say('Get in position', { interrupt: true })
     let n = COUNTDOWN_FROM
     const timer = window.setInterval(() => {
       n -= 1
@@ -87,20 +99,21 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
         return
       }
       setCountdown(n)
+      if (n <= 3) voice.say(n === 0 ? 'Go' : String(n), { interrupt: true })
     }, 1000)
     return () => window.clearInterval(timer)
   }, [status])
 
-  // Until form cues (Step 10) exist, the cue line shows set-up and tracking status.
+  // The cue line: set-up and positioning first, then the latest rep feedback, then status.
   const cue =
     status === 'loading'
       ? 'Starting camera…'
       : !readout.side
-        ? 'Step into view, side-on'
+        ? POSITION.stepIntoView
         : !readout.inView
-          ? 'Move back so your whole body is in view'
+          ? POSITION.moveBack
           : readout.facing
-          ? 'Turn to your side'
+          ? POSITION.turn
           : !counter
           ? `${exercise.name} counting is coming soon`
           : notice
@@ -108,6 +121,23 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
             : phase === 'waiting'
             ? (exercise.reps?.startText ?? '')
             : `Tracking your ${readout.side} side`
+
+  // Speak position prompts (where to stand) when they appear, without repeating them too often.
+  const isPrompt =
+    status === 'running' &&
+    (cue === POSITION.stepIntoView ||
+      cue === POSITION.moveBack ||
+      cue === POSITION.turn ||
+      (cue === exercise.reps?.startText && countdown === null))
+  const lastPrompt = useRef<{ text: string; at: number } | null>(null)
+  useEffect(() => {
+    if (!isPrompt) return
+    const now = Date.now()
+    const last = lastPrompt.current
+    if (last && last.text === cue && now - last.at < PROMPT_REPEAT_MS) return
+    lastPrompt.current = { text: cue, at: now }
+    voice.say(cue, { interrupt: false })
+  }, [isPrompt, cue])
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-black text-white [color-scheme:dark]">

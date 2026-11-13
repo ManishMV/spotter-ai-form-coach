@@ -27,3 +27,6 @@ dist-ssr
 
 # Local test recordings (never committed)
 recordings/
+
+# Voice delivery test clips (compare in the Test lab; never shipped)
+public/voice/_test/

@@ -52,6 +52,30 @@ position prompts are always on, because without them the count would look random
 Reps that break a **counting** rule (lunge, half rep, knee push-up, big sag, bouncing, no lockout) are never
 coached this way: they don't count, and the reason shows on that rep, every time.
 
+## Voice and sound (Step 11)
+
+Users usually stand 2–3 m from the device, so sound is the main channel.
+
+| Event | What you hear |
+|---|---|
+| Tap Start | "Get ready" (also unlocks sound on phones) |
+| Countdown | "Get in position… 3, 2, 1, Go" |
+| Rep counted | A rising chime, plus the rep number (switch: *Count reps out loud*), plus any cue in the same phrase: "Four. Chest up." |
+| Rep didn't count | A low double tone, plus the reason: "Sit deeper." |
+| Where to stand | "Turn to your side", "Move back so your whole body is in view": spoken when it appears, at most every 6 s |
+| Praise | Spoken only when it names a fix ("Nice depth"); plain "Good rep" stays on screen |
+
+**Never talks over itself:** a rep with a cue or a reason interrupts whatever is playing (it's the newest information). A plain rep number waits its turn, so it never cuts off a cue; if reps come faster than speech, the voice skips to the latest number (the screen is always exact).
+
+**Natural voice (ElevenLabs):** every line is a pre-recorded clip, generated once and shipped with the app,
+so there are no API calls during a workout. Four voices, chosen by ear in the Test lab: **Arjun** (Indian
+English, male), **Meera** (Indian English, female), **Max** (American English, male) and **Ava** (American
+English, female). Clips are made with Eleven v4 plus a tone hint per kind of line (cues *firm and
+encouraging*, praise *warm*, reasons *calm*, position prompts *friendly*). Four delivery styles were
+compared by ear, and this one was the most natural. The silence ElevenLabs adds around each clip is trimmed,
+so the pause between number and cue is exactly 300 ms. Any line without a clip falls back to browser speech.
+Regenerate with `npm run voice:generate` (styles in `scripts/delivery.ts`).
+
 ## Considered, not in v1
 - **Push-up head position** (NASM: forward head; Myer: neck in line with the torso). MediaPipe's ear points are too noisy for a live cue. Planned for v1.1 as an after-set tip.
 - **A user setting for cue amount** (all / errors only / summary): research shows little benefit (McKay et al. 2023 meta-analysis, preprint). It's a later nice-to-have.

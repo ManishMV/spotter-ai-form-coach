@@ -74,7 +74,7 @@ export const pushup: Exercise = {
     { id: 'hips-up', metric: 'hipOffset', stat: 'min', op: '<', value: -0.06, text: 'Hips up', praise: 'Nice straight line', kind: 'safety', priority: 1 },
     // Resting on the floor at the bottom for over 0.8 s (shoulders well below elbows). A quick
     // chest-to-floor touch never triggers it. Mentioned only if it keeps happening (3 of 4 reps).
-    { id: 'stay-off-floor', metric: 'collapsedMs', stat: 'max', op: '>', value: 800, text: 'Stay off the floor', praise: 'Strong bottom', kind: 'minor', priority: 2 },
+    { id: 'stay-off-floor', metric: 'collapsedMs', stat: 'max', op: '>', value: 800, text: 'Stay off the floor', praise: 'Stayed strong', kind: 'minor', priority: 2 },
     // Fast drop to the bottom. Controlled descents are ~0.7–1.5 s; under 0.4 s is a drop. Rep still counts.
     { id: 'control-descent', metric: 'descentMs', stat: 'max', op: '<', value: 400, text: 'Lower with control', praise: 'Nice control', kind: 'technique', priority: 3 },
     // Counted (upper arm within 20° of parallel) but only just.

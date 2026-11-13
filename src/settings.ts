@@ -15,9 +15,11 @@ export type Settings = {
   coaching: CoachingMode
   /** Show the live angle readout on the workout screen. */
   showDetails: boolean
+  /** Say each rep number out loud ("one, two, three…"). */
+  countAloud: boolean
 }
 
-export const DEFAULT_SETTINGS: Settings = { coaching: 'all', showDetails: true }
+export const DEFAULT_SETTINGS: Settings = { coaching: 'all', showDetails: true, countAloud: true }
 
 const KEY = 'spotter.settings.v2'
 

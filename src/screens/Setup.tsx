@@ -5,6 +5,10 @@ import { detectDevice, type Device } from '../device'
 import { SetupIllustration } from '../components/SetupIllustration'
 import type { Exercise } from '../exercises'
 import type { CoachingMode, Settings } from '../settings'
+import { voice } from '../voice'
+import { audition, chooseVoice, chosenVoice } from '../voice/clipVoice'
+import { VOICE_OPTIONS } from '../voice/voices'
+import { unlockSounds } from '../voice/sounds'
 
 /** The first tip: where to put the device, for this exercise. */
 function placementTip(device: Device, height: Exercise['camera']['height']) {
@@ -18,6 +22,29 @@ const COACHING: { mode: CoachingMode; label: string; detail: string }[] = [
   { mode: 'safety', label: 'Safety only', detail: 'Only warnings that help prevent injury.' },
   { mode: 'off', label: 'Off', detail: 'Just counting your reps.' },
 ]
+
+/** One on/off row in the options box. */
+function SwitchRow({ label, hint, on, onToggle }: { label: string; hint: string; on: boolean; onToggle: () => void }) {
+  return (
+    <button
+      role="switch"
+      aria-checked={on}
+      onClick={onToggle}
+      className="press flex min-h-14 w-full items-center justify-between gap-4 border-t border-line px-4 py-3 text-left"
+    >
+      <span>
+        <span className="text-[15px]">{label}</span>
+        <span className="block text-[13px] text-pretty text-muted">{hint}</span>
+      </span>
+      <span
+        aria-hidden="true"
+        className={`flex h-6 w-10 shrink-0 items-center border px-0.5 transition-colors duration-150 ${on ? 'justify-end border-accent bg-accent' : 'justify-start border-line bg-paper-2'}`}
+      >
+        <span className={`size-4 ${on ? 'bg-accent-ink' : 'bg-faint'}`} />
+      </span>
+    </button>
+  )
+}
 
 export function Setup({
   exercise,
@@ -36,6 +63,12 @@ export function Setup({
   const [device, setDevice] = useState<Device>(detectDevice)
   const other: Device = device === 'laptop' ? 'phone' : 'laptop'
   const tips = [placementTip(device, exercise.camera.height), ...exercise.tips]
+  const [voiceKey, setVoiceKey] = useState(chosenVoice)
+  const pickVoice = (key: string) => {
+    chooseVoice(key)
+    setVoiceKey(key)
+    void audition(key, 'Six. Chest up.') // hear it straight away (the tap also unlocks sound)
+  }
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-[640px] flex-col px-4 sm:px-8">
@@ -95,25 +128,51 @@ export function Setup({
               {COACHING.find((c) => c.mode === settings.coaching)?.detail} We'll always say why a rep didn't count.
             </p>
           </div>
-          <button
-            role="switch"
-            aria-checked={settings.showDetails}
-            onClick={() => onSettings({ showDetails: !settings.showDetails })}
-            className="press flex h-14 w-full items-center justify-between border-t border-line px-4 text-left"
-          >
-            <span>
-              <span className="text-[15px]">Show details</span>
-              <span className="block text-[13px] text-muted">Live joint angles on screen</span>
-            </span>
-            <span aria-hidden="true" className={`flex h-6 w-10 items-center border px-0.5 transition-colors duration-150 ${settings.showDetails ? 'justify-end border-accent bg-accent' : 'justify-start border-line bg-paper-2'}`}>
-              <span className={`size-4 ${settings.showDetails ? 'bg-accent-ink' : 'bg-faint'}`} />
-            </span>
-          </button>
+          <div className="border-t border-line p-4">
+            <p className="label text-muted" id="voice-label">
+              Coach voice
+            </p>
+            <div role="radiogroup" aria-labelledby="voice-label" className="mt-3 grid grid-cols-2 gap-px border border-line bg-line sm:grid-cols-4">
+              {VOICE_OPTIONS.map((v) => {
+                const on = voiceKey === v.key
+                return (
+                  <button
+                    key={v.key}
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => pickVoice(v.key)}
+                    className={`press flex min-h-14 flex-col items-start justify-center px-3 py-2 text-left ${on ? 'bg-ink text-paper' : 'bg-paper hover:bg-paper-2'}`}
+                  >
+                    <span className="text-[15px]">{v.name}</span>
+                    <span className={`text-[12px] ${on ? 'text-paper/70' : 'text-muted'}`}>{v.description}</span>
+                  </button>
+                )
+              })}
+            </div>
+            <p className="mt-2 text-[13px] text-muted">Tap a voice to hear it.</p>
+          </div>
+          <SwitchRow
+            label="Count reps out loud"
+            hint="Hear each rep number, handy when you're away from the screen"
+            on={settings.countAloud}
+            onToggle={() => onSettings({ countAloud: !settings.countAloud })}
+          />
+          <SwitchRow
+            label="Show details"
+            hint="Live joint angles on screen"
+            on={settings.showDetails}
+            onToggle={() => onSettings({ showDetails: !settings.showDetails })}
+          />
         </section>
 
         <div className="mt-auto pt-10">
           <button
-            onClick={onStart}
+            onClick={() => {
+              // Phones only allow sound after a tap: unlock speech and sounds here, inside the tap.
+              voice.unlock()
+              unlockSounds()
+              onStart()
+            }}
             className="press flex h-16 w-full items-center justify-center gap-3 bg-accent text-lg font-medium tracking-[-0.01em] text-accent-ink hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:h-[72px] sm:text-xl"
           >
             Start

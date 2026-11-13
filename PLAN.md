@@ -34,6 +34,14 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 
 ---
 
+## How each step is tested
+
+- **Test lab (`?lab`)** for anything that doesn't depend on camera tracking: voice lines, wording, timing,
+  coaching settings and feedback rules. It plays every voice line on demand and runs scripted, simulated sets
+  through the real counting and coaching code.
+- **Real exercise** only when tracking or rule thresholds change, since those need a real body in front of the camera.
+- Plus automated simulations during development (synthetic angle sequences through the same code).
+
 ## Steps
 
 > **Order change (Nov 12):** design is deferred, so the build order is now
@@ -133,10 +141,22 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** each coaching mode shows only its cues; details switch hides/shows the angles; counting starts only after "Go".
 
 ### Step 11 — Spoken cues (swappable voice)
+- **Status (Nov 13): ✅ passed** — spoken countdown, rep chime and number, cues in one phrase, a separate sound and spoken reason when a rep doesn't count, spoken positioning prompts, "Count reps out loud" switch. Tested in the Test lab (`?lab`).
 - `voice/index.ts` defines `speak(cueId, text)`; `voice/browserVoice.ts` uses the browser's speech (waits for voices to load).
 - Speak only at the end of a rep, max once every ~4 s, never the same cue twice in a row.
 - Distance-first audio: optional **rep count out loud** ("one, two…"), a short **sound per rep** and a different one for a **no-rep**, spoken **no-reps**, **position prompts** and **form cues** (following the coaching setting), spoken countdown.
 - **Done when:** on the phone you hear cues while squatting, it never talks over itself, and switching voice means editing one import line.
+
+### Step 11b — Natural voice: ElevenLabs clips, 4 voice options (added Nov 13)
+- **Status (Nov 13): ✅ passed** — 4 voices (Arjun, Meera, Max, Ava) picked by ear from a shortlist of the library's most-used Indian and American English voices; delivery = Eleven v4 + tone hints, picked from 4 styles compared by ear. 324 clips, silence trimmed, 300 ms pause between number and cue. Coach voice picker with preview on the setup screen.
+- Browser speech sounded robotic, with no natural pauses ("Six chest up"). Replace it with **pre-recorded ElevenLabs clips**:
+  every line Spotter can say (~90) is generated once and shipped with the app. No API calls while working out,
+  no per-user cost, works offline, so it stays within the brief's "no paid AI APIs" (no runtime calls).
+- Lines are played as separate clips with a short **natural pause** between them ("Six." … "Chest up.").
+- **4 voice options** with our own names (Indian male, Indian female, a calm British "Jarvis-type" male and female), picked by the user.
+- Any line without a clip falls back to browser speech, so nothing goes silent.
+- One command regenerates clips: `npm run voice:generate` (API key stays in the git-ignored `.env.local`).
+- **Done when:** every line plays as a natural clip in all 4 voices in the Test lab; a simulated set sounds human, with pauses between number and cue.
 
 ### Step 12 — Positioning guidance ("Can't see you"), shown + spoken
 - Detect when the user is **facing the camera** (not side-on): show "facing" instead of a side, pause counting.
@@ -162,6 +182,34 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Includes a more polished look for the tracking points and skeleton overlay.
 - **Done when** all 5 are true: (1) rep number animates on each rep, (2) screen changes slide/fade under 300 ms, (3) every tap target ≥ 44 px, (4) all text readable on the camera feed, (5) light and dark phone settings both look right.
 
+### Step 15b — Hands-free end
+- Finish the set without touching the device: walk back towards it, or stand idle ~10 s → summary.
+- **Done when:** walking up to the device ends the set; standing still for ~10 s ends it; a normal pause between reps doesn't.
+
+### Step 15c — User-ready mode
+- Joint-angle details hidden by default for real users (they stay one switch away, and on for demos).
+- **Done when:** a fresh visit shows no angle box; the switch brings it back.
+
+### Step 18 — Knee push-up mode
+- A separate "Knee push-up" exercise (ACSM/CSEP have norms for it): its own rule-pack file, same plank and depth rules with knees down.
+- **Done when:** 10 knee push-ups count as 10 in knee mode; full push-ups mode still rejects them.
+
+### Step 19 — Push-up head-position tip
+- Head drop / forward head (NASM; Myer: neck in line with the torso). Ear points are noisy, so this is an after-set tip, not a live cue.
+- **Done when:** a set with the head dropped gets the tip on the summary; a neutral head doesn't.
+
+### Step 20 — Exercise demo before starting
+- Short animated skeleton demo of a good rep on the setup screen (built in code, on-brand, works offline). Filmed demos later.
+- **Done when:** both exercises show a looping demo that matches the rules (depth, body line).
+
+### Step 21 — Accuracy evals on recorded video
+- Run the app on recorded clips instead of the live camera, to measure rep and cue accuracy repeatably.
+- **Done when:** a set of labelled clips produces a rep-accuracy and cue-accuracy report (the brief's 90% target).
+
+### Step 22 — Less space needed
+- Test how close "close enough" is now that feet can be out of frame for push-ups; update setup distances.
+- **Done when:** the setup screen's distances are the smallest that still pass the in-view and accuracy checks.
+
 ### Step 17 — Tester round + metrics
 - Recruit 3–5 testers by **Nov 14**. Each does 10 squats + 10 push-ups.
 - `TESTING.md` template: rep accuracy = counted ÷ real reps; cue accuracy = correct cues ÷ cues shown; "smooth" = ≥ 20 fps with no freeze; reuse = "would you use it again?" yes/no.
@@ -169,14 +217,9 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 
 ---
 
-## Later (not v1)
-- **User-ready mode:** joint-angle details hidden by default (kept visible in v1 to show the reasoning).
-- **Hands-free end:** finish the set by walking back to the device or standing idle ~10 s, no tap needed.
-- **Less space needed:** test how close is "close enough" now that feet can be out of frame for push-ups.
-- **Exercise demo before starting** (lower priority). Plan: v1-stretch = animated skeleton demo built in code (on-brand, tiny, offline); later = real filmed demo per exercise. Avoid embedding third-party YouTube videos.
-- Run the app on a recorded video file to measure accuracy repeatably (evals).
-- ElevenLabs pre-generated voice clips (swap in via `voice/`).
+## Later
+- Filmed exercise demos (step 20 starts with an animated one).
 - More exercises (one rule-pack file each).
 
 ## Schedule guide
-Nov 11: 1 · Nov 12: 2–4 · Nov 13: 5–6 · Nov 14: 7–8 (+ recruit testers) · Nov 15: 9–10 · Nov 16: 11–12 · Nov 17: 13–14 · Nov 18: 15–16 · Nov 19–20: 17 + fixes.
+Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 15c user-ready mode → 18 knee push-ups → 19 head tip → 20 demo → 21 evals → 16 polish → 22 less space → 17 tester round (recruit testers now).
