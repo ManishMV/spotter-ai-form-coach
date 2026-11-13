@@ -347,6 +347,10 @@ function QuickCheck({ exercise, device, onClose, onGo }: { exercise: Exercise; d
         >
           Got it, start
         </button>
+        {/* Said right before the browser asks for the camera, when people wonder where the video goes. */}
+        <p className="mt-3 text-center text-[13px] text-pretty text-muted">
+          Your video stays on your device. Nothing is recorded or sent anywhere.
+        </p>
       </motion.div>
     </motion.div>
   )
