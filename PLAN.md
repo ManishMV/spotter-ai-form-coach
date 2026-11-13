@@ -136,7 +136,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Status (Nov 13): ✅ passed** — each coaching mode shows only its cues, details switch works, counting starts at "Go", choices remembered after reload.
 - Users will usually be 2–3 m from the device, so the screen is secondary and mid-set taps aren't possible.
 - Setup screen: **Coaching** = All cues / Safety only / Off (no-reps and position prompts always on), and **Show details** (live angles). Saved **per exercise** and kept **for the day** (back to defaults after midnight).
-- 5-second **start countdown** after tapping Start, so there's time to walk back before counting begins.
+- 5-second **start countdown** after tapping Start, so there's time to walk back before counting begins. *(Changed Nov 13: the countdown now waits until you're in position, then counts 3-2-1-Go; prompts before it are one at a time.)*
 - Push-ups on a phone: tip to turn the phone sideways (a lying body fits a landscape frame from closer).
 - **Done when:** each coaching mode shows only its cues; details switch hides/shows the angles; counting starts only after "Go".
 

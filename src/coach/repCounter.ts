@@ -33,7 +33,7 @@ const isRestingOnFloor = (a: Angles) => a.upperArm !== null && a.upperArm < -15
 /** Anything shorter than this is a tracking blip, not a movement. */
 const GLITCH_MS = 350
 
-const METRICS: Metric[] = ['knee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance', 'upperArm', 'kneeLift', 'leanVsShin', 'heelLift', 'hipOffset', 'thighTilt', 'hipsRiseFirst', 'footTilt', 'descentMs', 'collapsedMs']
+const METRICS: Metric[] = ['knee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance', 'upperArm', 'kneeLift', 'leanVsShin', 'heelLift', 'hipOffset', 'thighTilt', 'hipsRiseFirst', 'leanAtBottom', 'footTilt', 'descentMs', 'collapsedMs']
 
 const freshStats = (): RepStats =>
   Object.fromEntries(METRICS.map((m) => [m, { min: null, max: null, median: null }])) as RepStats
@@ -57,6 +57,8 @@ export class RepCounter {
   private bottom: { value: number; lean: number | null; leanAfter: number | null; timeMs: number } | null = null
   /** Time resting on the floor this rep, and the previous frame's time (for frame durations). */
   private collapsedMs = 0
+  /** Torso-vs-shin lean on each frame in the bottom half of the rep (for leanAtBottom). */
+  private bottomLeans: number[] = []
   private lastFrameMs: number | null = null
 
   constructor(rule: RepRule) {
@@ -103,6 +105,7 @@ export class RepCounter {
 
     // phase === 'down'
     this.record(angles)
+    if (angles.leanVsShin !== null) this.bottomLeans.push(angles.leanVsShin)
     this.trackAscent(value, angles.torsoLean, timeMs)
     if (!atTop) return null
 
@@ -134,6 +137,7 @@ export class RepCounter {
     this.samples = this.freshSamples()
     this.bottom = null
     this.collapsedMs = 0
+    this.bottomLeans = []
     // Still at the top: carry over the top's min/max (not medians) so the next rep's stats
     // include the whole start position, e.g. the most upright body angle at the top, which
     // tells a knee push-up from a full one.
@@ -158,6 +162,8 @@ export class RepCounter {
     if (b && b.lean !== null && b.leanAfter !== null) this.stats.hipsRiseFirst = one(b.leanAfter - b.lean)
     if (b) this.stats.descentMs = one(b.timeMs - this.startMs)
     this.stats.collapsedMs = one(this.collapsedMs)
+    const leanAtBottom = median(this.bottomLeans)
+    if (leanAtBottom !== null) this.stats.leanAtBottom = one(leanAtBottom)
     return this.stats
   }
 

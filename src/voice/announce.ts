@@ -41,7 +41,7 @@ function rankOf(rep: Rep, feedback: Feedback | null): Rank | null {
 
 /**
  * Chime / low tone always play (they mark every rep). Then the policy decides what, if anything,
- * is said: "Four.", "Four. Chest up.", "Sit deeper." or nothing.
+ * is said: "Four.", "Four. Chest up.", "A bit deeper." or nothing.
  */
 export function announceRep(
   rep: Rep,

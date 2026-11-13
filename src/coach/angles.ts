@@ -17,7 +17,7 @@ export type Angles = Record<Metric, number | null>
 export const NO_ANGLES: Angles = {
   knee: null, hip: null, elbow: null, torsoLean: null, bodyLine: null, stanceSplit: null, balance: null,
   upperArm: null, kneeLift: null, leanVsShin: null, heelLift: null, hipOffset: null, thighTilt: null,
-  hipsRiseFirst: null, footTilt: null, descentMs: null, collapsedMs: null,
+  hipsRiseFirst: null, leanAtBottom: null, footTilt: null, descentMs: null, collapsedMs: null,
 }
 
 /** Angle in degrees at point b, formed by a–b–c (e.g. hip–knee–ankle = knee angle). Uses 3D. */
@@ -213,6 +213,7 @@ export function measureAngles(screen: NormalizedLandmark[], world: Landmark[], s
     thighTilt: seen(p.hip, p.knee) ? upperArmTilt(world[p.hip], world[p.knee]) : null, // same maths: line vs horizontal
     footTilt: seen(p.heel, p.toe) ? Math.abs(heelLift(world[p.heel], world[p.toe])) : null,
     hipsRiseFirst: null, // worked out per rep by the rep counter
+    leanAtBottom: null, // worked out per rep by the rep counter
     descentMs: null, // worked out per rep by the rep counter
     collapsedMs: null, // worked out per rep by the rep counter
   }

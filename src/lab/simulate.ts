@@ -98,7 +98,8 @@ export const SCENARIOS: Scenario[] = [
     name: 'Squats: mixed form',
     reps: [
       { note: 'Clean rep' },
-      { note: 'Leans far forward (safety)', lean: 30 },
+      { note: 'Leans far forward', lean: 38 },
+      { note: 'Leans far forward again (pattern)', lean: 38 },
       { note: 'Clean rep (fix should be praised)' },
       { note: 'Half squat (won’t count)', knee: 125, thigh: 30 },
       { note: 'Lunge stance (won’t count)', split: 0.9, balance: 0.5 },

@@ -68,7 +68,9 @@ export function Summary({
         {target !== null && (
           <p className={`label mt-4 ${hitTarget ? 'text-accent' : 'text-muted'}`}>{hitTarget ? 'Target reached' : 'Stopped early'}</p>
         )}
-        {reps > 0 && (
+        {/* Only shown when there's something good to say: a "0 of 5" line feels like failure,
+            and the "Next time" tip below already says what to work on. */}
+        {cleanReps > 0 && (
           <p className="mt-3 text-[15px] text-muted">
             {cleanReps === reps ? 'Every rep had good form.' : `${cleanReps} of ${reps} with good form.`}
           </p>

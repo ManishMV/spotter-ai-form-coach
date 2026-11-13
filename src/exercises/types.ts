@@ -22,6 +22,7 @@ export type Metric =
   //             ~0 = straight plank; negative = hips sagging; positive = hips piking.
   | 'thighTilt' // hip→knee line vs horizontal. Positive = hip above knee; 0 = thigh parallel to the floor
   //             (the squat depth standard: hips at knee height).
+  | 'leanAtBottom' // per rep: typical torso-vs-shin lean in the bottom half of the squat (median, so one noisy frame can't trigger a cue)
   | 'hipsRiseFirst' // per rep, not per frame: how much the torso tips further forward on the way up,
   //                 compared with the bottom (degrees). ~0 = chest and hips rise together.
   | 'footTilt' // how far the foot tips either way (heel OR toes off the floor), degrees. ~0 = whole foot down.

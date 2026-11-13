@@ -17,6 +17,8 @@ import { POSITION } from '../voice/lines'
 
 /** Prompts about where to stand. Spoken when they appear, at most every few seconds each. */
 const PROMPT_REPEAT_MS = 6000
+/** Each where-to-stand prompt is spoken at most this many times per set; after that it's shown only. */
+const MAX_PROMPT_REPEATS = 2
 
 const fmt = (deg: number | null) => (deg === null ? '—' : `${Math.round(deg)}°`)
 
@@ -138,37 +140,69 @@ export function Workout({
     return stop
   }, [start, stop])
 
-  // Run the countdown once the camera is live: 5, 4, 3, 2, 1, Go — then start counting.
-  const COUNTDOWN_FROM = 5
+  // Getting ready, calmly: no countdown until the user is clearly set — in view, side-on, every needed
+  // body part visible and in the start position — for a full second. Then a short 3-2-1-Go.
+  // If they step out or turn during the countdown, it stops and waits again.
+  const COUNTDOWN_FROM = 3
+  const READY_HOLD_MS = 1000 // in position this long before the countdown starts
+  const LOST_MS = 600 // out of position this long during the countdown cancels it
+  // In place = visible, side-on and every needed part in the picture. To start, also in the start position.
+  // Once the countdown runs, only leaving your place stops it: shifting your stance or starting a rep early
+  // doesn't (the rep counter waits for the start position after "Go" anyway).
+  const inPlace = status === 'running' && !!readout.side && readout.inView && !readout.facing
+  const ready = inPlace && isAtTop(readout.angles)
+  const countdownTimer = useRef(0)
+  useEffect(() => () => window.clearInterval(countdownTimer.current), [])
   useEffect(() => {
-    if (status !== 'running' || counting.current) return
-    setCountdown(COUNTDOWN_FROM)
-    voice.say('Get in position', { interrupt: true })
-    let n = COUNTDOWN_FROM
-    const timer = window.setInterval(() => {
-      n -= 1
-      if (n === 0) {
-        counting.current = true // counting starts on "Go"
-        tracker.start()
+    if (counting.current || finished.current) return
+    if (ready && countdown === null) {
+      let t = 0
+      const begin = () => {
+        // Let a set-up prompt that's still playing finish first, so "3" never cuts into it.
+        if (voice.isSpeaking()) {
+          t = window.setTimeout(begin, 200)
+          return
+        }
+        // 3, 2, 1, Go: one beat per second, each spoken over its tick.
+        let n = COUNTDOWN_FROM
+        setCountdown(n)
+        playSound('tick')
+        voice.say(String(n), { interrupt: true })
+        countdownTimer.current = window.setInterval(() => {
+          n -= 1
+          if (n < 0) {
+            window.clearInterval(countdownTimer.current)
+            setCountdown(null)
+            return
+          }
+          if (n === 0) {
+            counting.current = true // counting starts on "Go"
+            tracker.start()
+          }
+          setCountdown(n)
+          playSound(n === 0 ? 'go' : 'tick')
+          voice.say(n === 0 ? 'Go' : String(n), { interrupt: true })
+        }, 1000)
       }
-      if (n < 0) {
-        window.clearInterval(timer)
+      t = window.setTimeout(begin, READY_HOLD_MS)
+      return () => window.clearTimeout(t)
+    }
+    if (!inPlace && countdown !== null && countdown > 0) {
+      const t = window.setTimeout(() => {
+        window.clearInterval(countdownTimer.current) // they moved away: wait until they're set again
+        voice.stop()
         setCountdown(null)
-        return
-      }
-      setCountdown(n)
-      if (n <= 3) {
-        playSound(n === 0 ? 'go' : 'tick')
-        voice.say(n === 0 ? 'Go' : String(n), { interrupt: true })
-      }
-    }, 1000)
-    return () => window.clearInterval(timer)
-  }, [status, tracker])
+      }, LOST_MS)
+      return () => window.clearTimeout(t)
+    }
+  }, [ready, inPlace, countdown, tracker])
 
   // The cue line: set-up and positioning first, then the latest rep feedback, then status.
   const cue =
     status === 'loading'
       ? 'Starting camera…'
+      : countdown !== null
+      ? ''
       : !readout.side
         ? POSITION.stepIntoView
         : !readout.inView
@@ -183,21 +217,40 @@ export function Workout({
             ? (exercise.reps?.startText ?? '')
             : `Tracking your ${readout.side} side`
 
-  // Speak position prompts (where to stand) when they appear, without repeating them too often.
+  // Speak where-to-stand prompts calmly: only once a prompt has stayed on screen for a moment (so a
+  // flicker doesn't trigger speech), one at a time, never over the countdown, and not repeated too often.
+  const PROMPT_SETTLE_MS = 2000 // on screen this long before it's spoken
+  const PROMPT_GAP_MS = 4000 // at least this long between any two spoken set-up prompts
   const isPrompt =
     status === 'running' &&
-    (cue === POSITION.stepIntoView ||
-      cue === POSITION.moveBack ||
-      cue === POSITION.turn ||
-      (cue === exercise.reps?.startText && countdown === null))
+    countdown === null &&
+    (cue === POSITION.stepIntoView || cue === POSITION.moveBack || cue === POSITION.turn || cue === exercise.reps?.startText)
   const lastPrompt = useRef<{ text: string; at: number } | null>(null)
+  const promptsSaid = useRef(new Map<string, number>()) // each prompt is spoken at most twice per set
   useEffect(() => {
     if (!isPrompt) return
-    const now = Date.now()
-    const last = lastPrompt.current
-    if (last && last.text === cue && now - last.at < PROMPT_REPEAT_MS) return
-    lastPrompt.current = { text: cue, at: now }
-    voice.say(cue, { interrupt: false })
+    let t = 0
+    const trySay = () => {
+      const now = Date.now()
+      const last = lastPrompt.current
+      // Something is playing, or the last prompt was moments ago: check again shortly (still shown on screen).
+      const waitMs = voice.isSpeaking() ? 300 : last ? last.at + PROMPT_GAP_MS - now : 0
+      if (waitMs > 0) {
+        t = window.setTimeout(trySay, waitMs)
+        return
+      }
+      if (last && last.text === cue && now - last.at < PROMPT_REPEAT_MS) {
+        t = window.setTimeout(trySay, last.at + PROMPT_REPEAT_MS - now)
+        return
+      }
+      const said = promptsSaid.current.get(cue) ?? 0
+      if (said >= MAX_PROMPT_REPEATS) return // after that it stays on screen only
+      promptsSaid.current.set(cue, said + 1)
+      lastPrompt.current = { text: cue, at: now }
+      voice.say(cue, { interrupt: false })
+    }
+    t = window.setTimeout(trySay, PROMPT_SETTLE_MS)
+    return () => window.clearTimeout(t)
   }, [isPrompt, cue])
 
   return (
@@ -238,7 +291,7 @@ export function Workout({
             <p className="text-[clamp(120px,30vw,320px)] leading-none font-semibold tracking-[-0.05em] text-accent tabular-nums">
               {countdown === 0 ? 'Go' : countdown}
             </p>
-            {countdown > 0 && <p className="label mt-4 text-white/80">Get in position</p>}
+            {countdown > 0 && <p className="label mt-4 text-white/80">Hold still</p>}
           </motion.div>
         )}
       </AnimatePresence>

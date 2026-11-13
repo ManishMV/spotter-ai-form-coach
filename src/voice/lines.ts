@@ -64,7 +64,7 @@ export function allLines(coachName?: string): Line[] {
   Object.values(POSITION).forEach((t) => add('prompt', t))
   for (const e of [squat, pushup]) {
     add('prompt', e.reps?.startText)
-    e.cues?.forEach((c) => add('cue', c.text)) // e.g. "Sit deeper" is both a cue and a reason: coach it as a cue
+    e.cues?.forEach((c) => add('cue', c.text)) // if a line is both a cue and a reason, coach it as a cue
     e.cues?.forEach((c) => add('praise', c.praise))
     add('reason', e.reps?.partialText)
     e.reps?.requires?.forEach((r) => add('reason', r.text))

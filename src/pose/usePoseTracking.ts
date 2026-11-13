@@ -8,6 +8,9 @@ import { PointSmoother } from './smoothing'
 import type { BodyPart } from '../exercises/types'
 import { isFacingCamera, measureAngles, NO_ANGLES, partsInView, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
 
+/** Analyses right after a model loads that are left out of speed measurements (set-up time). */
+const WARMUP_ANALYSES = 5
+
 export type TrackingStatus = 'idle' | 'loading' | 'running' | 'error'
 /** `facing` = person faces the camera instead of standing side-on (side-view checks don't work then). */
 /** `inView` = every body part the exercise needs is inside the picture. */
@@ -107,20 +110,27 @@ export function usePoseTracking(
       let lastReadout = 0
       // Speed: average analysis time, and when the last analysis ran. On a slow device, back-to-back
       // analyses would leave no time for the screen, sounds and voice, so leave a short gap after each.
+      // The first analyses after a model loads are very slow (the graphics card is being set up: seconds,
+      // not milliseconds). They're left out of the average: counting them made the gap after each analysis
+      // seconds long, so tracking crawled at ~1 frame a second for the first half-minute (seen Nov 13).
       let avgMs = 0
       let lastAnalysis = 0
+      let warmupLeft = WARMUP_ANALYSES
       const SLOW_MS = 40 // above this per analysis, the device can't do ~25/s comfortably
+      const MAX_GAP_MS = 150 // never wait longer than this between analyses
 
       const loop = () => {
         const now = performance.now()
-        const gap = avgMs > SLOW_MS ? avgMs * 0.25 : 0 // breathing room on slow devices (~10 analyses/s at 80 ms)
-        if (video.currentTime !== lastVideoTime && now - lastAnalysis >= avgMs + gap) {
+        // Breathing room on slow devices (~10 analyses/s at 80 ms), capped so it can never stall tracking.
+        const wait = avgMs > SLOW_MS ? Math.min(avgMs * 1.25, MAX_GAP_MS) : 0
+        if (video.currentTime !== lastVideoTime && now - lastAnalysis >= wait) {
           lastVideoTime = video.currentTime
           lastAnalysis = now
           const t0 = performance.now()
           const result = landmarker!.detectForVideo(video, now)
           const took = performance.now() - t0
-          avgMs = avgMs === 0 ? took : avgMs * 0.9 + took * 0.1
+          if (warmupLeft > 0) warmupLeft--
+          else avgMs = avgMs === 0 ? took : avgMs * 0.9 + took * 0.1
           const raw = result.landmarks[0]
           const rawWorld = result.worldLandmarks[0]
           let current: Readout = EMPTY_READOUT
@@ -149,7 +159,7 @@ export function usePoseTracking(
               diag: debug ? stanceDiagnostics(screen, world, side, video.videoWidth / video.videoHeight) : null,
             }
             onFrameRef.current?.(current.angles, now, facing, inView)
-            drawSkeleton(ctx, [screen], debug ? null : side === 'left' ? 'right' : 'left', debug) // draw only the side we track
+            drawSkeleton(ctx, [screen], debug ? null : side === 'left' ? 'right' : 'left') // draw only the side we track
           } else {
             // Nobody in frame: start smoothing fresh next time.
             screenSmoother.reset()
@@ -170,7 +180,7 @@ export function usePoseTracking(
         if (now - fpsStart >= 1000) {
           setFps(frames)
           setAnalysisMs(Math.round(avgMs))
-          const warmedUp = now - startedAt > 3000
+          const warmedUp = warmupLeft === 0 && now - startedAt > 3000
           slowSeconds = warmedUp && frames < 20 ? slowSeconds + 1 : 0
           if (slowSeconds >= 3 && size === 'full' && !forced && !switching) {
             switching = true
@@ -178,6 +188,8 @@ export function usePoseTracking(
               if (stopped) return lite.close()
               landmarker?.close()
               landmarker = lite
+              avgMs = 0 // fresh model: measure it fresh, after its own warm-up
+              warmupLeft = WARMUP_ANALYSES
               setModel('lite')
             })
           }

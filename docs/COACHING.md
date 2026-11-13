@@ -38,10 +38,10 @@ position prompts are always on, because without them the count would look random
 
 | Exercise | Cue | Fault | Weight | Why |
 |---|---|---|---|---|
-| Squat | "Chest up" | Torso leaning far more than the shins | **Safety** | Loads the lower back (Myer 2014; Kushner 2015) |
+| Squat | "Chest up" | Torso leaning far more than the shins through the bottom of the squat | **Technique** | Loads the lower back (Myer 2014; Kushner 2015). Moved from safety on Nov 13: with body weight the load is low, and speaking on the first rep felt naggy |
 | Squat | "Lead with your chest" | Hips rising before the chest | **Safety** | Shifts load to the lower back on the way up (Myer criterion 10; Kushner 2015) |
 | Squat | "Lower with control" | Dropping into the bottom in under 0.5 s | Technique | One fast rep isn't dangerous; a habit of dropping is (Myer: descent slower than ascent) |
-| Squat | "Sit deeper" | Thigh still above parallel | Technique | Progress, not injury |
+| Squat | "A bit deeper" | Thigh still above parallel (the rep counted) | Technique | Progress, not injury. Different words from the no-rep reason "Sit deeper", so a counted rep never sounds like a missed one |
 | Squat | "Whole foot down" | Heel **or** toes lifting | Technique | Balance and ankle mobility (Myer; Kushner: "push through the whole foot") |
 | Push-up | "Hips up" | Hips sagging | **Safety** | Lower-back extension, the top safety fault (ACE; Army) |
 | Push-up | "Stay off the floor" | Resting on the floor at the bottom for over 0.8 s | Minor | A quick chest-to-floor touch is good form; only resting counts |
@@ -59,7 +59,7 @@ Users usually stand 2–3 m from the device, so sound is the main channel.
 | Event | What you hear |
 |---|---|
 | Tap Start | "Get ready" (also unlocks sound on phones) |
-| Countdown | "Get in position… 3, 2, 1, Go", with a tick under 3-2-1 and a short start tone on "Go" |
+| Countdown | Starts only once you're set (in view, side-on, every needed body part visible, in the start position) for 1 s: "3, 2, 1, Go", a tick under 3-2-1 and a short start tone on "Go". Moving out of position stops it. Before that, one where-to-stand prompt at a time, spoken only after it has stayed on screen for 1.5 s |
 | Rep counted | A rising chime. A cue only if needed ("Chest up"), never bundled with the number. Rep numbers out loud are optional (*Count reps out loud*, off by default: the chime is enough) |
 | Rep didn't count | A low double tone, plus the reason: "Sit deeper." |
 | Where to stand | "Turn to your side", "Move back so your whole body is in view": spoken when it appears, at most every 6 s |
