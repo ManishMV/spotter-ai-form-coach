@@ -300,7 +300,8 @@ export function Workout({
           <LogoMark size={24} />
           <span className="label text-white/80">{exercise.name}</span>
         </div>
-        <button onClick={() => finish('end')} className="label press h-11 border border-white/25 bg-black/40 px-5 text-white backdrop-blur hover:bg-white hover:text-black">
+        {/* Solid white so it reads on any camera background (was see-through and got lost on bright rooms). */}
+        <button onClick={() => finish('end')} className="label press h-11 bg-white px-6 text-black shadow-[0_1px_8px_rgba(0,0,0,0.35)] hover:bg-accent hover:text-white">
           End
         </button>
       </header>
