@@ -1,5 +1,6 @@
 // Home page hero: Spotter in use, as a side-view scene. A laptop on a table watches the figure squat a few
-// metres away; the laptop shows the rep count, and what the coach says comes out as a speech bubble.
+// metres away; the big rep count sits below, like the workout screen, and what the coach says comes out
+// of the laptop as a speech bubble.
 // The loop has three reps so the coaching shows: a good rep (counted), a half squat (not counted, "Sit
 // deeper"), and a deep rep again (counted, praised "Nice depth"). Same figure maths as the setup demo.
 import { useEffect, useState } from 'react'
@@ -54,7 +55,7 @@ export function LiveDemo() {
   return (
     <figure className="dot-grid m-0 border border-line p-4 sm:p-6">
       <svg
-        viewBox="0 0 400 230"
+        viewBox="0 0 400 252"
         className="block h-auto w-full"
         role="img"
         aria-label="Spotter in use: a laptop watches someone squat. A good rep is counted, a half squat gets the spoken cue Sit deeper, and the next deep rep is praised: Nice depth."
@@ -69,18 +70,9 @@ export function LiveDemo() {
         <path d="M24 142 H112 M32 142 V190 M104 142 V190" stroke={ink} strokeWidth="2" fill="none" />
         <rect x="38" y="136" width="56" height="5" fill={ink} />
         <path d="M46 136 L51 100 L83 100 L78 136 Z" fill={ink} />
-        <text
-          x="65"
-          y="128"
-          textAnchor="middle"
-          fill={flash ? 'var(--accent)' : 'var(--paper)'}
-          style={{ font: '600 20px var(--font-sans)', letterSpacing: '-0.04em' }}
-        >
-          {count}
-        </text>
         <circle cx="64" cy="104" r="1.6" fill="var(--accent)" />
         {notCounted && (
-          <text x="92" y="122" fill="var(--muted)" style={{ font: '500 7.5px var(--font-mono)', letterSpacing: '0.08em' }}>
+          <text x="88" y="236" fill="var(--muted)" style={{ font: '500 8px var(--font-mono)', letterSpacing: '0.08em' }}>
             ✕ NOT COUNTED
           </text>
         )}
@@ -96,6 +88,17 @@ export function LiveDemo() {
             </text>
           </g>
         )}
+
+        {/* The big rep count, like the workout screen: flashes orange when a rep counts */}
+        <text x="16" y="208" fill="var(--muted)" style={{ font: '500 8px var(--font-mono)', letterSpacing: '0.12em' }}>
+          REPS
+        </text>
+        <text x="13" y="244" fill={flash ? 'var(--accent)' : 'var(--ink)'} style={{ font: '600 38px var(--font-sans)', letterSpacing: '-0.05em' }}>
+          {count}
+        </text>
+        <text x={count >= 10 ? 60 : 40} y="241" fill="var(--muted)" style={{ font: '400 11px var(--font-sans)' }}>
+          of 10
+        </text>
 
         {/* the person, tracked */}
         <g transform={`translate(${shift.x} ${shift.y})`}>
