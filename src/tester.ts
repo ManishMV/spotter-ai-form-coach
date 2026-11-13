@@ -10,12 +10,15 @@ export const FEEDBACK_FORM_URL = 'https://forms.gle/QqekwL1zz9d9yUGK8'
 
 const KEY = 'spotter.tester.sets'
 type Logged = { exercise: string; summary: SetSummary; at: number }
-const MAX_AGE_MS = 2 * 60 * 60 * 1000 // sets older than 2 hours belong to an earlier test, not this one
+// One test = one session, defined like analytics tools do (Google Analytics, PostHog): it ends after
+// 30 minutes with no new set, or as soon as the results are copied. A later set starts a new batch.
+const SESSION_GAP_MS = 30 * 60 * 1000
 
 function load(): Logged[] {
   try {
     const saved = JSON.parse(sessionStorage.getItem(KEY) ?? '[]') as Logged[]
-    return saved.filter((s) => typeof s.at === 'number' && Date.now() - s.at < MAX_AGE_MS)
+    const last = Math.max(0, ...saved.map((s) => s.at ?? 0))
+    return Date.now() - last < SESSION_GAP_MS ? saved : []
   } catch {
     return []
   }
@@ -39,8 +42,9 @@ export function logSet(exercise: string, summary: SetSummary) {
   if (seen.has(summary)) return
   if (summary.durationMs === 0) return // ended before "Go": not a set, so not in the results
   seen.add(summary)
-  if (copiedAll) {
-    sets = []
+  const lastAt = sets.length ? sets[sets.length - 1].at : 0
+  if (copiedAll || Date.now() - lastAt >= SESSION_GAP_MS) {
+    sets = [] // a new test session
     copiedAll = false
   }
   sets = [...sets, { exercise, summary, at: Date.now() }]
