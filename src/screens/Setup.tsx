@@ -145,8 +145,8 @@ export function Setup({
             </div>
             <p className="mt-2 text-[13px] text-pretty text-muted">
               {settings.targetReps
-                ? `The set finishes by itself after ${settings.targetReps} good reps.`
-                : 'No target: the set finishes when you stop for a few seconds.'}
+                ? `The set finishes by itself after ${settings.targetReps} good reps, or when you tap End.`
+                : 'No target: the set finishes when you tap End or stop for a few seconds.'}
             </p>
           </div>
           <div className="p-4">
