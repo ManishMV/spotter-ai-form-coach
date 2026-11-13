@@ -221,6 +221,13 @@ export function Workout({
   // flicker doesn't trigger speech), one at a time, never over the countdown, and not repeated too often.
   const PROMPT_SETTLE_MS = 2000 // on screen this long before it's spoken
   const PROMPT_GAP_MS = 4000 // at least this long between any two spoken set-up prompts
+  // Quiet start: the first seconds after the camera comes on are for propping up the device and walking
+  // back, so prompts are only shown, not spoken, until then.
+  const QUIET_START_MS = 6000
+  const cameraOnAt = useRef<number | null>(null)
+  useEffect(() => {
+    if (status === 'running' && cameraOnAt.current === null) cameraOnAt.current = Date.now()
+  }, [status])
   const isPrompt =
     status === 'running' &&
     countdown === null &&
@@ -234,7 +241,10 @@ export function Workout({
       const now = Date.now()
       const last = lastPrompt.current
       // Something is playing, or the last prompt was moments ago: check again shortly (still shown on screen).
-      const waitMs = voice.isSpeaking() ? 300 : last ? last.at + PROMPT_GAP_MS - now : 0
+      const quietUntil = (cameraOnAt.current ?? now) + QUIET_START_MS
+      const waitMs = voice.isSpeaking()
+        ? 300
+        : Math.max(quietUntil - now, last ? last.at + PROMPT_GAP_MS - now : 0)
       if (waitMs > 0) {
         t = window.setTimeout(trySay, waitMs)
         return
