@@ -3,7 +3,7 @@
 // between them. Any part without a clip (e.g. rep 51, or clips not generated yet) uses browser speech.
 import { cancelSpeech, speakOnce } from './browserVoice'
 import { lineId } from './lines'
-import { audioContext, unlockSounds } from './sounds'
+import { audioContext, playClipNode, trimSilence, unlockSounds, type Clip } from './sounds'
 import type { SayOptions, Voice } from './types'
 import { today } from '../settings'
 import { DEFAULT_VOICE, VOICE_OPTIONS } from './voices'
@@ -25,30 +25,11 @@ try {
   // storage blocked: default voice
 }
 
-/** A decoded clip plus where its speech actually starts and ends (silence trimmed). */
-type Clip = { buffer: AudioBuffer; start: number; end: number }
-
 /** Loaded clips per voice (voice key → line id → clip), so switching or auditioning voices is instant. */
 const cache = new Map<string, Map<string, Clip>>()
 const loading = new Map<string, Promise<void>>()
 
-/**
- * ElevenLabs clips carry ~0.07 s of silence before and ~0.3 s after the speech. Left in, it would
- * stretch every pause by ~0.4 s and make reps sound late, so trim it (keeping a small cushion so
- * soft word endings aren't cut). Then the pause is exactly the gap you hear.
- */
-function trimSilence(buffer: AudioBuffer): Clip {
-  const data = buffer.getChannelData(0)
-  const rate = buffer.sampleRate
-  const THRESHOLD = 0.02
-  let a = 0
-  while (a < data.length && Math.abs(data[a]) < THRESHOLD) a++
-  let b = data.length - 1
-  while (b > a && Math.abs(data[b]) < THRESHOLD) b--
-  const start = Math.max(0, a / rate - 0.02)
-  const end = Math.min(buffer.duration, b / rate + 0.08)
-  return end > start ? { buffer, start, end } : { buffer, start: 0, end: buffer.duration }
-}
+// Silence around each clip is trimmed at load (trimSilence in sounds.ts), so the pause between parts is exact.
 /** Load (and decode) every clip for a voice, once. Missing clips are fine: those lines fall back. */
 function loadClips(voiceKey: string): Promise<void> {
   const ctx = audioContext()
@@ -90,16 +71,7 @@ let current: AudioBufferSourceNode | null = null
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 function playClip(clip: Clip): Promise<void> {
-  const ctx = audioContext()
-  if (!ctx) return Promise.resolve()
-  return new Promise((resolve) => {
-    const src = ctx.createBufferSource()
-    src.buffer = clip.buffer
-    src.connect(ctx.destination)
-    src.onended = () => resolve()
-    current = src
-    src.start(0, clip.start, clip.end - clip.start) // speech only, silence trimmed
-  })
+  return playClipNode(clip, (src) => (current = src)) // speech only, silence trimmed
 }
 
 /** "Four. Chest up." → ["Four", "Chest up"]; keeps commas and dashes inside a part. */

@@ -9,6 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "voice:generate": "tsx scripts/generate-voice.ts",
+    "sounds:generate": "tsx scripts/generate-sounds.ts",
     "preview": "vite preview"
   },
   "dependencies": {

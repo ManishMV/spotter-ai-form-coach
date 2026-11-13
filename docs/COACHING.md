@@ -59,7 +59,7 @@ Users usually stand 2–3 m from the device, so sound is the main channel.
 | Event | What you hear |
 |---|---|
 | Tap Start | "Get ready" (also unlocks sound on phones) |
-| Countdown | "Get in position… 3, 2, 1, Go" |
+| Countdown | "Get in position… 3, 2, 1, Go", with a tick under 3-2-1 and a short start tone on "Go" |
 | Rep counted | A rising chime, plus the rep number (switch: *Count reps out loud*), plus any cue in the same phrase: "Four. Chest up." |
 | Rep didn't count | A low double tone, plus the reason: "Sit deeper." |
 | Where to stand | "Turn to your side", "Move back so your whole body is in view": spoken when it appears, at most every 6 s |
@@ -75,6 +75,11 @@ encouraging*, praise *warm*, reasons *calm*, position prompts *friendly*). Four 
 compared by ear, and this one was the most natural. The silence ElevenLabs adds around each clip is trimmed,
 so the pause between number and cue is exactly 300 ms. Any line without a clip falls back to browser speech.
 Regenerate with `npm run voice:generate` (styles in `scripts/delivery.ts`).
+
+**Sounds:** ElevenLabs sound effects were compared against simple built-in tones for each sound. Only the
+countdown tick (a single crisp click) was kept from ElevenLabs. For short, frequent feedback (rep counted,
+rep didn't count, Go, set complete), the built-in tones were shorter, less tiring over a long set and sounded
+like one family. All sounds are levelled to the same loudness. Regenerate options with `npm run sounds:generate`.
 
 ## Considered, not in v1
 - **Push-up head position** (NASM: forward head; Myer: neck in line with the torso). MediaPipe's ear points are too noisy for a live cue. Planned for v1.1 as an after-set tip.

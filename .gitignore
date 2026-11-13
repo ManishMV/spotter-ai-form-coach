@@ -30,3 +30,6 @@ recordings/
 
 # Voice delivery test clips (compare in the Test lab; never shipped)
 public/voice/_test/
+
+# Sound effect variations (compared in the Test lab; only the picks ship)
+public/sounds/_options/

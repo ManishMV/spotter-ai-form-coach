@@ -10,6 +10,7 @@ import { CoachFeedback } from '../coach/feedback'
 import type { Angles } from '../coach/angles'
 import { voice } from '../voice'
 import { announceRep } from '../voice/announce'
+import { playSound } from '../voice/sounds'
 import { POSITION } from '../voice/lines'
 
 /** Prompts about where to stand. Spoken when they appear, at most every few seconds each. */
@@ -99,7 +100,10 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
         return
       }
       setCountdown(n)
-      if (n <= 3) voice.say(n === 0 ? 'Go' : String(n), { interrupt: true })
+      if (n <= 3) {
+        playSound(n === 0 ? 'go' : 'tick')
+        voice.say(n === 0 ? 'Go' : String(n), { interrupt: true })
+      }
     }, 1000)
     return () => window.clearInterval(timer)
   }, [status])

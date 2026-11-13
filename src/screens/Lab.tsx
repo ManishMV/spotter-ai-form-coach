@@ -16,12 +16,27 @@ import { POSITION } from '../voice/lines'
 import { currentVoice, englishVoices, setVoicePrefs } from '../voice/browserVoice'
 import { audition, chooseVoice, chosenVoice, loadedClipCount, pauseBetweenParts, setPauseBetweenParts } from '../voice/clipVoice'
 import { VOICE_OPTIONS } from '../voice/voices'
-import { playNoRepSound, playRepSound, unlockSounds } from '../voice/sounds'
+import { loadClip, playClipNode, playFallbackSound, playNoRepSound, playRepSound, playSound, unlockSounds } from '../voice/sounds'
+import { SOUND_IDS, type SoundId } from '../voice/soundIds'
 
 const EXERCISES: Record<string, Exercise> = { squat, pushup }
 
 /** Voices to compare side by side. The same lines for each. */
 const AUDITION_VOICES = VOICE_OPTIONS.map((v) => ({ key: v.key, name: v.name, note: v.description }))
+const SOUND_LABELS: Record<SoundId, string> = {
+  rep: 'Rep counted',
+  'no-rep': 'Rep didn’t count',
+  tick: 'Countdown tick',
+  go: '“Go”',
+  'set-complete': 'Set complete',
+}
+/** Play a sound-effect variation file (generated into public/sounds/_options). */
+async function playVariation(id: SoundId, n: number) {
+  ensureUnlocked()
+  const clip = await loadClip(`/sounds/_options/${id}-${n}.mp3`)
+  if (clip) void playClipNode(clip)
+}
+
 const AUDITION_LINES = ['Six. Chest up.', 'Feet side by side — that was a lunge.', 'Nice depth.', 'Move back so your whole body is in view.']
 
 /** Every line an exercise can say, grouped for the "Hear the lines" section. */
@@ -81,6 +96,13 @@ export function Lab() {
     setVoicePrefs(patch)
     setCurrent(currentVoice())
   }
+  // Sound-effect variations exist only during a sound round (npm run sounds:generate).
+  const [hasSoundOptions, setHasSoundOptions] = useState(false)
+  useEffect(() => {
+    fetch('/sounds/_options/manifest.json')
+      .then((r) => setHasSoundOptions(r.ok && (r.headers.get('content-type') ?? '').includes('json')))
+      .catch(() => setHasSoundOptions(false))
+  }, [])
   // Spotter voice options (ElevenLabs clips)
   const [voiceKey, setVoiceKey] = useState(chosenVoice)
   const [clipCount, setClipCount] = useState(loadedClipCount)
@@ -144,7 +166,12 @@ export function Lab() {
 
   const countdown = () => {
     sayNow('Get in position')
-    ;['3', '2', '1', 'Go'].forEach((n, k) => window.setTimeout(() => voice.say(n, { interrupt: true }), 2000 + k * 1000))
+    ;['3', '2', '1', 'Go'].forEach((n, k) =>
+      window.setTimeout(() => {
+        playSound(n === 'Go' ? 'go' : 'tick') // same as the workout screen
+        voice.say(n, { interrupt: true })
+      }, 2000 + k * 1000),
+    )
   }
 
   return (
@@ -158,6 +185,27 @@ export function Lab() {
         Hear every voice line and play simulated sets through the real counting and coaching code, without
         exercising. Tracking accuracy still needs a real workout in front of the camera.
       </p>
+
+      <Section title="Sounds: compare">
+        <p className="mb-3 max-w-[70ch] text-[14px] text-pretty text-muted">
+          “In use” plays what the app uses now (the countdown tick is an ElevenLabs sound; the rest are built-in
+          tones, which tested better as short, frequent feedback). New variations appear here after
+          <code> npm run sounds:generate</code>.
+        </p>
+        <div className="grid gap-px border border-line bg-line">
+          {SOUND_IDS.map((id) => (
+            <div key={id} className="grid gap-3 bg-paper p-4 sm:grid-cols-[170px_1fr] sm:items-center">
+              <p className="text-[15px]">{SOUND_LABELS[id]}</p>
+              <div className="flex flex-wrap gap-2">
+                <Chip onClick={() => (ensureUnlocked(), playFallbackSound(id))}>Built-in</Chip>
+                {hasSoundOptions &&
+                  [1, 2, 3].map((n) => <Chip key={n} onClick={() => void playVariation(id, n)}>{`Option ${n}`}</Chip>)}
+                <Chip onClick={() => (ensureUnlocked(), playSound(id))}>In use</Chip>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
 
       <Section title="Audition: compare voices">
         <div className="grid gap-px border border-line bg-line">
