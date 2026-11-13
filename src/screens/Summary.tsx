@@ -32,20 +32,26 @@ export function Summary({
 }) {
   const { reps, missed, focus, cleanReps, durationMs, target } = summary
   const hitTarget = target !== null && reps >= target
-  // Closing line, positive either way (OPTIMAL: build confidence, never make it feel like failure):
-  // target reached with every rep clean → "Great set"; target reached → "Nice work";
-  // stopped before half the target → "Good start"; otherwise (or no target) → "Good effort".
-  const closingLine = hitTarget
-    ? reps > 0 && cleanReps === reps
-      ? 'Great set'
-      : 'Nice work'
-    : target !== null && reps < target / 2
-      ? 'Good start'
-      : 'Good effort'
+  // Closing line, positive but honest (OPTIMAL: build confidence, never make it feel like failure — and
+  // never praise what didn't happen):
+  //   no reps counted → nothing said and no "set complete" sound (the screen explains what to check);
+  //   target reached with every rep clean → "Great set"; target reached → "Nice work";
+  //   1–3 reps, or stopped before half the target → "Good start"; otherwise → "Good effort".
+  const SHORT_SET = 3
+  const closingLine =
+    reps === 0
+      ? null
+      : hitTarget
+        ? cleanReps === reps
+          ? 'Great set'
+          : 'Nice work'
+        : reps <= SHORT_SET || (target !== null && reps < target / 2)
+          ? 'Good start'
+          : 'Good effort'
   const missedTotal = missed.reduce((n, m) => n + m.count, 0)
 
   // Waits for the coach to finish, then the set-complete sound, then the closing line.
-  useEffect(() => (announce ? announceSetComplete(closingLine) : undefined), [announce, closingLine])
+  useEffect(() => (announce && closingLine ? announceSetComplete(closingLine) : undefined), [announce, closingLine])
 
   return (
     <div className={`mx-auto flex max-w-[640px] flex-col px-4 sm:px-8 ${embedded ? '' : 'min-h-dvh'}`}>

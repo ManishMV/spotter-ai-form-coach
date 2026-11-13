@@ -176,7 +176,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** a frame-rate readout shows ≥ 20 fps on your phone and a second, older phone runs without freezing.
 
 ### Step 15 — End-of-set screen
-- **Status (Nov 13): ✅ done** — reps and time, the one issue to work on (weighted by risk, with a plain tip), reps that didn't count and why, Done / Go again. Closing line: Great set / Nice work / Good effort / Good start. Checked in the Test lab.
+- **Status (Nov 13): ✅ done** — reps and time, the one issue to work on (weighted by risk, with a plain tip), reps that didn't count and why, Done / Go again. Closing line: Great set / Nice work / Good effort / Good start (1–3 reps, or under half the target); nothing at all for a set with no reps. Checked in the Test lab.
 - After "End": reps done and the one cue to work on next time. One button: "Go again".
 - **Done when:** finishing a set shows the summary and "Go again" returns to Setup.
 
