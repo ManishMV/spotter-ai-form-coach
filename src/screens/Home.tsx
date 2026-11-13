@@ -3,7 +3,7 @@ import { Arrow } from '../components/Arrow'
 import { Logo } from '../components/Logo'
 import { EXERCISES, type Exercise } from '../exercises'
 import { FEEDBACK_FORM_URL } from '../tester'
-import { ExerciseDemo } from '../components/ExerciseDemo'
+import { WorkoutMockup } from '../components/WorkoutMockup'
 
 const FAQ: [string, string][] = [
   [
@@ -42,7 +42,7 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
       <main className="flex-1">
         {/* Hero */}
         {/* Wide screens: text on the left (kept to a readable line length), a live demo on the right. */}
-        <section className="grid items-center gap-12 pt-14 pb-10 sm:pt-24 sm:pb-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)]">
+        <section className="grid items-center gap-12 pt-14 pb-10 sm:pt-24 sm:pb-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)]">
           <div>
           <p className="label inline-flex items-center gap-2 border border-line bg-paper-2 px-2.5 py-1.5 text-muted">
             <span className="size-1.5 rounded-full bg-accent" aria-hidden="true" />
@@ -65,10 +65,10 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
             decides what comes next.
           </p>
           </div>
-          {/* The same looping "good rep" figure as the setup screen. Phones skip it to keep the page short. */}
-          <figure className="dot-grid hidden border border-line p-6 lg:block" aria-label="A good squat, animated">
-            <ExerciseDemo exercise="squat" />
-          </figure>
+          {/* What training with Spotter looks like: a still of the workout screen. Phones skip it to keep the page short. */}
+          <div className="hidden lg:block">
+            <WorkoutMockup />
+          </div>
         </section>
 
         {/* Primary action: choose exercise */}
