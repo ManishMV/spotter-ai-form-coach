@@ -87,7 +87,7 @@ export function Setup({
   return (
     <div className="mx-auto flex min-h-dvh max-w-[640px] flex-col px-4 sm:px-8">
       <header className="flex h-16 items-center justify-between border-b border-line">
-        <Logo />
+        <Logo onHome={onBack} />
         <button onClick={onBack} className="label press -mr-3 h-11 px-3 text-muted hover:text-ink">
           ← Back
         </button>

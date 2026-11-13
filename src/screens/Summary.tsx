@@ -106,7 +106,7 @@ export function Summary({
   return (
     <div className={`mx-auto flex max-w-[640px] flex-col px-4 sm:px-8 ${embedded ? '' : 'min-h-dvh'}`}>
       <header className="flex h-16 items-center border-b border-line">
-        <Logo />
+        <Logo onHome={embedded ? undefined : onDone} />
       </header>
 
       <main className="flex flex-1 flex-col py-8 sm:py-12">

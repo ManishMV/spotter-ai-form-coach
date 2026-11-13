@@ -18,12 +18,19 @@ export function LogoMark({ size = 28 }: { size?: number }) {
   )
 }
 
-export function Logo() {
-  return (
-    <div className="flex items-center gap-2.5">
+/** With `onHome`, the logo is a button back to the home page (the usual web convention). */
+export function Logo({ onHome }: { onHome?: () => void }) {
+  const content = (
+    <>
       <LogoMark />
       <span className="text-[19px] font-medium tracking-[-0.02em]">Spotter</span>
       <span className="label hidden text-faint sm:inline">AI Form Coach</span>
-    </div>
+    </>
+  )
+  if (!onHome) return <div className="flex items-center gap-2.5">{content}</div>
+  return (
+    <button onClick={onHome} aria-label="Spotter home" className="press -ml-2 flex h-11 items-center gap-2.5 px-2 hover:opacity-80">
+      {content}
+    </button>
   )
 }

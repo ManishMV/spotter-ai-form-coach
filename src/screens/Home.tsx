@@ -3,6 +3,7 @@ import { Arrow } from '../components/Arrow'
 import { Logo } from '../components/Logo'
 import { EXERCISES, type Exercise } from '../exercises'
 import { FEEDBACK_FORM_URL } from '../tester'
+import { ExerciseDemo } from '../components/ExerciseDemo'
 
 const FAQ: [string, string][] = [
   [
@@ -40,7 +41,9 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
 
       <main className="flex-1">
         {/* Hero */}
-        <section className="pt-14 pb-10 sm:pt-24 sm:pb-14">
+        {/* Wide screens: text on the left (kept to a readable line length), a live demo on the right. */}
+        <section className="grid items-center gap-12 pt-14 pb-10 sm:pt-24 sm:pb-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)]">
+          <div>
           <p className="label inline-flex items-center gap-2 border border-line bg-paper-2 px-2.5 py-1.5 text-muted">
             <span className="size-1.5 rounded-full bg-accent" aria-hidden="true" />
             Squat & push-up · v1
@@ -48,12 +51,12 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
           <h1 className="mt-6 max-w-[16ch] text-[40px] leading-[1.08] font-normal tracking-[-0.035em] text-balance sm:text-[64px]">
             A form coach that watches every rep.
           </h1>
-          <p className="mt-5 max-w-[52ch] text-[17px] leading-[1.6] text-pretty text-muted sm:text-lg">
+          <p className="mt-5 max-w-[60ch] text-[17px] leading-[1.6] text-pretty text-muted sm:text-lg">
             Spotter counts your reps and calls out form fixes, out loud, while you train. It runs in your
             browser. No app, no account, and your video never leaves your device.
           </p>
           {/* Honest about where Spotter is: an early side project, starting small. */}
-          <p className="mt-5 max-w-[52ch] border-l-2 border-accent pl-3 text-[15px] leading-relaxed text-pretty text-muted">
+          <p className="mt-5 max-w-[60ch] border-l-2 border-accent pl-3 text-[15px] leading-relaxed text-pretty text-muted">
             Early version. Spotter is a side project that starts with the two most common at-home exercises.
             More are on the way, and{' '}
             <a href={FEEDBACK_FORM_URL} target="_blank" rel="noopener" className="text-ink underline decoration-line underline-offset-4 hover:decoration-accent">
@@ -61,6 +64,11 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
             </a>{' '}
             decides what comes next.
           </p>
+          </div>
+          {/* The same looping "good rep" figure as the setup screen. Phones skip it to keep the page short. */}
+          <figure className="dot-grid hidden border border-line p-6 lg:block" aria-label="A good squat, animated">
+            <ExerciseDemo exercise="squat" />
+          </figure>
         </section>
 
         {/* Primary action: choose exercise */}
@@ -131,10 +139,19 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
         </section>
 
         {/* FAQ: the few questions people ask before turning on a camera. Native details/summary: no script. */}
-        <section className="mt-20 mb-20 sm:mt-28" aria-labelledby="faq">
-          <h2 id="faq" className="label mb-3 text-muted">
-            Questions
-          </h2>
+        <section className="mt-20 mb-20 grid gap-x-16 sm:mt-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" aria-labelledby="faq">
+          <div className="mb-3 lg:mb-0">
+            <h2 id="faq" className="label text-muted">
+              Questions
+            </h2>
+            <p className="mt-3 hidden max-w-[32ch] text-[15px] leading-relaxed text-pretty text-muted lg:block">
+              The things people ask before turning on their camera. Something else?{' '}
+              <a href={FEEDBACK_FORM_URL} target="_blank" rel="noopener" className="text-ink underline decoration-line underline-offset-4 hover:decoration-accent">
+                Ask in the feedback form
+              </a>
+              .
+            </p>
+          </div>
           <div className="border-t border-line">
             {FAQ.map(([q, a]) => (
               <details key={q} className="group border-b border-line">
