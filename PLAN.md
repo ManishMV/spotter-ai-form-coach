@@ -220,7 +220,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Free, cookieless product analytics with the funnel visited → picked an exercise → camera started → finished a set → opened the feedback form, split by source (`?ref=`), device and exercise. No video, no names.
 - A short line on the home page: early version, two exercises to start, more coming, plus a feedback link for everyone.
 - **Done when:** a test visit with `?ref=test` shows up in the funnel, and the home page has the v1 note.
-- **Status (Nov 13): analytics built** (PostHog, cookieless, funnel events only, `src/analytics.ts`); switches on once the project key is added. v1 note still to do.
+- **Status (Nov 13): analytics built** (PostHog, cookieless, funnel events only, `src/analytics.ts`); live with the project key. v1 note still to do.
 
 ### Step 25 — Launch (Reddit first, then WhatsApp)
 - Plan in [GTM.md](GTM.md): positioning, channels in order, post copy, tracking links, success measures.

@@ -2,7 +2,7 @@
 //   • Only the funnel steps below are sent: no automatic click tracking, no session recording,
 //     no cookies (nothing stored on the device), and never any video or names.
 //   • Loaded after the page, so the landing page stays fast.
-//   • Off without a key (VITE_POSTHOG_KEY), on localhost, in the Test lab / debug views, and when the
+//   • Off on localhost, in the Test lab / debug views, and when the
 //     browser asks not to be tracked. Add ?analytics to a localhost address to test it.
 // Where a visit came from: ?ref=reddit-formcheck etc. on shared links, sent with every event.
 
@@ -18,7 +18,8 @@ export type AnalyticsEvent =
 
 type Props = Record<string, string | number | boolean | null>
 
-const KEY = import.meta.env.VITE_POSTHOG_KEY as string | undefined
+// PostHog project keys are public by design (they can only send events, not read data), so it lives here.
+const KEY = (import.meta.env.VITE_POSTHOG_KEY as string | undefined) ?? 'phc_tuV3xbJJKH4JNHyDbagXWYSj5LumqnZsVmtUUw2H4ZNi'
 const HOST = (import.meta.env.VITE_POSTHOG_HOST as string | undefined) ?? 'https://us.i.posthog.com'
 
 const params = new URLSearchParams(location.search)
