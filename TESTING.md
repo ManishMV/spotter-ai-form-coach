@@ -20,7 +20,7 @@ Real people, real rooms, real devices: does Spotter count and coach accurately, 
 
 ## Results
 
-| Tester | Device | Squats: done / counted | Push-ups: done / counted | Median fps | Tips right? | Smooth? | Set-up (1–5) | Checks form today with | Helped? |
+| Tester (name) | Device | Squats: done / counted | Push-ups: done / counted | Median fps | Tips right? | Smooth? | Set-up (1–5) | Checks form today with | Helped? |
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | | | | | | | | | |
 | 2 | | | | | | | | | |
