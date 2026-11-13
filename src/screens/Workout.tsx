@@ -73,7 +73,7 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
     },
     [exercise.reps],
   )
-  const { status, error, fps, model, readout, start, stop } = usePoseTracking(videoRef, canvasRef, {
+  const { status, error, fps, analysisMs, model, readout, start, stop } = usePoseTracking(videoRef, canvasRef, {
     onFrame,
     isAtTop,
     mustSee: exercise.mustSee,
@@ -233,6 +233,8 @@ export function Workout({ exercise, settings, onEnd }: { exercise: Exercise; set
           <dd className="text-right">{phase}</dd>
           <dt className="text-white/45">{model}</dt>
           <dd className="text-right">{fps} fps</dd>
+          <dt className="text-white/45">Analysis</dt>
+          <dd className="text-right">{analysisMs} ms</dd>
         </dl>
         )}
       </div>

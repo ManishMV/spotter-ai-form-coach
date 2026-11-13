@@ -48,6 +48,8 @@ export function usePoseTracking(
   const [status, setStatus] = useState<TrackingStatus>('idle')
   const [error, setError] = useState('')
   const [fps, setFps] = useState(0)
+  /** Average time one pose analysis takes, in ms (shown in the details, useful on phones). */
+  const [analysisMs, setAnalysisMs] = useState(0)
   const [model, setModel] = useState<ModelSize>(pickModelSize)
   const [readout, setReadout] = useState<Readout>(EMPTY_READOUT)
   const stopRef = useRef<() => void>(() => {})
@@ -103,12 +105,22 @@ export function usePoseTracking(
       let inView = true
       let viewStreak = 0
       let lastReadout = 0
+      // Speed: average analysis time, and when the last analysis ran. On a slow device, back-to-back
+      // analyses would leave no time for the screen, sounds and voice, so leave a short gap after each.
+      let avgMs = 0
+      let lastAnalysis = 0
+      const SLOW_MS = 40 // above this per analysis, the device can't do ~25/s comfortably
 
       const loop = () => {
         const now = performance.now()
-        if (video.currentTime !== lastVideoTime) {
+        const gap = avgMs > SLOW_MS ? avgMs * 0.25 : 0 // breathing room on slow devices (~10 analyses/s at 80 ms)
+        if (video.currentTime !== lastVideoTime && now - lastAnalysis >= avgMs + gap) {
           lastVideoTime = video.currentTime
+          lastAnalysis = now
+          const t0 = performance.now()
           const result = landmarker!.detectForVideo(video, now)
+          const took = performance.now() - t0
+          avgMs = avgMs === 0 ? took : avgMs * 0.9 + took * 0.1
           const raw = result.landmarks[0]
           const rawWorld = result.worldLandmarks[0]
           let current: Readout = EMPTY_READOUT
@@ -157,6 +169,7 @@ export function usePoseTracking(
         }
         if (now - fpsStart >= 1000) {
           setFps(frames)
+          setAnalysisMs(Math.round(avgMs))
           const warmedUp = now - startedAt > 3000
           slowSeconds = warmedUp && frames < 20 ? slowSeconds + 1 : 0
           if (slowSeconds >= 3 && size === 'full' && !forced && !switching) {
@@ -182,5 +195,5 @@ export function usePoseTracking(
     }
   }, [videoRef, canvasRef, stop, debug])
 
-  return { status, error, fps, model, readout, start, stop }
+  return { status, error, fps, analysisMs, model, readout, start, stop }
 }
