@@ -6,7 +6,7 @@ Real people, real rooms, real devices: does Spotter count and coach accurately, 
 
 - **Testers:** 3–5 people who train without a personal trainer.
 - **Task:** one set of 10 squats and one set of 10 push-ups, rep target set to "None". They count their own reps (or a friend counts).
-- **Link:** https://spotter-ai-form-coach.vercel.app/?tester. Tester mode adds a "Copy my results" button to the summary screen. It copies every set from the visit as plain text. Nothing is uploaded and nothing personal is included.
+- **Link:** https://spotter-ai-form-coach.vercel.app/?tester. Tester mode adds a "Copy results and open the form" button to the summary screen: it copies every set from the visit as plain text and opens the feedback form, so testing and feedback are one flow. Nothing is uploaded and nothing personal is included.
 - **Form:** https://forms.gle/HF3xZABu7PuyQgE19. Device, actual rep counts, the pasted results, and questions on tips, smoothness, set-up, how they check form today and whether Spotter helped. About 2 minutes.
 
 ## How the numbers are worked out

@@ -5,6 +5,9 @@ import type { SetSummary } from './coach/setTracker'
 
 export const isTester = new URLSearchParams(location.search).has('tester')
 
+/** The tester feedback form (Google Forms), opened straight from the summary screen. */
+export const FEEDBACK_FORM_URL = 'https://forms.gle/HF3xZABu7PuyQgE19'
+
 const KEY = 'spotter.tester.sets'
 type Logged = { exercise: string; summary: SetSummary }
 

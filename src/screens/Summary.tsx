@@ -5,7 +5,7 @@ import { Logo } from '../components/Logo'
 import type { SetSummary } from '../coach/setTracker'
 import type { Exercise } from '../exercises'
 import { announceSetComplete } from '../voice/announce'
-import { copyResults, isTester, logSet } from '../tester'
+import { copyResults, FEEDBACK_FORM_URL, isTester, logSet } from '../tester'
 
 function formatTime(ms: number) {
   const total = Math.round(ms / 1000)
@@ -139,15 +139,30 @@ export function Summary({
             <p className="label border-b border-line px-4 py-3 text-accent">For testers</p>
             <div className="p-4">
               <p className="text-[15px] leading-relaxed text-pretty text-muted">
-                Done with both exercises? Copy your results and paste them into the form. It includes every set
-                from this visit.
+                Done with both exercises? This copies your results from every set and opens a 2-minute feedback
+                form. Paste them into the results question.
               </p>
               <button
-                onClick={async () => setCopied(await copyResults())}
+                onClick={async () => {
+                  // Copy first: once the form opens in a new tab, this page loses focus and can't copy.
+                  const ok = await copyResults()
+                  setCopied(ok)
+                  window.open(FEEDBACK_FORM_URL, '_blank', 'noopener')
+                }}
                 className="press mt-3 h-12 w-full border border-line bg-paper text-[15px] hover:bg-paper-2"
               >
-                {copied ? 'Copied. Paste it into the form' : copied === false ? 'Couldn’t copy. Try again' : 'Copy my results'}
+                {copied ? 'Copied. Paste it into the form' : copied === false ? 'Couldn’t copy. Try again' : 'Copy results and open the form'}
               </button>
+              {copied !== null && (
+                <a
+                  href={FEEDBACK_FORM_URL}
+                  target="_blank"
+                  rel="noopener"
+                  className="label mt-3 inline-flex h-11 items-center text-muted underline decoration-line underline-offset-4 hover:text-ink"
+                >
+                  Form didn’t open? Open it here
+                </a>
+              )}
             </div>
           </section>
         )}
