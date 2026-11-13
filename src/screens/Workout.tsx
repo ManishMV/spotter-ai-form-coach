@@ -264,7 +264,21 @@ export function Workout({
       <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-4 sm:p-8">
         <div>
           <p className="label text-white/70">Reps</p>
-          <p className="text-[clamp(120px,28vw,280px)] leading-[0.85] font-semibold tracking-[-0.05em] tabular-nums">{reps}</p>
+          {/* Each new rep rises in and flashes orange, so a glance from across the room confirms it counted. */}
+          <motion.p
+            key={reps}
+            initial={reps === 0 ? false : { y: 24, opacity: 0.4, scale: 0.94, color: 'var(--accent)' }}
+            animate={{
+              y: 0,
+              opacity: 1,
+              scale: 1,
+              color: '#ffffff',
+              transition: { duration: 0.28, ease: [0.2, 0, 0, 1], color: { duration: 0.7, ease: 'easeOut' } },
+            }}
+            className="origin-bottom-left text-[clamp(120px,28vw,280px)] leading-[0.85] font-semibold tracking-[-0.05em] tabular-nums"
+          >
+            {reps}
+          </motion.p>
         </div>
 
         {/* Live details (joint angles etc.) — toggled by "Show details" on the setup screen. */}

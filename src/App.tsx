@@ -1,6 +1,6 @@
 // Spotter: Home (landing) → Setup → Workout. `?debug` = plain tracking test view; `?lab` = Test lab.
 import { lazy, Suspense, useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, MotionConfig, motion } from 'motion/react'
 import type { Exercise } from './exercises'
 import { useSettings } from './settings'
 import { Home } from './screens/Home'
@@ -47,49 +47,52 @@ export default function App() {
   }
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={screen.name}
-        className="relative min-h-dvh"
-        initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
-        animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.25, ease: [0.2, 0, 0, 1] } }}
-        exit={{ opacity: 0, transition: { duration: 0.15, ease: 'easeOut' } }}
-      >
-        {screen.name === 'home' && (
-          <Home
-            onPick={(exercise) => {
-              preloadWorkout() // start fetching camera code while they read the setup screen
-              go({ name: 'setup', exercise })
-            }}
-          />
-        )}
-        {screen.name === 'setup' && (
-          <Setup
-            exercise={screen.exercise}
-            settings={settings}
-            onSettings={updateSettings}
-            onBack={() => go({ name: 'home' })}
-            onStart={() => go({ name: 'workout', exercise: screen.exercise })}
-          />
-        )}
-        {screen.name === 'workout' && (
-          <Suspense fallback={<div className="fixed inset-0 bg-black" />}>
-            <Workout
+    // Respect the phone's "reduce motion" setting for every animation.
+    <MotionConfig reducedMotion="user">
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={screen.name}
+          className="relative min-h-dvh"
+          initial={{ opacity: 0, y: 8, filter: 'blur(4px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.25, ease: [0.2, 0, 0, 1] } }}
+          exit={{ opacity: 0, transition: { duration: 0.15, ease: 'easeOut' } }}
+        >
+          {screen.name === 'home' && (
+            <Home
+              onPick={(exercise) => {
+                preloadWorkout() // start fetching camera code while they read the setup screen
+                go({ name: 'setup', exercise })
+              }}
+            />
+          )}
+          {screen.name === 'setup' && (
+            <Setup
               exercise={screen.exercise}
               settings={settings}
-              onEnd={(summary) => go({ name: 'summary', exercise: screen.exercise, summary })}
+              onSettings={updateSettings}
+              onBack={() => go({ name: 'home' })}
+              onStart={() => go({ name: 'workout', exercise: screen.exercise })}
             />
-          </Suspense>
-        )}
-        {screen.name === 'summary' && (
-          <Summary
-            exercise={screen.exercise}
-            summary={screen.summary}
-            onAgain={() => go({ name: 'setup', exercise: screen.exercise })}
-            onDone={() => go({ name: 'home' })}
-          />
-        )}
-      </motion.div>
-    </AnimatePresence>
+          )}
+          {screen.name === 'workout' && (
+            <Suspense fallback={<div className="fixed inset-0 bg-black" />}>
+              <Workout
+                exercise={screen.exercise}
+                settings={settings}
+                onEnd={(summary) => go({ name: 'summary', exercise: screen.exercise, summary })}
+              />
+            </Suspense>
+          )}
+          {screen.name === 'summary' && (
+            <Summary
+              exercise={screen.exercise}
+              summary={screen.summary}
+              onAgain={() => go({ name: 'setup', exercise: screen.exercise })}
+              onDone={() => go({ name: 'home' })}
+            />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </MotionConfig>
   )
 }

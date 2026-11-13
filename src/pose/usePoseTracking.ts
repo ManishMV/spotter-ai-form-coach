@@ -149,7 +149,7 @@ export function usePoseTracking(
               diag: debug ? stanceDiagnostics(screen, world, side, video.videoWidth / video.videoHeight) : null,
             }
             onFrameRef.current?.(current.angles, now, facing, inView)
-            drawSkeleton(ctx, [screen], debug ? null : side === 'left' ? 'right' : 'left') // draw only the side we track
+            drawSkeleton(ctx, [screen], debug ? null : side === 'left' ? 'right' : 'left', debug) // draw only the side we track
           } else {
             // Nobody in frame: start smoothing fresh next time.
             screenSmoother.reset()
