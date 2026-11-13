@@ -5,7 +5,7 @@ import { Logo } from '../components/Logo'
 import type { SetSummary } from '../coach/setTracker'
 import type { Exercise } from '../exercises'
 import { announceSetComplete } from '../voice/announce'
-import { copyResults, FEEDBACK_FORM_URL, isTester, logSet } from '../tester'
+import { copyResults, FEEDBACK_FORM_URL, isTester, logSet, setCount } from '../tester'
 import { track } from '../analytics'
 
 function formatTime(ms: number) {
@@ -54,9 +54,11 @@ export function Summary({
 
   // Tester mode: note this set, and offer to copy the results of every set so far.
   const tester = isTester && !embedded
-  useEffect(() => {
+  // Noted once, as the screen opens (logSet ignores repeats), so the button can show the count straight away.
+  const [setsSoFar] = useState(() => {
     if (tester) logSet(exercise.name, summary)
-  }, [tester, exercise.name, summary])
+    return setCount()
+  })
   const [copied, setCopied] = useState<boolean | null>(null)
   // Analytics: one event per finished set (not in the Test lab). Counts only, nothing personal.
   useEffect(() => {
@@ -150,13 +152,14 @@ export function Summary({
           </section>
         )}
 
-        {tester && (
+        {tester && setsSoFar > 0 && (
           <section aria-label="For testers" className="mt-4 border border-accent/60">
             <p className="label border-b border-line px-4 py-3 text-accent">For testers</p>
             <div className="p-4">
               <p className="text-[15px] leading-relaxed text-pretty text-muted">
-                Done with both exercises? This copies your results from every set and opens a 2-minute feedback
-                form. Paste them into the results question.
+                Finished testing? This copies the results of every set you've done in this visit (squats and
+                push-ups together) and opens a 2-minute feedback form. Paste them into the results question. Want to
+                try the other exercise first? Tap Done, do it, and copy at the end.
               </p>
               <button
                 onClick={async () => {
@@ -168,7 +171,11 @@ export function Summary({
                 }}
                 className="press mt-3 h-12 w-full border border-line bg-paper text-[15px] hover:bg-paper-2"
               >
-                {copied ? 'Copied. Paste it into the form' : copied === false ? 'Couldn’t copy. Try again' : 'Copy results and open the form'}
+                {copied
+                  ? 'Copied. Paste it into the form'
+                  : copied === false
+                    ? 'Couldn’t copy. Try again'
+                    : `Copy results (${setsSoFar} ${setsSoFar === 1 ? 'set' : 'sets'}) and open the form`}
               </button>
               {copied !== null && (
                 <a

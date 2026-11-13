@@ -38,6 +38,9 @@ export function logSet(exercise: string, summary: SetSummary) {
 const list = (items: { text?: string; reason?: string; count: number }[]) =>
   items.length === 0 ? 'none' : items.map((i) => `${i.text ?? i.reason} ×${i.count}`).join(', ')
 
+/** How many sets are in the results so far (this visit). */
+export const setCount = () => sets.length
+
 /** The report, one line per set. */
 export function resultsText(): string {
   const lines = sets.map(({ exercise, summary: s }, i) => {
