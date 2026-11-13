@@ -197,13 +197,10 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Joint-angle details hidden by default for real users (they stay one switch away, and on for demos).
 - **Done when:** a fresh visit shows no angle box; the switch brings it back.
 
-### Step 19 — Push-up head-position tip
-- Head drop / forward head (NASM; Myer: neck in line with the torso). Ear points are noisy, so this is an after-set tip, not a live cue.
-- **Done when:** a set with the head dropped gets the tip on the summary; a neutral head doesn't.
-
 ### Step 20 — Exercise demo before starting
 - Short animated skeleton demo of a good rep on the setup screen (built in code, on-brand, works offline). Filmed demos later.
 - **Done when:** both exercises show a looping demo that matches the rules (depth, body line).
+- **Status (Nov 13): ✅ done** — squat reaches parallel; push-up locks out at the top and reaches a 90° elbow with a vertical forearm at the bottom. Same day: each coach introduces themselves when picked, and less-used options fold under "More options".
 
 ### Step 21 — Accuracy evals on recorded video
 - Run the app on recorded clips instead of the live camera, to measure rep and cue accuracy repeatably.
@@ -228,9 +225,10 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 ---
 
 ## Later
+- Push-up head-position tip (was step 19): head drop / forward head as an after-set tip (NASM; neck in line with the torso). Ear points are noisy, so not a live cue. Not needed for v1.
 - Knee push-up mode: a separate exercise file with the same rules, body line measured shoulder → hip → knee (ACSM/CSEP modified push-up). v1 stays at two exercises.
 - Filmed exercise demos (step 20 starts with an animated one).
 - More exercises (one rule-pack file each).
 
 ## Schedule guide
-Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 19 head tip → 20 demo → 21 evals → 16 polish → 22 less space → 23 AI demo video → 17 tester round (recruit testers now).
+Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 20 demo → 21 evals → 16 polish → 22 less space → 23 AI demo video → 17 tester round (recruit testers now).
