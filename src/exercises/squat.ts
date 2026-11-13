@@ -19,8 +19,10 @@ export const squat: Exercise = {
     // flickered and the set never started. Still well above the 140° partial-rep line.
     upAbove: 150,
     minRepMs: 1000, // faster than 1 s = bouncing, not a controlled rep
-    // Went below 140° but not to depth → partial rep: not counted, tell them why.
-    partialBelow: 140,
+    // Went below 145° but not to depth → partial rep: not counted, tell them why. Was 140°: a quarter squat
+    // (knee never past 140°) was silent and even looked like standing still, so the set could auto-finish
+    // mid-movement (Nov 13). 145° keeps a safe gap below standing (150°+; standing measures 158–175°).
+    partialBelow: 145,
     partialText: 'Sit deeper',
     startText: 'Stand tall to start',
     requires: [

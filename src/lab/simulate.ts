@@ -102,6 +102,7 @@ export const SCENARIOS: Scenario[] = [
       { note: 'Leans far forward again (pattern)', lean: 38 },
       { note: 'Clean rep (fix should be praised)' },
       { note: 'Half squat (won’t count)', knee: 125, thigh: 30 },
+      { note: 'Quarter squat (won’t count, but heard)', knee: 142, thigh: 45 },
       { note: 'Lunge stance (won’t count)', split: 0.9, balance: 0.5 },
       { note: 'Hips rise first', hipsFirst: 40 },
       { note: 'Hips rise first again (pattern)', hipsFirst: 40 },

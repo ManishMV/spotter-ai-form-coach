@@ -22,8 +22,9 @@ export const pushup: Exercise = {
     downBelow: 20, // within ~20° of parallel
     upAbove: 60, // arms back up under the body
     minRepMs: 800, // test cadences are 2.4–3 s per rep; under 0.8 s is a bounce or a glitch
-    // Went partway down (below 45°) but not to depth → partial rep: not counted, tell them why.
-    partialBelow: 45,
+    // Went partway down (below 50°) but not to depth → partial rep: not counted, tell them why. Was 45°:
+    // raised so small dips also count as an attempt (Nov 13), keeping a 10° gap below the top (60°+).
+    partialBelow: 50,
     partialText: 'Go a bit lower', // not 'Chest to floor': a ~90° elbow is enough, the chest needn't touch
     startText: 'Get into a plank, arms straight',
     // Medians over the rep, so a brief tracking error can't decide the result.

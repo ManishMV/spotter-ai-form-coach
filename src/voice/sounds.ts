@@ -97,12 +97,12 @@ function loadSoundClips() {
 
 // ---- Built-in fallback tones
 /** One soft tone: frequency (Hz), start offset and length (s). */
-function tone(freq: number, at: number, length: number, volume = 0.18) {
+function tone(freq: number, at: number, length: number, volume = 0.18, wave: OscillatorType = 'sine') {
   if (!ctx) return
   const t = ctx.currentTime + at
   const osc = ctx.createOscillator()
   const gain = ctx.createGain()
-  osc.type = 'sine'
+  osc.type = wave
   osc.frequency.setValueAtTime(freq, t)
   // Quick fade in/out so it doesn't click.
   gain.gain.setValueAtTime(0, t)
@@ -115,7 +115,10 @@ function tone(freq: number, at: number, length: number, volume = 0.18) {
 
 const FALLBACK: Record<SoundId, () => void> = {
   rep: () => (tone(880, 0, 0.12), tone(1320, 0.08, 0.18)), // bright, rising two-note chime
-  'no-rep': () => (tone(260, 0, 0.14, 0.2), tone(220, 0.16, 0.18, 0.2)), // low, flat double tone
+  // Falling two-note "uh-oh". Was 260→220 Hz sine: phone and laptop speakers barely play that low, so it was
+  // inaudible in testing (Nov 13). Mid-range notes, a richer triangle wave and more volume carry across a room,
+  // while still sounding clearly different from the bright rising rep chime.
+  'no-rep': () => (tone(523, 0, 0.16, 0.34, 'triangle'), tone(392, 0.18, 0.26, 0.34, 'triangle')),
   tick: () => tone(1000, 0, 0.05, 0.12),
   go: () => (tone(660, 0, 0.1), tone(990, 0.09, 0.22)),
   'set-complete': () => (tone(660, 0, 0.14), tone(880, 0.12, 0.14), tone(1320, 0.24, 0.3)),
