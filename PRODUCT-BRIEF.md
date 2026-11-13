@@ -6,7 +6,14 @@
 **Spotter** — named after the gym partner who watches your lift. Descriptor: *AI Form Coach*.
 
 ## Who
-Gym-goers aged 18–30 who train without a personal trainer and learn form from YouTube.
+Gym-goers aged 18–30 who train without a personal trainer and learn form from YouTube, especially
+when they're starting an exercise or unsure their form is right.
+
+## How it's used
+For learning and check-ins, not every workout. Use it a lot while learning a movement, come back to
+check in now and then or when starting a new exercise. Someone who fixes their form and stops needing
+Spotter is a success, which is why there are no accounts or workout logs, and why more exercises is
+the natural way to grow.
 
 ## Pain
 Nobody checks their form, so they face higher injury risk and slower progress.
@@ -40,4 +47,4 @@ A real-time coach for every exercise that adapts to your body.
 | Rep-count accuracy | 90%+ |
 | Form-cue accuracy | Flags real mistakes, few false alarms |
 | Device performance | Runs smoothly on X of Y test devices |
-| Tester engagement | Testers who finish a set and say they'd use it again |
+| Helped with form | Testers who say it caught something to fix, or confirmed their form is good |

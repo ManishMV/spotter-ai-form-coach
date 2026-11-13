@@ -59,4 +59,5 @@ to force a model.
 
 - [PRODUCT-BRIEF.md](PRODUCT-BRIEF.md): who it's for, the problem, MVP, metrics
 - [PLAN.md](PLAN.md): step-by-step build plan with a "done when" check for each step
+- [TESTING.md](TESTING.md): the tester round: how it runs, how results are measured, results
 - [docs/ADDING-AN-EXERCISE.md](docs/ADDING-AN-EXERCISE.md): how a new exercise is added (one rule-pack file)

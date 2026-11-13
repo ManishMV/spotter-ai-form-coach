@@ -217,7 +217,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 
 ### Step 17 — Tester round + metrics
 - Recruit 3–5 testers by **Nov 14**. Each does 10 squats + 10 push-ups.
-- `TESTING.md` template: rep accuracy = counted ÷ real reps; cue accuracy = correct cues ÷ cues shown; "smooth" = ≥ 20 fps with no freeze; reuse = "would you use it again?" yes/no.
+- [TESTING.md](TESTING.md): tester link (`?tester` adds a "Copy my results" button), the feedback form, how each metric is worked out, and the results table. Rep accuracy = counted ÷ real reps; cue accuracy = testers saying the tips were right; smooth = 20+ fps and "felt smooth"; helped = "caught something" or "confirmed my form" (replaces "would you use it again?", Nov 13: Spotter is for learning and check-ins, not daily use).
 - **Done when:** `TESTING.md` has results for every tester and the four brief metrics are filled in.
 
 ---
