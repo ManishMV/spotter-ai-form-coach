@@ -222,6 +222,11 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** a test visit with `?ref=test` shows up in the funnel, and the home page has the v1 note.
 - **Status (Nov 13): analytics built** (PostHog, cookieless, funnel events only, `src/analytics.ts`); live with the project key. v1 note still to do.
 
+### Step 26 — Link preview card (before launch)
+- The card WhatsApp, Reddit, LinkedIn and iMessage show when the link is shared: a designed image (1200×630, Spotter's look: skeleton figure, orange accent, "Free AI form coach in your browser"), title, one-line description, and the right site name and address (tryspotter.vercel.app).
+- On WhatsApp and Reddit people see this card far more than the address itself, so it's the biggest "looks professional" lever for free.
+- **Done when:** sharing the link on WhatsApp, Reddit and LinkedIn shows the designed card (checked with each platform's preview), in light and dark chat themes.
+
 ### Step 25 — Launch (Reddit first, then WhatsApp)
 - Plan in [GTM.md](GTM.md): positioning, channels in order, post copy, tracking links, success measures.
 - **Done when:** posted in the first Reddit communities, comments answered, and the first funnel numbers written up.
@@ -244,4 +249,4 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Hands-free voice commands ("start", "end set") using the browser's speech recognition.
 
 ## Schedule guide
-Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 20 demo → 21 evals → 16 polish → 22 less space → 23 AI demo video → 17 tester round → 24 analytics + v1 note → 25 launch (recruit testers now).
+Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 20 demo → 21 evals → 16 polish → 22 less space → 23 AI demo video → 17 tester round → 24 analytics + v1 note → 26 preview card → 25 launch (recruit testers now).

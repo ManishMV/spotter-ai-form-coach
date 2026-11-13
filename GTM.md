@@ -21,6 +21,7 @@ measure the funnel from first visit to finished set. Free channels only, no paid
 | Honest v1 note on the site | To do | Short line on the home page: early version, two exercises to start, more coming, plus a feedback link |
 | Analytics with source tracking | To do | See below |
 | Demo video, 15–30 s, plus a GIF (step 23) | To do | Made with an AI video tool, no filming. AI-made exercise clips are played through Spotter's own tracking (the step 21 eval tool), so the screen recording shows the real app coaching. Only clips that Spotter judges as good form are used |
+| Link preview card (step 26) | To do | The image, title and description shown when the link is shared on WhatsApp, Reddit and LinkedIn. People see this more than the address |
 | Post copy per channel | To do | Written per community, in Manish's voice |
 | Feedback link on the site | To do | The same form, linked from the summary screen for everyone, not only testers |
 
