@@ -288,13 +288,15 @@ function markChecklistSeen() {
 function quickCheckItems(exercise: Exercise, device: Device): string[] {
   const pushup = exercise.id === 'pushup'
   return [
-    'Bright room',
+    'Make sure the room is bright',
     pushup
       ? device === 'phone'
-        ? 'Phone sideways, head to knees in view'
-        : 'Head to knees in view'
-      : 'Head to feet in view',
-    'Side-on. Start after “Go”',
+        ? 'Turn your phone sideways and stay in view from head to knees'
+        : 'Stay in view from head to knees'
+      : 'Stay in view from head to feet',
+    pushup
+      ? 'Get into a plank with your side to the camera, and start after “Go”'
+      : 'Stand with your side to the camera, and start after “Go”',
   ]
 }
 
