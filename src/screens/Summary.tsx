@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import { Logo } from '../components/Logo'
 import type { SetSummary } from '../coach/setTracker'
-import type { Exercise } from '../exercises'
 import { announceSetComplete } from '../voice/announce'
-import { copyResults, FEEDBACK_FORM_URL, isTester, logSet, setCount } from '../tester'
+import { copyResults, FEEDBACK_FORM_URL, isTester, logSet, setCount, testedExercises } from '../tester'
+import { EXERCISES, type Exercise } from '../exercises'
 import { track } from '../analytics'
 
 function formatTime(ms: number) {
@@ -20,6 +20,7 @@ export function Summary({
   summary,
   onAgain,
   onDone,
+  onTryOther,
   announce = true,
   embedded = false,
 }: {
@@ -27,6 +28,8 @@ export function Summary({
   summary: SetSummary
   onAgain: () => void
   onDone: () => void
+  /** Tester mode: go straight to another exercise's setup. */
+  onTryOther?: (exercise: Exercise) => void
   /** Play the set-complete sound and voice. */
   announce?: boolean
   /** Shown inside another page (Test lab): no full-screen height. */
@@ -51,6 +54,8 @@ export function Summary({
           ? 'Good start'
           : 'Good effort'
   const missedTotal = missed.reduce((n, m) => n + m.count, 0)
+  // A very short set (0–2 reps) often means something went wrong (out of view, dark room): ask, and offer a retry.
+  const shortSet = reps < 3
 
   // Tester mode: note this set, and offer to copy the results of every set so far.
   const tester = isTester && !embedded
@@ -60,6 +65,25 @@ export function Summary({
     return setCount()
   })
   const [copied, setCopied] = useState<boolean | null>(null)
+  // The exercise they haven't tried yet (if any), offered as a one-tap next step.
+  const [otherToTry] = useState(() => {
+    const done = testedExercises()
+    return EXERCISES.find((e) => e.id !== exercise.id && !done.has(e.name)) ?? null
+  })
+  // A small celebration for testers who did a real set (3+ reps): they're going out of their way to help.
+  const celebrate = tester && setsSoFar > 0 && reps >= 3
+  useEffect(() => {
+    if (!celebrate) return
+    void import('canvas-confetti').then(({ default: confetti }) =>
+      confetti({
+        particleCount: 120,
+        spread: 75,
+        origin: { y: 0.35 },
+        colors: ['#ff5a1f', '#ffffff', '#ffb38f'],
+        disableForReducedMotion: true,
+      }),
+    )
+  }, [celebrate])
   // Analytics: one event per finished set (not in the Test lab). Counts only, nothing personal.
   useEffect(() => {
     if (embedded) return
@@ -108,11 +132,24 @@ export function Summary({
           </p>
         )}
 
-        {/* The one thing to work on */}
+        {/* The one thing to work on, or, after a very short set, a check that nothing went wrong. */}
         <section aria-label="Next time" className="mt-8 border border-line">
-          <p className="label border-b border-line px-4 py-3 text-muted">Next time</p>
+          <p className="label border-b border-line px-4 py-3 text-muted">{shortSet ? 'Something not right?' : 'Next time'}</p>
           <div className="p-4">
-            {focus ? (
+            {shortSet ? (
+              <>
+                <p className="text-[22px] leading-tight tracking-[-0.02em]">
+                  {reps === 0 ? 'No reps counted' : `Only ${reps} ${reps === 1 ? 'rep' : 'reps'} counted`}
+                </p>
+                <p className="mt-2 text-[15px] leading-relaxed text-pretty text-muted">
+                  {missedTotal > 0
+                    ? 'Some reps didn’t count; the reasons are below. '
+                    : 'If you did more, Spotter may not have seen you clearly. '}
+                  Stand side-on, stay in view from head to {exercise.id === 'pushup' ? 'knees' : 'feet'}, and make sure
+                  the room is well lit, then try again.
+                </p>
+              </>
+            ) : focus ? (
               <>
                 <p className="text-[22px] leading-tight tracking-[-0.02em]">{focus.cue.text}</p>
                 <p className="mt-2 text-[15px] leading-relaxed text-pretty text-muted">{focus.cue.tip}</p>
@@ -153,39 +190,45 @@ export function Summary({
         )}
 
         {tester && setsSoFar > 0 && (
-          <section aria-label="For testers" className="mt-4 border border-accent/60">
+          <section aria-label="Thank you for testing" className="mt-4 border border-accent/60">
             <p className="label border-b border-line px-4 py-3 text-accent">For testers</p>
             <div className="p-4">
-              <p className="text-[15px] leading-relaxed text-pretty text-muted">
-                Finished testing? This copies the results of every set you've done in this visit (squats and
-                push-ups together) and opens a 2-minute feedback form. Paste them into the results question. Want to
-                try the other exercise first? Tap Done, do it, and copy at the end.
+              <p className="text-[20px] leading-tight tracking-[-0.02em]">
+                {celebrate ? 'Thank you for testing Spotter!' : 'Your results so far'}
               </p>
-              <button
-                onClick={async () => {
-                  // Copy first: once the form opens in a new tab, this page loses focus and can't copy.
-                  const ok = await copyResults()
-                  setCopied(ok)
-                  track('feedback_form_opened', { exercise: exercise.id })
-                  window.open(FEEDBACK_FORM_URL, '_blank', 'noopener')
-                }}
-                className="press mt-3 h-12 w-full border border-line bg-paper text-[15px] hover:bg-paper-2"
-              >
-                {copied
-                  ? 'Copied. Paste it into the form'
-                  : copied === false
-                    ? 'Couldn’t copy. Try again'
-                    : `Copy results (${setsSoFar} ${setsSoFar === 1 ? 'set' : 'sets'}) and open the form`}
-              </button>
-              {copied !== null && (
-                <a
-                  href={FEEDBACK_FORM_URL}
-                  target="_blank"
-                  rel="noopener"
-                  className="label mt-3 inline-flex h-11 items-center text-muted underline decoration-line underline-offset-4 hover:text-ink"
+              <p className="mt-1.5 text-[15px] text-pretty text-muted">
+                {setsSoFar} {setsSoFar === 1 ? 'set' : 'sets'} saved.{' '}
+                {otherToTry ? `Try ${otherToTry.name.toLowerCase()}s too, or share your feedback.` : 'Share your feedback (2 min).'}
+              </p>
+              <div className={`mt-4 grid gap-3 ${otherToTry && onTryOther ? 'grid-cols-2' : ''}`}>
+                {otherToTry && onTryOther && (
+                  <button
+                    onClick={() => onTryOther(otherToTry)}
+                    className="press h-12 border border-line bg-paper text-[15px] hover:bg-paper-2"
+                  >
+                    Try {otherToTry.name.toLowerCase()}s
+                  </button>
+                )}
+                <button
+                  onClick={async () => {
+                    // Copy first: once the form opens in a new tab, this page loses focus and can't copy.
+                    const ok = await copyResults()
+                    setCopied(ok)
+                    track('feedback_form_opened', { exercise: exercise.id })
+                    window.open(FEEDBACK_FORM_URL, '_blank', 'noopener')
+                  }}
+                  className="press h-12 bg-ink text-[15px] text-paper hover:opacity-90"
                 >
-                  Form didn’t open? Open it here
-                </a>
+                  Give feedback
+                </button>
+              </div>
+              {copied !== null && (
+                <p className="mt-3 text-[13px] text-pretty text-muted">
+                  {copied ? 'Your results are copied. Paste them into the form. ' : 'Couldn’t copy your results. Tap Give feedback again. '}
+                  <a href={FEEDBACK_FORM_URL} target="_blank" rel="noopener" className="underline decoration-line underline-offset-4 hover:text-ink">
+                    Form didn’t open?
+                  </a>
+                </p>
               )}
             </div>
           </section>
@@ -204,7 +247,7 @@ export function Summary({
             onClick={onAgain}
             className="press h-16 bg-accent text-lg font-medium tracking-[-0.01em] text-accent-ink hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:h-[72px]"
           >
-            Go again
+            {shortSet ? 'Try again' : 'Go again'}
           </button>
         </div>
       </main>

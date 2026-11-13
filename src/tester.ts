@@ -38,6 +38,9 @@ export function logSet(exercise: string, summary: SetSummary) {
 const list = (items: { text?: string; reason?: string; count: number }[]) =>
   items.length === 0 ? 'none' : items.map((i) => `${i.text ?? i.reason} ×${i.count}`).join(', ')
 
+/** Exercises with at least one set in the results so far (by name). */
+export const testedExercises = () => new Set(sets.map((s) => s.exercise))
+
 /** How many sets are in the results so far (this visit). */
 export const setCount = () => sets.length
 

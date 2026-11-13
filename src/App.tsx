@@ -99,6 +99,7 @@ export default function App() {
               summary={screen.summary}
               onAgain={() => go({ name: 'setup', exercise: screen.exercise })}
               onDone={() => go({ name: 'home' })}
+            onTryOther={(exercise) => go({ name: 'setup', exercise })}
             />
           )}
         </motion.div>
