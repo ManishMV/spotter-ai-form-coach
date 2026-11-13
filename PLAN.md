@@ -194,10 +194,6 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** a target of 5 ends on the fifth good rep with the countdown heard; stopping early finishes after the
   warning; pauses during a normal set never end it. (Checkable in the Test lab without exercising.)
 
-### Step 15c — User-ready mode
-- Joint-angle details hidden by default for real users (they stay one switch away, and on for demos).
-- **Done when:** a fresh visit shows no angle box; the switch brings it back.
-
 ### Step 20 — Exercise demo before starting
 - Short animated skeleton demo of a good rep on the setup screen (built in code, on-brand, works offline). Filmed demos later.
 - **Done when:** both exercises show a looping demo that matches the rules (depth, body line).
@@ -226,11 +222,15 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 
 ---
 
-## Later
-- Push-up head-position tip (was step 19): head drop / forward head as an after-set tip (NASM; neck in line with the torso). Ear points are noisy, so not a live cue. Not needed for v1.
-- Knee push-up mode: a separate exercise file with the same rules, body line measured shoulder → hip → knee (ACSM/CSEP modified push-up). v1 stays at two exercises.
-- Filmed exercise demos (step 20 starts with an animated one).
-- More exercises (one rule-pack file each).
+## After v1
+- **More exercises:** one rule-pack file each. The process is written up in [docs/ADDING-AN-EXERCISE.md](docs/ADDING-AN-EXERCISE.md).
+- **Filmed exercise demos:** a short real clip of a good rep on the setup screen, alongside or instead of the animated figure (step 20). Each clip is checked by Spotter's own tracking before it's used.
+
+## Backlog (not planned)
+- Push-up head-position tip: head drop / forward head as an after-set tip (NASM; neck in line with the torso). Ear points are noisy, so not a live cue.
+- User-ready mode: angle details hidden by default for real users. For now the workout screen has a Details button to open or close them any time.
+- Post-set coach note: a short written summary after each set from Chrome's built-in on-device AI, with the fixed lines as a fallback.
+- Hands-free voice commands ("start", "end set") using the browser's speech recognition.
 
 ## Schedule guide
 Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 20 demo → 21 evals → 16 polish → 22 less space → 23 AI demo video → 17 tester round (recruit testers now).

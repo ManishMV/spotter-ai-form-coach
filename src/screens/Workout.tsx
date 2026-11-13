@@ -41,6 +41,7 @@ export function Workout({
   const [tracker] = useState(() => new SetTracker(exercise.cues, settings.targetReps)) // for the summary
   const [ender] = useState(() => new SetEnder(settings.targetReps, Date.now())) // target + inactivity finish
   const [reps, setReps] = useState(0)
+  const [detailsOpen, setDetailsOpen] = useState(settings.showDetails)
   const [phase, setPhase] = useState<RepPhase>('waiting')
   // A short message after each rep, then it clears itself:
   // why a rep didn't count, the top form fix for a counted rep, or "Good rep".
@@ -344,9 +345,22 @@ export function Workout({
           </motion.p>
         </div>
 
-        {/* Live details (joint angles etc.) — toggled by "Show details" on the setup screen. */}
-        {settings.showDetails && (
-        <dl className="label mb-2 grid grid-cols-[auto_auto] gap-x-3 gap-y-1.5 border border-white/15 bg-black/50 p-3 text-white/80 tabular-nums backdrop-blur">
+        {/* Live details (joint angles etc.). Starts open or closed from "Show details" on the setup screen,
+            and can be opened or closed any time, even mid-set. */}
+        <div className="mb-2 flex flex-col items-end">
+        <button
+          onClick={() => setDetailsOpen((o) => !o)}
+          aria-expanded={detailsOpen}
+          aria-controls="live-details"
+          className="label press flex h-11 items-center gap-2 border border-white/15 bg-black/50 px-3 text-white/80 backdrop-blur hover:text-white"
+        >
+          Details
+          <span aria-hidden="true" className={`transition-transform duration-150 ${detailsOpen ? '' : 'rotate-180'}`}>
+            ⌄
+          </span>
+        </button>
+        {detailsOpen && (
+        <dl id="live-details" className="label mt-1 grid grid-cols-[auto_auto] gap-x-3 gap-y-1.5 border border-white/15 bg-black/50 p-3 text-white/80 tabular-nums backdrop-blur">
           <dt className="text-white/45">Knee</dt>
           <dd className="text-right">{fmt(readout.angles.knee)}</dd>
           <dt className="text-white/45">Hip</dt>
@@ -371,6 +385,7 @@ export function Workout({
           <dd className="text-right">{analysisMs} ms</dd>
         </dl>
         )}
+        </div>
       </div>
     </div>
   )

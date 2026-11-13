@@ -222,7 +222,7 @@ export function Setup({
             />
             <SwitchRow
               label="Show details"
-              hint="Live joint angles on screen"
+              hint="Live joint angles on screen. You can also open or close them during a set"
               on={settings.showDetails}
               onToggle={() => onSettings({ showDetails: !settings.showDetails })}
             />
