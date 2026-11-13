@@ -141,10 +141,15 @@ function kneeLift(hip: Landmark, knee: Landmark, wrist: Landmark): number | null
  * A small margin keeps points right at the edge from counting as "in view".
  */
 export function partsInView(screen: NormalizedLandmark[], side: Side, parts: BodyPart[]): boolean {
+  return partsOutOfView(screen, side, parts).length === 0
+}
+
+/** The needed body parts that aren't clearly inside the picture (so the prompt can name them). */
+export function partsOutOfView(screen: NormalizedLandmark[], side: Side, parts: BodyPart[]): BodyPart[] {
   const M = 0.01
-  return parts.every((part) => {
+  return parts.filter((part) => {
     const p = screen[POINTS[side][part]]
-    return !!p && (p.visibility ?? 0) >= MIN_VISIBILITY && p.x > M && p.x < 1 - M && p.y > M && p.y < 1 - M
+    return !(p && (p.visibility ?? 0) >= MIN_VISIBILITY && p.x > M && p.x < 1 - M && p.y > M && p.y < 1 - M)
   })
 }
 

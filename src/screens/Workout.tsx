@@ -15,7 +15,7 @@ import type { Angles } from '../coach/angles'
 import { voice } from '../voice'
 import { announceRep, announceRestLine, resetSpeechPolicy } from '../voice/announce'
 import { playSound } from '../voice/sounds'
-import { POSITION } from '../voice/lines'
+import { moveBackPrompt, POSITION } from '../voice/lines'
 
 /** Prompts about where to stand. Spoken when they appear, at most every few seconds each. */
 const PROMPT_REPEAT_MS = 6000
@@ -220,7 +220,7 @@ export function Workout({
       : !readout.side
         ? POSITION.stepIntoView
         : !readout.inView
-          ? POSITION.moveBack
+          ? moveBackPrompt(readout.missing)
           : readout.facing
           ? POSITION.turn
           : !counter
@@ -249,7 +249,7 @@ export function Workout({
   const isPrompt =
     status === 'running' &&
     countdown === null &&
-    (cue === POSITION.stepIntoView || cue === POSITION.moveBack || cue === POSITION.turn || cue === exercise.reps?.startText)
+    ((Object.values(POSITION) as string[]).includes(cue) || cue === exercise.reps?.startText)
   const lastPrompt = useRef<{ text: string; at: number } | null>(null)
   const promptsSaid = useRef(new Map<string, number>()) // each prompt is spoken at most twice per set
   useEffect(() => {

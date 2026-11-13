@@ -25,6 +25,7 @@ let sets: Logged[] = load()
 const seen = new WeakSet<SetSummary>()
 export function logSet(exercise: string, summary: SetSummary) {
   if (seen.has(summary)) return
+  if (summary.durationMs === 0) return // ended before "Go": not a set, so not in the results
   seen.add(summary)
   sets = [...sets, { exercise, summary }]
   try {

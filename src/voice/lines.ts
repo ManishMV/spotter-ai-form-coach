@@ -7,8 +7,20 @@ import { squat } from '../exercises/squat'
 export const POSITION = {
   stepIntoView: 'Step into view, side-on',
   moveBack: 'Move back so your whole body is in view',
+  // Named versions, so users know what's cut off (the whole body isn't always needed).
+  moveBackFeet: 'Move back so your feet are in view',
+  moveBackKnees: 'Move back so your knees are in view',
+  moveBackHands: 'Move back so your hands are in view',
   turn: 'Turn to your side',
 } as const
+
+/** The "move back" prompt for what's missing: the lowest body part out of view, or the whole body. */
+export function moveBackPrompt(missing: string[]): string {
+  if (missing.includes('ankle')) return POSITION.moveBackFeet
+  if (missing.includes('knee')) return POSITION.moveBackKnees
+  if (missing.includes('wrist') || missing.includes('elbow')) return POSITION.moveBackHands
+  return POSITION.moveBack
+}
 
 const NUMBER_WORDS = [
   'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',

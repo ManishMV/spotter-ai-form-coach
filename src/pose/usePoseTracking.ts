@@ -6,7 +6,7 @@ import { loadPoseLandmarker, pickModelSize, type ModelSize } from './landmarker'
 import { drawSkeleton } from './drawSkeleton'
 import { PointSmoother } from './smoothing'
 import type { BodyPart } from '../exercises/types'
-import { edgeRoom, isFacingCamera, measureAngles, NO_ANGLES, partsInView, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
+import { edgeRoom, isFacingCamera, measureAngles, NO_ANGLES, partsOutOfView, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
 
 /** Analyses right after a model loads that are left out of speed measurements (set-up time). */
 const WARMUP_ANALYSES = 5
@@ -18,6 +18,8 @@ export type Readout = {
   side: Side | null
   facing: boolean
   inView: boolean
+  /** While out of view: which needed body parts are missing (so the prompt can say "feet", "knees"…). */
+  missing: BodyPart[]
   angles: Angles
   diag: StanceDiag | null
   /** Debug view: room left between the needed body parts and the picture's edge (0–0.5), or null. */
@@ -26,7 +28,7 @@ export type Readout = {
   roomTightest: number | null
 }
 
-export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, angles: NO_ANGLES, diag: null, room: null, roomTightest: null }
+export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, missing: [], angles: NO_ANGLES, diag: null, room: null, roomTightest: null }
 
 /** Called on every frame where a person is visible (used for rep counting). */
 export type FrameHandler = (angles: Angles, timeMs: number, facing: boolean, inView: boolean) => void
@@ -116,6 +118,7 @@ export function usePoseTracking(
       let facing = false
       // In view / out of view, debounced so a single flickering frame doesn't toggle the prompt.
       let inView = true
+      let missing: BodyPart[] = []
       let viewStreak = 0
       let lastReadout = 0
       let roomLog: { at: number; room: number | null }[] = [] // debug view: last 5 s of `room`
@@ -156,7 +159,9 @@ export function usePoseTracking(
               ? isAtTopRef.current(angles)
               : angles.torsoLean !== null && angles.torsoLean < 30
             if (atTop) facing = isFacingCamera(shoulderSpread(screen, video.videoWidth / video.videoHeight), facing)
-            const nowInView = partsInView(screen, side, mustSeeRef.current ?? [])
+            const outOfView = partsOutOfView(screen, side, mustSeeRef.current ?? [])
+            const nowInView = outOfView.length === 0
+            if (!nowInView) missing = outOfView
             viewStreak = nowInView === inView ? 0 : viewStreak + 1
             if (viewStreak >= (inView ? 8 : 4)) {
               inView = nowInView // ~0.25 s out to pause, ~0.1 s back in to resume
@@ -166,6 +171,7 @@ export function usePoseTracking(
               side,
               facing,
               inView,
+              missing: inView ? [] : missing,
               angles,
               diag: debug ? stanceDiagnostics(screen, world, side, video.videoWidth / video.videoHeight) : null,
               room: null,
