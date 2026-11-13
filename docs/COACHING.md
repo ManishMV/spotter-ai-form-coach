@@ -8,7 +8,7 @@ fault. This doc covers **what Spotter says and when**, based on motor-learning r
 | Term | Meaning | Example |
 |---|---|---|
 | **No-rep** | The rep didn't meet the standard, so it doesn't count; the reason is shown on that rep, every time | "Sit deeper", "Keep your feet side by side", "Slow down" |
-| **Form cue** | The rep counted, but here's how to do it better. Comes in three weights: safety, technique and minor | "Chest up", "Lower with control" |
+| **Form cue** | The rep counted, but here's how to do it better. Comes in three weights: safety, technique and minor | "Keep your chest up", "Lower with control" |
 | **Praise** | Positive feedback, naming the fix after a correction | "Nice depth", "Good rep" |
 | **Position prompt** | Where to stand or what to show the camera | "Turn to your side", "Move back so your whole body is in view" |
 
@@ -38,7 +38,7 @@ position prompts are always on, because without them the count would look random
 
 | Exercise | Cue | Fault | Weight | Why |
 |---|---|---|---|---|
-| Squat | "Chest up" | Torso leaning far more than the shins through the bottom of the squat | **Technique** | Loads the lower back (Myer 2014; Kushner 2015). Moved from safety on Nov 13: with body weight the load is low, and speaking on the first rep felt naggy |
+| Squat | "Keep your chest up" | Torso leaning far more than the shins through the bottom of the squat | **Technique** | Loads the lower back (Myer 2014; Kushner 2015). Moved from safety on Nov 13: with body weight the load is low, and speaking on the first rep felt naggy |
 | Squat | "Lead with your chest" | Hips rising before the chest | **Safety** | Shifts load to the lower back on the way up (Myer criterion 10; Kushner 2015) |
 | Squat | "Lower with control" | Dropping into the bottom in under 0.5 s | Technique | One fast rep isn't dangerous; a habit of dropping is (Myer: descent slower than ascent) |
 | Squat | "A bit deeper" | Thigh still above parallel (the rep counted) | Technique | Progress, not injury. Different words from the no-rep reason "Sit deeper", so a counted rep never sounds like a missed one |
@@ -60,7 +60,7 @@ Users usually stand 2–3 m from the device, so sound is the main channel.
 |---|---|
 | Tap Start | "Get ready" (also unlocks sound on phones) |
 | Countdown | Starts only once you're set (in view, side-on, every needed body part visible, in the start position) for 1 s: "3, 2, 1, Go", a tick under 3-2-1 and a short start tone on "Go". Moving out of position stops it. Before that: nothing is spoken for the first 6 s after the camera comes on (time to prop up the device and step back); then one where-to-stand prompt at a time, spoken after 2 s on screen, at least 4 s apart, at most twice each |
-| Rep counted | A rising chime. A cue only if needed ("Chest up"), never bundled with the number. Rep numbers out loud are optional (*Count reps out loud*, off by default: the chime is enough) |
+| Rep counted | A rising chime. A cue only if needed ("Keep your chest up"), never bundled with the number. Rep numbers out loud are optional (*Count reps out loud*, off by default: the chime is enough) |
 | Rep didn't count | A low double tone, plus the reason: "Sit deeper." |
 | Where to stand | "Turn to your side", "Move back so your feet are in view" (names the part that is cut off: feet, knees or hands; otherwise "your whole body"): see the calm-start rules above |
 | Praise | Spoken only when it names a fix ("Nice depth"); plain "Good rep" stays on screen |
@@ -75,7 +75,7 @@ sets). The rules, like a real coach's:
 2. **Breathing room:** after the coach speaks, technique cues and praise wait about 3 s, reasons about 1.5 s,
    safety cues about 1.2 s. Anything held back still shows on screen.
 3. **Nothing said late:** a message that has to wait is dropped if it can't start within about 1 s.
-4. **One short line per rep:** a cue or the number, never bundled ("Chest up", not "Four. Chest up. Two more").
+4. **One short line per rep:** a cue or the number, never bundled ("Keep your chest up", not "Four. Chest up. Two more").
    Numbers only into silence, and off by default; the chime marks every rep.
 5. **Target countdown only while resting,** so it can't clash with coaching during fast reps.
 

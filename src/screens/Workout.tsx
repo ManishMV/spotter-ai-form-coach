@@ -380,6 +380,8 @@ export function Workout({
         <dl id="live-details" className="label mt-1 grid grid-cols-[auto_auto] gap-x-3 gap-y-1.5 border border-white/15 bg-black/50 p-3 text-white/80 tabular-nums backdrop-blur">
           <dt className="text-white/45">Knee</dt>
           <dd className="text-right">{fmt(readout.angles.knee)}</dd>
+          <dt className="text-white/45">Thigh</dt>
+          <dd className="text-right">{fmt(readout.angles.thighTilt)}</dd>
           <dt className="text-white/45">Hip</dt>
           <dd className="text-right">{fmt(readout.angles.hip)}</dd>
           <dt className="text-white/45">Elbow</dt>

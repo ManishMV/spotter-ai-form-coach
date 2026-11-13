@@ -40,7 +40,7 @@ async function playVariation(id: SoundId, n: number) {
   if (clip) void playClipNode(clip)
 }
 
-const AUDITION_LINES = ['Six. Chest up.', 'Keep your feet side by side.', 'Nice depth.', 'Move back so your whole body is in view.']
+const AUDITION_LINES = ['Six. Keep your chest up.', 'Keep your feet side by side.', 'Nice depth.', 'Move back so your whole body is in view.']
 
 /** Every line an exercise can say, grouped for the "Hear the lines" section. */
 function linesFor(e: Exercise) {
@@ -288,7 +288,7 @@ export function Lab() {
               className="flex-1"
             />
           </label>
-          <Chip onClick={() => sayNow('Six. Chest up.')}>Hear “Six. Chest up.”</Chip>
+          <Chip onClick={() => sayNow('Six. Keep your chest up.')}>Hear “Six. Keep your chest up.”</Chip>
         </div>
         <p className="mt-2 text-[13px] text-muted">
           {clipCount > 0
@@ -318,7 +318,7 @@ export function Lab() {
             <input type="range" min={0.8} max={1.3} step={0.05} value={current.rate} onChange={(e) => choose({ rate: Number(e.target.value) })} />
           </label>
           <div className="sm:col-span-2">
-            <Chip onClick={() => sayNow('Four. Chest up.')}>Try it: “Four. Chest up.”</Chip>
+            <Chip onClick={() => sayNow('Four. Keep your chest up.')}>Try it: “Four. Keep your chest up.”</Chip>
           </div>
         </div>
         <p className="mt-2 text-[13px] text-muted">Your pick is saved on this device and used in workouts too.</p>

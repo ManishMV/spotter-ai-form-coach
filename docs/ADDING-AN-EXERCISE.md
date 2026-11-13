@@ -54,7 +54,7 @@ export const lunge: Exercise = {
     startText: 'Stand tall to start',
   },
   cues: [
-    { id: 'upright', metric: 'torsoLean', stat: 'max', op: '>', value: 30, text: 'Chest up',
+    { id: 'upright', metric: 'torsoLean', stat: 'max', op: '>', value: 30, text: 'Keep your chest up',
       praise: 'Nice posture', tip: 'Keep your chest tall as you step back.', kind: 'technique', priority: 1 },
   ],
 }
