@@ -3,7 +3,7 @@ import type { Exercise } from './types'
 export const squat: Exercise = {
   id: 'squat',
   name: 'Squat',
-  summary: 'Bodyweight or barbell. Side view.',
+  summary: 'Bodyweight squats. Side view.',
   checks: ['Depth', 'Chest position'],
   // Distances from camera geometry (step 22): shoulder→ankle has to fit the picture's height. A laptop
   // webcam (~36–40° tall view) needs ~2.3–2.5 m; an upright phone (~68° tall) ~1.2–1.5 m.

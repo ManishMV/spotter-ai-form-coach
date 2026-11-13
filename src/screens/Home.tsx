@@ -2,6 +2,30 @@
 import { Arrow } from '../components/Arrow'
 import { Logo } from '../components/Logo'
 import { EXERCISES, type Exercise } from '../exercises'
+import { FEEDBACK_FORM_URL } from '../tester'
+
+const FAQ: [string, string][] = [
+  [
+    'Is my video recorded or uploaded?',
+    'No. Tracking runs inside your browser, and your video never leaves your device. We only count anonymous usage, like how many sets are finished, to improve Spotter. No video, no names, no cookies.',
+  ],
+  [
+    'What is the AI part?',
+    'Google’s MediaPipe pose model finds 33 points on your body in every camera frame, live, on your device. The coaching on top follows rules from coaching research, so the advice is consistent.',
+  ],
+  [
+    'Do I need to install anything or sign up?',
+    'No. Open the link in Chrome, Safari or Edge on your phone or laptop, allow the camera, and start.',
+  ],
+  [
+    'Why didn’t a rep count?',
+    'Spotter says why out loud, for example not deep enough or too fast. If reps aren’t counting at all, stand side-on in a bright room with your body in view.',
+  ],
+  [
+    'Is this medical advice?',
+    'No. It’s general form guidance for healthy adults. If something hurts, stop, and talk to a professional.',
+  ],
+]
 
 export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
   return (
@@ -26,7 +50,16 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
           </h1>
           <p className="mt-5 max-w-[52ch] text-[17px] leading-[1.6] text-pretty text-muted sm:text-lg">
             Spotter counts your reps and calls out form fixes, out loud, while you train. It runs in your
-            browser. No app, no account, and your video never leaves your phone.
+            browser. No app, no account, and your video never leaves your device.
+          </p>
+          {/* Honest about where Spotter is: an early side project, starting small. */}
+          <p className="mt-5 max-w-[52ch] border-l-2 border-accent pl-3 text-[15px] leading-relaxed text-pretty text-muted">
+            Early version. Spotter is a side project that starts with the two most common at-home exercises.
+            More are on the way, and{' '}
+            <a href={FEEDBACK_FORM_URL} target="_blank" rel="noopener" className="text-ink underline decoration-line underline-offset-4 hover:decoration-accent">
+              your feedback
+            </a>{' '}
+            decides what comes next.
           </p>
         </section>
 
@@ -65,7 +98,7 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
           </h2>
           <ol className="dot-grid grid gap-px border border-line sm:grid-cols-3">
             {[
-              ['Place your phone', 'Side-on, 1–3 m away, with your body in view.'],
+              ['Place your phone or laptop', 'Side-on, 1–3 m away, with your body in view.'],
               ['Tap start', 'Spotter finds your body and starts tracking straight away.'],
               ['Train', 'Reps are counted on screen. Form fixes are spoken after each rep.'],
             ].map(([title, body], i) => (
@@ -79,7 +112,7 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
         </section>
 
         {/* Privacy */}
-        <section className="mt-20 mb-20 sm:mt-28" aria-labelledby="private">
+        <section className="mt-20 sm:mt-28" aria-labelledby="private">
           <h2 id="private" className="label mb-3 text-muted">
             Private by design
           </h2>
@@ -93,6 +126,26 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
                 <p className="text-[17px] tracking-[-0.01em]">{title}</p>
                 <p className="mt-1.5 text-[15px] leading-relaxed text-pretty text-muted">{body}</p>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* FAQ: the few questions people ask before turning on a camera. Native details/summary: no script. */}
+        <section className="mt-20 mb-20 sm:mt-28" aria-labelledby="faq">
+          <h2 id="faq" className="label mb-3 text-muted">
+            Questions
+          </h2>
+          <div className="border-t border-line">
+            {FAQ.map(([q, a]) => (
+              <details key={q} className="group border-b border-line">
+                <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 text-[17px] tracking-[-0.01em] [&::-webkit-details-marker]:hidden">
+                  {q}
+                  <span aria-hidden="true" className="text-muted transition-transform duration-150 group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="max-w-[64ch] pb-5 text-[15px] leading-relaxed text-pretty text-muted">{a}</p>
+              </details>
             ))}
           </div>
         </section>

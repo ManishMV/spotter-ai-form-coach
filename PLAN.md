@@ -220,12 +220,13 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - Free, cookieless product analytics with the funnel visited → picked an exercise → camera started → finished a set → opened the feedback form, split by source (`?ref=`), device and exercise. No video, no names.
 - A short line on the home page: early version, two exercises to start, more coming, plus a feedback link for everyone.
 - **Done when:** a test visit with `?ref=test` shows up in the funnel, and the home page has the v1 note.
-- **Status (Nov 13): analytics built** (PostHog, cookieless, funnel events only, `src/analytics.ts`); live with the project key. v1 note still to do.
+- **Status (Nov 13): ✅ done** — PostHog funnel live (via `/ingest`), v1 note and a short FAQ on the home page.
 
 ### Step 26 — Link preview card (before launch)
 - The card WhatsApp, Reddit, LinkedIn and iMessage show when the link is shared: a designed image (1200×630, Spotter's look: skeleton figure, orange accent, "Free AI form coach in your browser"), title, one-line description, and the right site name and address (tryspotter.vercel.app).
 - On WhatsApp and Reddit people see this card far more than the address itself, so it's the biggest "looks professional" lever for free.
 - **Done when:** sharing the link on WhatsApp, Reddit and LinkedIn shows the designed card (checked with each platform's preview), in light and dark chat themes.
+- **Status (Nov 13): built** — `public/og.png` (1200×630, Geist, dark with the orange skeleton) plus Open Graph and Twitter tags in index.html. Check on WhatsApp when first shared (WhatsApp caches previews).
 
 ### Step 25 — Launch (Reddit first, then WhatsApp)
 - Plan in [GTM.md](GTM.md): positioning, channels in order, post copy, tracking links, success measures.

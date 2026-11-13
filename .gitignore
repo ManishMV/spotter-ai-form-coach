@@ -33,3 +33,8 @@ public/voice/_test/
 
 # Sound effect variations (compared in the Test lab; only the picks ship)
 public/sounds/_options/
+
+# Never commit secrets
+.env
+.env.*
+!.env.example
