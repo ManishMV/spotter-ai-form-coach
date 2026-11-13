@@ -142,7 +142,7 @@ export function Lab() {
     const exercise = EXERCISES[scenario.exercise]
     const counter = new RepCounter(exercise.reps!)
     const coach = new CoachFeedback(exercise.cues, mode)
-    const tracker = new SetTracker(exercise.cues, target)
+    const tracker = new SetTracker(exercise.cues, target, exercise.reps?.metric ?? null)
     tracker.start()
     resetSpeechPolicy()
     const frames = buildFrames(scenario)

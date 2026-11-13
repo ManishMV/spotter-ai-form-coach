@@ -67,7 +67,17 @@ export function resultsText(): string {
     const target = s.target === null ? 'no target' : `target ${s.target}`
     const tech = s.tech ? ` | ${s.tech.device}, ${s.tech.model} model, ${s.tech.fps} fps` : ''
     const form = s.reps > 0 ? ` | good form: ${s.cleanReps}/${s.reps}` : ''
-    return `${i + 1}. ${exercise}: ${s.reps} counted (${target}) in ${secs} s | didn't count: ${list(s.missed)} | cues: ${list(s.cues)}${form}${tech}`
+    const head = `${i + 1}. ${exercise}: ${s.reps} counted (${target}) in ${secs} s | didn't count: ${list(s.missed)} | cues: ${list(s.cues)}${form}${tech}`
+    // One line per rep, so the rules can be checked against what really happened.
+    const name = s.metric === 'upperArm' ? 'upper arm' : (s.metric ?? 'angle')
+    const deg = (v: number | null) => (v === null ? '?' : `${Math.round(v)}°`)
+    const reps = (s.log ?? []).map(
+      (r, n) =>
+        `   rep ${n + 1}: ${r.counted ? 'counted' : `not counted (${r.why ?? '?'})`} | ${name} ${deg(r.low)} low, ${deg(r.high)} high | ${(r.ms / 1000).toFixed(1)} s | flags: ${
+          r.flags.length ? r.flags.map((f) => `${f.text} [${f.kind}]`).join(', ') : 'none'
+        }`,
+    )
+    return [head, ...reps].join('\n')
   })
   return [`Spotter tester results (${sets.length} ${sets.length === 1 ? 'set' : 'sets'})`, ...lines].join('\n')
 }

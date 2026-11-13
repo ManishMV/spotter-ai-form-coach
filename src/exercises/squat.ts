@@ -50,15 +50,17 @@ export const squat: Exercise = {
     // in testing (Nov 13). 30° leaves room for longer thighs and arms held forward, which need more lean. Technique, not safety:
     // with body weight the back load is low, so it waits for a pattern instead of speaking on the first rep.
     { id: 'chest-up', metric: 'leanAtBottom', stat: 'max', op: '>', value: 30, text: 'Keep your chest up', praise: 'Nice posture', tip: 'Keep your chest lifted as you sit down, so your back stays safe.', kind: 'technique', priority: 1 },
-    // Torso tips > 12° further forward on the way up = hips rising first (Myer criterion 10).
-    { id: 'hips-rise-first', metric: 'hipsRiseFirst', stat: 'max', op: '>', value: 12, text: 'Lead with your chest', praise: 'Smooth rise', tip: 'On the way up, lift your chest and hips together instead of pushing your hips up first.', kind: 'safety', priority: 2 },
+    // Torso tips > 12° further forward on the way up = hips rising first (Myer criterion 10). Technique, not
+    // safety (review, Nov 13): torso angle naturally changes during a squat, so one rep isn't proof; it waits
+    // for a pattern. A sharper check (hips rising faster than shoulders) can come after the evals.
+    { id: 'hips-rise-first', metric: 'hipsRiseFirst', stat: 'max', op: '>', value: 12, text: 'Lead with your chest', praise: 'Smooth rise', tip: 'On the way up, lift your chest and hips together instead of pushing your hips up first.', kind: 'technique', priority: 2 },
     // Depth standard = hips at knee height (thigh parallel). Counted at knee < 100°, but the thigh
     // can still be well above parallel: nudge toward it. Thigh > 20° above horizontal at the bottom.
     // Was 10°: a tester's deepest squats were all flagged (0 of 11 'good form', Nov 13). The camera reads
     // the hip a little high, so a squat at parallel can measure ~10–20°. To be confirmed by the step 21 evals.
     // Worded differently from the no-count reason ("Sit deeper"), so users can tell "counted, go a bit
     // lower" from "didn't count" (confused in testing, Nov 13).
-    { id: 'sit-deeper', metric: 'thighTilt', stat: 'min', op: '>', value: 20, text: 'A bit deeper', praise: 'Nice depth', tip: 'Sit down until your thighs are about level with the floor.', kind: 'technique', priority: 4 },
+    { id: 'sit-deeper', metric: 'thighTilt', stat: 'min', op: '>', value: 20, text: 'A bit deeper', praise: 'Nice depth', tip: 'Sit down until your thighs are about level with the floor.', kind: 'minor', priority: 4 }, // minor: a slightly shallow but counted squat isn't bad form; mentioned only if it keeps happening
     // Fast drop into the bottom (Myer: descent should be slower than the ascent). The rep still counts.
     // Typical controlled descents are ~1–1.5 s; under 0.5 s is a drop. Pattern, not one-off.
     { id: 'control-descent', metric: 'descentMs', stat: 'max', op: '<', value: 500, text: 'Lower with control', praise: 'Nice control', tip: 'Lower yourself slowly, taking about a second on the way down.', kind: 'technique', priority: 3 },

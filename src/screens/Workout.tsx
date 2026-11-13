@@ -40,7 +40,7 @@ export function Workout({
   // Rep counting runs on every camera frame, outside React, and only updates the screen when something changes.
   const [counter] = useState(() => (exercise.reps ? new RepCounter(exercise.reps) : null))
   const [coach] = useState(() => new CoachFeedback(exercise.cues, settings.coaching))
-  const [tracker] = useState(() => new SetTracker(exercise.cues, settings.targetReps)) // for the summary
+  const [tracker] = useState(() => new SetTracker(exercise.cues, settings.targetReps, exercise.reps?.metric ?? null)) // for the summary
   const [ender] = useState(() => new SetEnder(settings.targetReps, Date.now())) // target + inactivity finish
   const [reps, setReps] = useState(0)
   const [detailsOpen, setDetailsOpen] = useState(settings.showDetails)

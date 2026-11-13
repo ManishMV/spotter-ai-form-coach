@@ -12,6 +12,11 @@ function fires(cue: CueCheck, stats: RepStats): boolean {
   return cue.op === '<' ? v < cue.value : v > cue.value
 }
 
+/** Every cue that fires for this rep (for the per-rep log). */
+export function firingCues(cues: CueCheck[] | undefined, stats: RepStats): CueCheck[] {
+  return (cues ?? []).filter((c) => fires(c, stats))
+}
+
 /** The highest-priority cue that fires (lowest `priority` number), or null for a clean rep. */
 export function pickCue(cues: CueCheck[] | undefined, stats: RepStats): CueCheck | null {
   if (!cues) return null

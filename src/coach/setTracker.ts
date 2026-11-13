@@ -1,8 +1,8 @@
 // Keeps score during a set, for the end-of-set summary: reps counted, reps that didn't count (and why),
 // and which form issues came up most. Form issues are tallied on every counted rep, whatever the
 // coaching setting, so the summary reflects what actually happened.
-import type { CueCheck } from '../exercises/types'
-import { pickCue } from './cueEngine'
+import type { CueCheck, Metric } from '../exercises/types'
+import { firingCues, pickCue } from './cueEngine'
 import type { Rep } from './repCounter'
 
 export type SetSummary = {
@@ -20,8 +20,22 @@ export type SetSummary = {
   cues: { text: string; count: number }[]
   /** Device and tracking speed, added by the workout screen (for tester results). */
   tech?: { device: string; model: string; fps: number }
+  /** Every rep, for checking the rules against real sets (tester results). */
+  log: RepLog[]
+  /** The measurement reps are counted on (knee for squats, upper arm for push-ups). */
+  metric: Metric | null
   /** How the set ended, added by the workout screen: rep target, stopped moving, or tapped End. */
   endedBy?: 'target' | 'idle' | 'end'
+}
+
+/** One rep: counted or why not, the counting angle at its lowest and highest, time, and every cue that fired. */
+export type RepLog = {
+  counted: boolean
+  why: string | null
+  low: number | null
+  high: number | null
+  ms: number
+  flags: { text: string; kind: CueCheck['kind'] }[]
 }
 
 export class SetTracker {
@@ -34,7 +48,11 @@ export class SetTracker {
   private readonly cues: CueCheck[]
   private readonly target: number | null
 
-  constructor(cues: CueCheck[] = [], target: number | null = null) {
+  private log: RepLog[] = []
+  private readonly metric: Metric | null
+
+  constructor(cues: CueCheck[] = [], target: number | null = null, metric: Metric | null = null) {
+    this.metric = metric
     this.cues = cues
     this.target = target
   }
@@ -45,6 +63,15 @@ export class SetTracker {
   }
 
   onRep(rep: Rep) {
+    const angle = this.metric ? rep.stats[this.metric] : null
+    this.log.push({
+      counted: rep.counted,
+      why: rep.counted ? null : (rep.failed?.text ?? null),
+      low: angle?.min ?? null,
+      high: angle?.max ?? null,
+      ms: Math.round(rep.durationMs),
+      flags: rep.counted ? firingCues(this.cues, rep.stats).map((c) => ({ text: c.text, kind: c.kind })) : [],
+    })
     if (!rep.counted) {
       const reason = rep.failed?.text
       if (reason) this.missed.set(reason, (this.missed.get(reason) ?? 0) + 1)
@@ -82,6 +109,8 @@ export class SetTracker {
       cleanReps: this.clean,
       durationMs: this.startedAt === null ? 0 : now - this.startedAt,
       target: this.target,
+      log: this.log,
+      metric: this.metric,
       cues: [...this.cuesShown].map(([text, count]) => ({ text, count })).sort(byCount),
     }
   }

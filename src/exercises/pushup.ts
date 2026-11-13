@@ -73,10 +73,8 @@ export const pushup: Exercise = {
   // safety cue and speaks up on the first rep; the others wait for a pattern. See docs/COACHING.md.
   // Hip offset 0.06 ≈ body line 165°; bigger faults (< 155°) don't count at all.
   cues: [
-    { id: 'hips-up', metric: 'hipOffset', stat: 'min', op: '<', value: -0.06, text: 'Hips up', praise: 'Nice straight line', tip: 'Squeeze your stomach and glutes so your hips don’t sag.', kind: 'safety', priority: 1 },
-    // Resting on the floor at the bottom for over 0.8 s (shoulders well below elbows). A quick
-    // chest-to-floor touch never triggers it. Mentioned only if it keeps happening (3 of 4 reps).
-    { id: 'stay-off-floor', metric: 'collapsedMs', stat: 'max', op: '>', value: 800, text: 'Stay off the floor', praise: 'Stayed strong', tip: 'Don’t rest on the floor at the bottom; push straight back up.', kind: 'minor', priority: 2 },
+    { id: 'hips-up', metric: 'hipOffset', stat: 'min', op: '<', value: -0.06, text: 'Hips up', praise: 'Nice straight line', tip: 'Squeeze your stomach and glutes so your hips don’t sag.', kind: 'technique', priority: 1 }, // technique (review, Nov 13); a severe sag (body line under 155°) already doesn't count
+    // Removed Nov 13: "Stay off the floor". A pause at the bottom is a choice, not a form fault.
     // Fast drop to the bottom. Controlled descents are ~0.7–1.5 s; under 0.4 s is a drop. Rep still counts.
     { id: 'control-descent', metric: 'descentMs', stat: 'max', op: '<', value: 400, text: 'Lower with control', praise: 'Nice control', tip: 'Lower yourself slowly, taking about a second on the way down.', kind: 'technique', priority: 3 },
     // Removed Nov 13: a "Chest to floor" tip for counted reps that were only just deep enough. The count

@@ -39,11 +39,10 @@ position prompts are always on, because without them the count would look random
 | Exercise | Cue | Fault | Weight | Why |
 |---|---|---|---|---|
 | Squat | "Keep your chest up" | Torso leaning far more than the shins through the bottom of the squat | **Technique** | Loads the lower back (Myer 2014; Kushner 2015). Moved from safety on Nov 13: with body weight the load is low, and speaking on the first rep felt naggy |
-| Squat | "Lead with your chest" | Hips rising before the chest | **Safety** | Shifts load to the lower back on the way up (Myer criterion 10; Kushner 2015) |
+| Squat | "Lead with your chest" | Hips rising before the chest | Technique | Shifts load to the lower back on the way up (Myer criterion 10; Kushner 2015). Moved from safety on Nov 13 after an expert-style review: torso angle naturally changes in a squat, so it waits for a pattern |
 | Squat | "Lower with control" | Dropping into the bottom in under 0.5 s | Technique | One fast rep isn't dangerous; a habit of dropping is (Myer: descent slower than ascent) |
-| Squat | "A bit deeper" | Thigh still above parallel (the rep counted) | Technique | Progress, not injury. Different words from the no-rep reason "Sit deeper", so a counted rep never sounds like a missed one |
-| Push-up | "Hips up" | Hips sagging | **Safety** | Lower-back extension, the top safety fault (ACE; Army) |
-| Push-up | "Stay off the floor" | Resting on the floor at the bottom for over 0.8 s | Minor | A quick chest-to-floor touch is good form; only resting counts |
+| Squat | "A bit deeper" | Thigh clearly above parallel (the rep counted) | Minor | Progress, not injury: a slightly shallow squat isn't bad form, so it's only mentioned if it keeps happening (3 of 4 reps). Different words from the no-rep reason "Sit deeper" |
+| Push-up | "Hips up" | Hips sagging | Technique | Lower-back extension (ACE; Army). Technique since Nov 13; a severe sag (body line under 155°) doesn't count at all |
 | Push-up | "Lower with control" | Dropping to the bottom in under 0.4 s | Technique | Control on the way down |
 | Push-up | "Hips down" | Hips piking | Technique | Makes the exercise easier, no back load (NASM) |
 
@@ -108,3 +107,10 @@ like one family. All sounds are levelled to the same loudness. Regenerate option
 - Chua LK et al. (2021). Superiority of external attentional focus for motor performance and learning (meta-analysis).
 - Chiviacowsky S, Wulf G (2002, 2007). Self-controlled feedback; feedback after good trials enhances learning.
 - Sherwood DE (1988); Lee TD, Carnahan H (1990). Bandwidth knowledge of results.
+
+## Good form (end-of-set score)
+
+- **Counting and form are separate.** A rep counts if it meets the standard (depth, full extension, a real squat or plank). Form is scored only on counted reps.
+- **A counted rep has good form** unless a safety or technique cue fired on it. Minor points (e.g. "A bit deeper") give a tip but don't make a rep "bad".
+- **Never shown as a failure:** the summary only shows "X of Y with good form" when X is at least 1; the "Next time" tip says what to work on.
+- **Checked against real sets:** tester results include one line per rep (counting angle at its lowest and highest, time, and every cue that fired), so the rules can be tuned on evidence rather than guesses.
