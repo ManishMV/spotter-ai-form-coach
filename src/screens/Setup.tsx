@@ -238,7 +238,7 @@ export function Setup({
               // Phones only allow sound after a tap: unlock speech and sounds here, inside the tap.
               voice.unlock()
               unlockSounds()
-              if (checklistSeen()) onStart()
+              if (checklistSeen(exercise.id)) onStart()
               else setChecking(true) // first Start of this visit: a quick check before the camera opens
             }}
             className="press flex h-16 w-full items-center justify-center gap-3 bg-accent text-lg font-medium tracking-[-0.01em] text-accent-ink hover:brightness-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent sm:h-[72px] sm:text-xl"
@@ -256,7 +256,7 @@ export function Setup({
             device={device}
             onClose={() => setChecking(false)}
             onGo={() => {
-              markChecklistSeen()
+              markChecklistSeen(exercise.id)
               voice.unlock()
               unlockSounds()
               onStart()
@@ -269,17 +269,18 @@ export function Setup({
 }
 
 // ---- Quick check before the first set: three things that decide whether tracking works.
-const SEEN_KEY = 'spotter.quickcheck.seen'
-function checklistSeen() {
+// Once per exercise per visit: the set-up differs (standing vs on the floor), so each gets its first check.
+const seenKey = (exerciseId: string) => `spotter.quickcheck.seen.${exerciseId}`
+function checklistSeen(exerciseId: string) {
   try {
-    return sessionStorage.getItem(SEEN_KEY) === '1'
+    return sessionStorage.getItem(seenKey(exerciseId)) === '1'
   } catch {
     return false
   }
 }
-function markChecklistSeen() {
+function markChecklistSeen(exerciseId: string) {
   try {
-    sessionStorage.setItem(SEEN_KEY, '1') // once per visit, not before every set
+    sessionStorage.setItem(seenKey(exerciseId), '1') // not again before every set
   } catch {
     // storage blocked: shown again next time, which is harmless
   }
@@ -288,6 +289,7 @@ function markChecklistSeen() {
 function quickCheckItems(exercise: Exercise, device: Device): string[] {
   const pushup = exercise.id === 'pushup'
   return [
+    'Turn your volume up to hear the coach',
     'Make sure the room is bright',
     pushup
       ? device === 'phone'
