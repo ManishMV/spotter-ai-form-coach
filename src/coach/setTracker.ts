@@ -16,12 +16,17 @@ export type SetSummary = {
   durationMs: number
   /** The rep target, if one was set. */
   target: number | null
+  /** Form cues shown during the set, most frequent first (for tester results). */
+  cues: { text: string; count: number }[]
+  /** Device and tracking speed, added by the workout screen (for tester results). */
+  tech?: { device: string; model: string; fps: number }
 }
 
 export class SetTracker {
   private reps = 0
   private clean = 0
   private missed = new Map<string, number>()
+  private cuesShown = new Map<string, number>()
   private faults = new Map<string, { cue: CueCheck; count: number }>()
   private startedAt: number | null = null
   private readonly cues: CueCheck[]
@@ -54,6 +59,11 @@ export class SetTracker {
     this.faults.set(fault.id, entry)
   }
 
+  /** A form cue was shown (and maybe spoken) during the set. */
+  onCue(text: string) {
+    this.cuesShown.set(text, (this.cuesShown.get(text) ?? 0) + 1)
+  }
+
   summary(now = Date.now()): SetSummary {
     const byCount = <T extends { count: number }>(a: T, b: T) => b.count - a.count
     // The one issue to work on: weighted by risk, like the live cues — safety counts double, minor half.
@@ -70,6 +80,7 @@ export class SetTracker {
       cleanReps: this.clean,
       durationMs: this.startedAt === null ? 0 : now - this.startedAt,
       target: this.target,
+      cues: [...this.cuesShown].map(([text, count]) => ({ text, count })).sort(byCount),
     }
   }
 }

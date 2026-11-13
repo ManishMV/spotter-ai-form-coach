@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { LogoMark } from '../components/Logo'
+import { detectDevice } from '../device'
 import type { Exercise } from '../exercises'
 import type { Settings } from '../settings'
 import { usePoseTracking, type FrameHandler } from '../pose/usePoseTracking'
@@ -56,11 +57,16 @@ export function Workout({
   const countAloud = useRef(settings.countAloud)
   // Finishing: once, and without cutting off the last thing said (the summary waits for silence).
   const finished = useRef(false)
+  // Tracking speed during the set (median fps), reported in tester results.
+  const fpsLog = useRef<number[]>([])
+  const modelRef = useRef('')
   const finish = useCallback(() => {
     if (finished.current) return
     finished.current = true
     counting.current = false
-    onEnd(tracker.summary())
+    const speeds = [...fpsLog.current].sort((a, b) => a - b)
+    const tech = { device: detectDevice(), model: modelRef.current, fps: speeds[Math.floor(speeds.length / 2)] ?? 0 }
+    onEnd({ ...tracker.summary(), tech })
   }, [onEnd, tracker])
   useEffect(() => {
     resetSpeechPolicy() // a new set starts with a clean slate
@@ -90,6 +96,7 @@ export function Workout({
         announceRep(rep, feedback, countAloud.current, isFinal) // sound + voice, for users away from the screen
         if (isFinal) finish()
 
+        if (feedback?.tone === 'fix') tracker.onCue(feedback.text)
         if (feedback) {
           clearTimeout(noticeTimer.current)
           const good = feedback.tone === 'good'
@@ -140,6 +147,10 @@ export function Workout({
     start()
     return stop
   }, [start, stop])
+  useEffect(() => {
+    modelRef.current = model
+    if (counting.current && fps > 0) fpsLog.current.push(fps)
+  }, [fps, model])
 
   // Getting ready, calmly: no countdown until the user is clearly set — in view, side-on, every needed
   // body part visible and in the start position — for a full second. Then a short 3-2-1-Go.

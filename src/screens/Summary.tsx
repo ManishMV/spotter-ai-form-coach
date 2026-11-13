@@ -1,10 +1,11 @@
 // End-of-set summary: how many reps, the one thing to work on next time, and why any reps didn't count.
 // One primary action: "Go again".
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Logo } from '../components/Logo'
 import type { SetSummary } from '../coach/setTracker'
 import type { Exercise } from '../exercises'
 import { announceSetComplete } from '../voice/announce'
+import { copyResults, isTester, logSet } from '../tester'
 
 function formatTime(ms: number) {
   const total = Math.round(ms / 1000)
@@ -49,6 +50,13 @@ export function Summary({
           ? 'Good start'
           : 'Good effort'
   const missedTotal = missed.reduce((n, m) => n + m.count, 0)
+
+  // Tester mode: note this set, and offer to copy the results of every set so far.
+  const tester = isTester && !embedded
+  useEffect(() => {
+    if (tester) logSet(exercise.name, summary)
+  }, [tester, exercise.name, summary])
+  const [copied, setCopied] = useState<boolean | null>(null)
 
   // Waits for the coach to finish, then the set-complete sound, then the closing line.
   useEffect(() => (announce && closingLine ? announceSetComplete(closingLine) : undefined), [announce, closingLine])
@@ -123,6 +131,24 @@ export function Summary({
                 </li>
               ))}
             </ul>
+          </section>
+        )}
+
+        {tester && (
+          <section aria-label="For testers" className="mt-4 border border-accent/60">
+            <p className="label border-b border-line px-4 py-3 text-accent">For testers</p>
+            <div className="p-4">
+              <p className="text-[15px] leading-relaxed text-pretty text-muted">
+                Done with both exercises? Copy your results and paste them into the form. It includes every set
+                from this visit.
+              </p>
+              <button
+                onClick={async () => setCopied(await copyResults())}
+                className="press mt-3 h-12 w-full border border-line bg-paper text-[15px] hover:bg-paper-2"
+              >
+                {copied ? 'Copied. Paste it into the form' : copied === false ? 'Couldn’t copy. Try again' : 'Copy my results'}
+              </button>
+            </div>
           </section>
         )}
 

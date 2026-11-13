@@ -182,6 +182,7 @@ export function Lab() {
       if (!rep) return
       tracker.onRep(rep)
       const feedback = coach.next(rep)
+      if (feedback?.tone === 'fix') tracker.onCue(feedback.text)
       const isFinal = rep.counted && ender.reachedTarget(rep.number)
       announceRep(rep, feedback, countAloud, isFinal) // exactly what the workout screen does
       setReps(rep.number)
