@@ -28,6 +28,14 @@ Real people, real rooms, real devices: does Spotter count and coach accurately, 
 | 4 | | | | | | | | | |
 | 5 | | | | | | | | | |
 
+## Observations log
+
+What testers said and did, as it happens (dates, rough numbers, direct quotes when possible). Feeds the case study.
+
+| Date | What happened | How many | Notes / what it suggests |
+|---|---|---|---|
+| Nov 14 | Some friends hesitated to try it, worried their video would be recorded or sent to Manish. Stronger among women. | _a few of the first ~N asked_ | Camera trust is a real barrier, even with privacy stated on the site. Ideas: skeleton-only mode (hide the camera picture), "works offline once loaded" proof (test first), visible open-source link, a "processing on this device" badge on the live screen, a watch-only demo before the camera, named social proof. |
+
 ## Summary
 
 _To fill in after the round: the four metrics, what testers asked for, and what changes as a result._
