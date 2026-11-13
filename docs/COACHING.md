@@ -19,7 +19,7 @@ position prompts are always on, because without them the count would look random
 
 | Principle | What Spotter does | Source |
 |---|---|---|
-| **External focus beats internal focus.** Cue the effect on the environment, not body parts. This helps performance and learning across ages and skill levels. | "Sit deeper" (chair image), "Chest to floor", "Lead with your chest" | Wulf & Lewthwaite 2021 (OPTIMAL theory); Chua et al. 2021 meta-analysis (g ≈ 0.26); Winkelman, *The Language of Coaching* |
+| **External focus beats internal focus.** Cue the effect on the environment, not body parts. This helps performance and learning across ages and skill levels. | "Sit deeper" (chair image), "Lead with your chest" | Wulf & Lewthwaite 2021 (OPTIMAL theory); Chua et al. 2021 meta-analysis (g ≈ 0.26); Winkelman, *The Language of Coaching* |
 | **Near targets for beginners.** Close, concrete targets suit novices better than distant ones. | Targets are the floor and an imagined chair | Singh & Wulf 2020 (cited in Wulf & Lewthwaite 2021) |
 | **1–3 words, one cue at a time.** Fix the worst problem first. | One cue per rep, chosen by priority | Kushner et al. 2015 (NSCA); Benz/Winkelman (NSCA) |
 | **Say what to do, not what to avoid.** | "Heels down", not "Don't lift your heels" | ACE cueing guidance |
@@ -42,11 +42,9 @@ position prompts are always on, because without them the count would look random
 | Squat | "Lead with your chest" | Hips rising before the chest | **Safety** | Shifts load to the lower back on the way up (Myer criterion 10; Kushner 2015) |
 | Squat | "Lower with control" | Dropping into the bottom in under 0.5 s | Technique | One fast rep isn't dangerous; a habit of dropping is (Myer: descent slower than ascent) |
 | Squat | "A bit deeper" | Thigh still above parallel (the rep counted) | Technique | Progress, not injury. Different words from the no-rep reason "Sit deeper", so a counted rep never sounds like a missed one |
-| Squat | "Whole foot down" | Heel **or** toes lifting | Technique | Balance and ankle mobility (Myer; Kushner: "push through the whole foot") |
 | Push-up | "Hips up" | Hips sagging | **Safety** | Lower-back extension, the top safety fault (ACE; Army) |
 | Push-up | "Stay off the floor" | Resting on the floor at the bottom for over 0.8 s | Minor | A quick chest-to-floor touch is good form; only resting counts |
 | Push-up | "Lower with control" | Dropping to the bottom in under 0.4 s | Technique | Control on the way down |
-| Push-up | "Chest to floor" | Only just reaching depth | Technique | Progress |
 | Push-up | "Hips down" | Hips piking | Technique | Makes the exercise easier, no back load (NASM) |
 
 Reps that break a **counting** rule (lunge, half rep, knee push-up, big sag, bouncing, no lockout) are never

@@ -52,10 +52,10 @@ export class SetTracker {
     }
     this.reps = rep.number
     const fault = pickCue(this.cues, rep.stats)
-    if (!fault) {
-      this.clean += 1
-      return
-    }
+    // Good form = no safety or technique issue. Minor points (e.g. resting a moment at the bottom) are
+    // still worth a tip, but don't make a rep "bad".
+    if (!fault || fault.kind === 'minor') this.clean += 1
+    if (!fault) return
     const entry = this.faults.get(fault.id) ?? { cue: fault, count: 0 }
     entry.count += 1
     this.faults.set(fault.id, entry)

@@ -198,9 +198,11 @@ export function Summary({
               </p>
               <p className="mt-1.5 text-[15px] text-pretty text-muted">
                 {setsSoFar} {setsSoFar === 1 ? 'set' : 'sets'} saved.{' '}
-                {otherToTry ? `Try ${otherToTry.name.toLowerCase()}s too, or share your feedback.` : 'Share your feedback (2 min).'}
+                {otherToTry
+                  ? `Try ${otherToTry.name.toLowerCase()}s too, or copy your results into the 2-minute feedback form.`
+                  : 'Copy your results into the 2-minute feedback form.'}
               </p>
-              <div className={`mt-4 grid gap-3 ${otherToTry && onTryOther ? 'grid-cols-2' : ''}`}>
+              <div className={`mt-4 grid gap-3 ${otherToTry && onTryOther ? 'sm:grid-cols-2' : ''}`}>
                 {otherToTry && onTryOther && (
                   <button
                     onClick={() => onTryOther(otherToTry)}
@@ -219,12 +221,12 @@ export function Summary({
                   }}
                   className="press h-12 bg-ink text-[15px] text-paper hover:opacity-90"
                 >
-                  Give feedback
+                  Copy results & open form
                 </button>
               </div>
               {copied !== null && (
                 <p className="mt-3 text-[13px] text-pretty text-muted">
-                  {copied ? 'Your results are copied. Paste them into the form. ' : 'Couldn’t copy your results. Tap Give feedback again. '}
+                  {copied ? 'Copied. Paste them into the form’s results question. ' : 'Couldn’t copy your results. Tap the button again. '}
                   <a href={FEEDBACK_FORM_URL} target="_blank" rel="noopener" className="underline decoration-line underline-offset-4 hover:text-ink">
                     Form didn’t open?
                   </a>

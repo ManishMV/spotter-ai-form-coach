@@ -9,17 +9,29 @@ export const isTester = new URLSearchParams(location.search).has('tester')
 export const FEEDBACK_FORM_URL = 'https://forms.gle/QqekwL1zz9d9yUGK8'
 
 const KEY = 'spotter.tester.sets'
-type Logged = { exercise: string; summary: SetSummary }
+type Logged = { exercise: string; summary: SetSummary; at: number }
+const MAX_AGE_MS = 2 * 60 * 60 * 1000 // sets older than 2 hours belong to an earlier test, not this one
 
 function load(): Logged[] {
   try {
-    return JSON.parse(sessionStorage.getItem(KEY) ?? '[]') as Logged[]
+    const saved = JSON.parse(sessionStorage.getItem(KEY) ?? '[]') as Logged[]
+    return saved.filter((s) => typeof s.at === 'number' && Date.now() - s.at < MAX_AGE_MS)
   } catch {
     return []
   }
 }
 
 let sets: Logged[] = load()
+// After results are copied, the next set starts a fresh batch (so a second test never repeats the first).
+let copiedAll = false
+
+function save() {
+  try {
+    sessionStorage.setItem(KEY, JSON.stringify(sets)) // survives a reload of the page
+  } catch {
+    // storage blocked: kept until the page closes
+  }
+}
 
 /** Note a finished set (once per summary object). */
 const seen = new WeakSet<SetSummary>()
@@ -27,12 +39,12 @@ export function logSet(exercise: string, summary: SetSummary) {
   if (seen.has(summary)) return
   if (summary.durationMs === 0) return // ended before "Go": not a set, so not in the results
   seen.add(summary)
-  sets = [...sets, { exercise, summary }]
-  try {
-    sessionStorage.setItem(KEY, JSON.stringify(sets)) // survives a reload of the page
-  } catch {
-    // storage blocked: kept until the page closes
+  if (copiedAll) {
+    sets = []
+    copiedAll = false
   }
+  sets = [...sets, { exercise, summary, at: Date.now() }]
+  save()
 }
 
 const list = (items: { text?: string; reason?: string; count: number }[]) =>
@@ -50,7 +62,8 @@ export function resultsText(): string {
     const secs = Math.round(s.durationMs / 1000)
     const target = s.target === null ? 'no target' : `target ${s.target}`
     const tech = s.tech ? ` | ${s.tech.device}, ${s.tech.model} model, ${s.tech.fps} fps` : ''
-    return `${i + 1}. ${exercise}: ${s.reps} counted (${target}) in ${secs} s | didn't count: ${list(s.missed)} | cues: ${list(s.cues)} | good form: ${s.cleanReps}/${s.reps}${tech}`
+    const form = s.reps > 0 ? ` | good form: ${s.cleanReps}/${s.reps}` : ''
+    return `${i + 1}. ${exercise}: ${s.reps} counted (${target}) in ${secs} s | didn't count: ${list(s.missed)} | cues: ${list(s.cues)}${form}${tech}`
   })
   return [`Spotter tester results (${sets.length} ${sets.length === 1 ? 'set' : 'sets'})`, ...lines].join('\n')
 }
@@ -58,6 +71,7 @@ export function resultsText(): string {
 /** Copy to the clipboard; falls back to a hidden text box on older browsers. */
 export async function copyResults(): Promise<boolean> {
   const text = resultsText()
+  copiedAll = true
   try {
     await navigator.clipboard.writeText(text)
     return true

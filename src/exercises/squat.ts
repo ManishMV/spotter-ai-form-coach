@@ -62,8 +62,7 @@ export const squat: Exercise = {
     // Fast drop into the bottom (Myer: descent should be slower than the ascent). The rep still counts.
     // Typical controlled descents are ~1–1.5 s; under 0.5 s is a drop. Pattern, not one-off.
     { id: 'control-descent', metric: 'descentMs', stat: 'max', op: '<', value: 500, text: 'Lower with control', praise: 'Nice control', tip: 'Lower yourself slowly, taking about a second on the way down.', kind: 'technique', priority: 3 },
-    // Foot tipping either way — heel up OR toes up (Myer: whole foot stays down; Kushner: push through
-    // the whole foot). ≈ 3–4 cm lift. Coaching only; the rep still counts.
-    { id: 'whole-foot', metric: 'footTilt', stat: 'max', op: '>', value: 10, text: 'Whole foot down', praise: 'Solid feet', tip: 'Keep your whole foot on the floor, heels and toes.', kind: 'technique', priority: 5 },
+    // Removed Nov 13: "Whole foot down" (heel or toes lifting). Bodyweight squatters rarely lift a foot, and the
+    // foot points are often hidden or cut off at the frame edge, so it mostly fired on tracking noise.
   ],
 }

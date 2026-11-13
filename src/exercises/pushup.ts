@@ -24,7 +24,7 @@ export const pushup: Exercise = {
     minRepMs: 800, // test cadences are 2.4–3 s per rep; under 0.8 s is a bounce or a glitch
     // Went partway down (below 45°) but not to depth → partial rep: not counted, tell them why.
     partialBelow: 45,
-    partialText: 'Chest to floor',
+    partialText: 'Go a bit lower', // not 'Chest to floor': a ~90° elbow is enough, the chest needn't touch
     startText: 'Get into a plank, arms straight',
     // Medians over the rep, so a brief tracking error can't decide the result.
     // Order matters: the first rule that fails is the message shown.
@@ -79,8 +79,9 @@ export const pushup: Exercise = {
     { id: 'stay-off-floor', metric: 'collapsedMs', stat: 'max', op: '>', value: 800, text: 'Stay off the floor', praise: 'Stayed strong', tip: 'Don’t rest on the floor at the bottom; push straight back up.', kind: 'minor', priority: 2 },
     // Fast drop to the bottom. Controlled descents are ~0.7–1.5 s; under 0.4 s is a drop. Rep still counts.
     { id: 'control-descent', metric: 'descentMs', stat: 'max', op: '<', value: 400, text: 'Lower with control', praise: 'Nice control', tip: 'Lower yourself slowly, taking about a second on the way down.', kind: 'technique', priority: 3 },
-    // Counted (upper arm within 20° of parallel) but only just.
-    { id: 'chest-to-floor', metric: 'upperArm', stat: 'min', op: '>', value: 10, text: 'Chest to floor', praise: 'Nice depth', tip: 'Lower until your chest is close to the floor.', kind: 'technique', priority: 4 },
+    // Removed Nov 13: a "Chest to floor" tip for counted reps that were only just deep enough. The count
+    // already uses the fitness-test standard (elbows at about 90°, upper arm about level); the chest doesn't
+    // need to touch or nearly touch the floor, so nudging further was too strict.
     { id: 'hips-down', metric: 'hipOffset', stat: 'max', op: '>', value: 0.06, text: 'Hips down', praise: 'Nice straight line', tip: 'Bring your hips down so your body forms one straight line.', kind: 'technique', priority: 5 },
   ],
 }
