@@ -53,7 +53,7 @@ each community's results can be compared.
 **Funnel:** visited → picked an exercise → started the camera → camera working → finished a set →
 opened the feedback form. Split by source, device and exercise.
 
-Events record only what happened in the app (no video, no names, nothing personal) and no cookies.
+Tool: **PostHog** (free up to 1M events a month, strong funnel reports). Set up in `src/analytics.ts`: only the funnel steps are sent (`exercise_picked`, `set_start_tapped`, `camera_started` / `camera_failed`, `counting_started`, `set_finished`, `feedback_form_opened`), with no automatic click tracking, no session recording, no cookies, and never any video or names. It loads after the page, so the landing page stays fast.
 
 ## Success measures
 

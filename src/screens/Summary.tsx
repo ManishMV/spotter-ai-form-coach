@@ -6,6 +6,7 @@ import type { SetSummary } from '../coach/setTracker'
 import type { Exercise } from '../exercises'
 import { announceSetComplete } from '../voice/announce'
 import { copyResults, FEEDBACK_FORM_URL, isTester, logSet } from '../tester'
+import { track } from '../analytics'
 
 function formatTime(ms: number) {
   const total = Math.round(ms / 1000)
@@ -57,6 +58,21 @@ export function Summary({
     if (tester) logSet(exercise.name, summary)
   }, [tester, exercise.name, summary])
   const [copied, setCopied] = useState<boolean | null>(null)
+  // Analytics: one event per finished set (not in the Test lab). Counts only, nothing personal.
+  useEffect(() => {
+    if (embedded) return
+    track('set_finished', {
+      exercise: exercise.id,
+      reps,
+      target,
+      clean_reps: cleanReps,
+      missed: missedTotal,
+      duration_s: Math.round(durationMs / 1000),
+      ended_by: summary.endedBy ?? null,
+      fps: summary.tech?.fps ?? null,
+      model: summary.tech?.model ?? null,
+    })
+  }, [embedded, summary, exercise.id, reps, target, cleanReps, missedTotal, durationMs])
 
   // Waits for the coach to finish, then the set-complete sound, then the closing line.
   useEffect(() => (announce && closingLine ? announceSetComplete(closingLine) : undefined), [announce, closingLine])
@@ -147,6 +163,7 @@ export function Summary({
                   // Copy first: once the form opens in a new tab, this page loses focus and can't copy.
                   const ok = await copyResults()
                   setCopied(ok)
+                  track('feedback_form_opened', { exercise: exercise.id })
                   window.open(FEEDBACK_FORM_URL, '_blank', 'noopener')
                 }}
                 className="press mt-3 h-12 w-full border border-line bg-paper text-[15px] hover:bg-paper-2"

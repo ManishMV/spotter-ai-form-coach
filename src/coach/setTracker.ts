@@ -20,6 +20,8 @@ export type SetSummary = {
   cues: { text: string; count: number }[]
   /** Device and tracking speed, added by the workout screen (for tester results). */
   tech?: { device: string; model: string; fps: number }
+  /** How the set ended, added by the workout screen: rep target, stopped moving, or tapped End. */
+  endedBy?: 'target' | 'idle' | 'end'
 }
 
 export class SetTracker {

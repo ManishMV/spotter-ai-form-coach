@@ -7,6 +7,7 @@ import { Home } from './screens/Home'
 import { Setup } from './screens/Setup'
 import { Summary } from './screens/Summary'
 import type { SetSummary } from './coach/setTracker'
+import { track } from './analytics'
 
 // Camera + pose-tracking code loads only when needed, so the landing page stays fast.
 const Workout = lazy(() => import('./screens/Workout').then((m) => ({ default: m.Workout })))
@@ -61,6 +62,7 @@ export default function App() {
             <Home
               onPick={(exercise) => {
                 preloadWorkout() // start fetching camera code while they read the setup screen
+                track('exercise_picked', { exercise: exercise.id })
                 go({ name: 'setup', exercise })
               }}
             />
@@ -71,7 +73,15 @@ export default function App() {
               settings={settings}
               onSettings={updateSettings}
               onBack={() => go({ name: 'home' })}
-              onStart={() => go({ name: 'workout', exercise: screen.exercise })}
+              onStart={() => {
+                track('set_start_tapped', {
+                  exercise: screen.exercise.id,
+                  target: settings.targetReps,
+                  coaching: settings.coaching,
+                  count_aloud: settings.countAloud,
+                })
+                go({ name: 'workout', exercise: screen.exercise })
+              }}
             />
           )}
           {screen.name === 'workout' && (

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { LogoMark } from '../components/Logo'
 import { detectDevice } from '../device'
+import { track } from '../analytics'
 import type { Exercise } from '../exercises'
 import type { Settings } from '../settings'
 import { usePoseTracking, type FrameHandler } from '../pose/usePoseTracking'
@@ -60,13 +61,13 @@ export function Workout({
   // Tracking speed during the set (median fps), reported in tester results.
   const fpsLog = useRef<number[]>([])
   const modelRef = useRef('')
-  const finish = useCallback(() => {
+  const finish = useCallback((endedBy: 'target' | 'idle' | 'end') => {
     if (finished.current) return
     finished.current = true
     counting.current = false
     const speeds = [...fpsLog.current].sort((a, b) => a - b)
     const tech = { device: detectDevice(), model: modelRef.current, fps: speeds[Math.floor(speeds.length / 2)] ?? 0 }
-    onEnd({ ...tracker.summary(), tech })
+    onEnd({ ...tracker.summary(), tech, endedBy })
   }, [onEnd, tracker])
   useEffect(() => {
     resetSpeechPolicy() // a new set starts with a clean slate
@@ -94,7 +95,7 @@ export function Workout({
 
         const isFinal = rep.counted && ender.reachedTarget(rep.number)
         announceRep(rep, feedback, countAloud.current, isFinal) // sound + voice, for users away from the screen
-        if (isFinal) finish()
+        if (isFinal) finish('target')
 
         if (feedback?.tone === 'fix') tracker.onCue(feedback.text)
         if (feedback) {
@@ -122,7 +123,7 @@ export function Workout({
         voice.say(event.text, { interrupt: true })
         setNotice({ text: event.text === 'Finishing the set' ? 'Finishing the set…' : event.text, good: false })
       } else if (event.type === 'end') {
-        finish()
+        finish('idle')
       }
     }, 100) // every 0.1 s, so countdown numbers land within 0.1 s of each exact second
     return () => window.clearInterval(timer)
@@ -190,6 +191,7 @@ export function Workout({
           if (n === 0) {
             counting.current = true // counting starts on "Go"
             tracker.start()
+            track('counting_started', { exercise: exercise.id })
           }
           setCountdown(n)
           playSound(n === 0 ? 'go' : 'tick')
@@ -207,7 +209,7 @@ export function Workout({
       }, LOST_MS)
       return () => window.clearTimeout(t)
     }
-  }, [ready, inPlace, countdown, tracker])
+  }, [ready, inPlace, countdown, tracker, exercise.id])
 
   // The cue line: set-up and positioning first, then the latest rep feedback, then status.
   const cue =
@@ -238,8 +240,12 @@ export function Workout({
   const QUIET_START_MS = 6000
   const cameraOnAt = useRef<number | null>(null)
   useEffect(() => {
-    if (status === 'running' && cameraOnAt.current === null) cameraOnAt.current = Date.now()
-  }, [status])
+    if (status === 'running' && cameraOnAt.current === null) {
+      cameraOnAt.current = Date.now()
+      track('camera_started', { exercise: exercise.id, model })
+    }
+    if (status === 'error') track('camera_failed', { exercise: exercise.id, error })
+  }, [status, exercise.id, model, error])
   const isPrompt =
     status === 'running' &&
     countdown === null &&
@@ -294,7 +300,7 @@ export function Workout({
           <LogoMark size={24} />
           <span className="label text-white/80">{exercise.name}</span>
         </div>
-        <button onClick={finish} className="label press h-11 border border-white/25 bg-black/40 px-5 text-white backdrop-blur hover:bg-white hover:text-black">
+        <button onClick={() => finish('end')} className="label press h-11 border border-white/25 bg-black/40 px-5 text-white backdrop-blur hover:bg-white hover:text-black">
           End
         </button>
       </header>
