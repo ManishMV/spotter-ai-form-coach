@@ -61,7 +61,8 @@ async function tts(key: string, voiceId: string, text: string): Promise<Buffer> 
 }
 
 async function main() {
-  const lines = allLines().filter((l) => !onlyLines || onlyLines.includes(l.id))
+  const linesFor = (name?: string) => allLines(name).filter((l) => !onlyLines || onlyLines.includes(l.id))
+  const lines = linesFor()
   const chars = lines.reduce((n, l) => n + delivery.text(l).length, 0)
   const voices = adHoc ? [adHoc] : VOICE_OPTIONS.filter((v) => (!only || v.key === only) && v.elevenLabsId)
   console.log(`${lines.length} lines, ${chars} characters per voice, delivery ${deliveryName} (${delivery.model}).`)
@@ -78,7 +79,7 @@ async function main() {
     const dir = join('public', 'voice', voice.key)
     mkdirSync(dir, { recursive: true })
     let made = 0
-    for (const line of lines) {
+    for (const line of linesFor(adHoc ? undefined : voice.name)) {
       const file = join(dir, `${line.id}.mp3`)
       if (existsSync(file) && !force) continue
       writeFileSync(file, await tts(key, voice.elevenLabsId, delivery.text(line)))
@@ -87,7 +88,7 @@ async function main() {
       await sleep(250) // be gentle with the API
     }
     // The manifest lists every clip present, so partial audition sets work too.
-    const present = allLines().filter((l) => existsSync(join(dir, `${l.id}.mp3`))).map((l) => l.id)
+    const present = allLines(adHoc ? undefined : voice.name).filter((l) => existsSync(join(dir, `${l.id}.mp3`))).map((l) => l.id)
     writeFileSync(join(dir, 'manifest.json'), JSON.stringify({ voice: voice.key, lines: present }, null, 2))
     console.log(`
 ${voice.name}: ${made} new clips, ${present.length} in folder.`)

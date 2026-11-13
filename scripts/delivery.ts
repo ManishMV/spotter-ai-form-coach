@@ -15,7 +15,7 @@ export type Delivery = {
 /** Coach phrasing: punchy commands and praise, calm explanations, a breath before a reason. */
 function phrase(line: Line): string {
   const t = line.text.replace(' — ', ', ')
-  const ending: Record<LineKind, string> = { number: '.', start: '!', prompt: '.', cue: '!', praise: '!', reason: '.' }
+  const ending: Record<LineKind, string> = { number: '.', start: '!', prompt: '.', cue: '!', praise: '!', reason: '.', intro: '!' }
   return line.id === 'get-ready' || line.id === 'get-in-position' ? `${t}.` : `${t}${ending[line.kind]}`
 }
 
@@ -27,6 +27,7 @@ const TAG: Record<LineKind, string> = {
   cue: '[firm, encouraging]',
   praise: '[warmly]',
   reason: '[calmly]',
+  intro: '[warm, upbeat]',
 }
 
 export const DELIVERIES: Record<string, Delivery> = {

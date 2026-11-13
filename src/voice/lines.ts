@@ -34,15 +34,22 @@ export function lineId(text: string): string {
 }
 
 /** What a line is for — it shapes how it's delivered (see scripts/delivery.ts). */
-export type LineKind = 'number' | 'start' | 'prompt' | 'cue' | 'praise' | 'reason'
+export type LineKind = 'number' | 'start' | 'prompt' | 'cue' | 'praise' | 'reason' | 'intro'
 
 /** `text` is the plain line ("Chest up"); delivery styles add punctuation and tone when generating. */
 export type Line = { id: string; text: string; kind: LineKind }
 
-/** The full catalogue: id + the exact text sent to ElevenLabs (ending punctuation shapes delivery). */
-export function allLines(): Line[] {
+/** Each coach introduces themselves when picked on the setup screen (one sentence = one clip). */
+export const introLine = (coachName: string) => `Hi, I'm ${coachName}, and I'll be your coach today`
+
+/**
+ * The full catalogue: id + the exact text sent to ElevenLabs (ending punctuation shapes delivery).
+ * With a coach name, that coach's introduction is included too (only their own folder needs it).
+ */
+export function allLines(coachName?: string): Line[] {
   const kinds = new Map<string, LineKind>() // first kind wins if a line is used twice
   const add = (kind: LineKind, t?: string) => t && !kinds.has(t) && kinds.set(t, kind)
+  if (coachName) add('intro', introLine(coachName))
   add('start', 'Get ready')
   add('start', 'Get in position')
   add('start', 'Go')

@@ -3,10 +3,12 @@ import { useState } from 'react'
 import { Logo } from '../components/Logo'
 import { detectDevice, type Device } from '../device'
 import { SetupIllustration } from '../components/SetupIllustration'
+import { ExerciseDemo } from '../components/ExerciseDemo'
 import type { Exercise } from '../exercises'
 import { TARGET_OPTIONS, type CoachingMode, type Settings } from '../settings'
 import { voice } from '../voice'
 import { audition, chooseVoice, chosenVoice } from '../voice/clipVoice'
+import { introLine } from '../voice/lines'
 import { VOICE_OPTIONS } from '../voice/voices'
 import { unlockSounds } from '../voice/sounds'
 
@@ -64,10 +66,19 @@ export function Setup({
   const other: Device = device === 'laptop' ? 'phone' : 'laptop'
   const tips = [placementTip(device, exercise.camera.height), ...exercise.tips]
   const [voiceKey, setVoiceKey] = useState(chosenVoice)
+  const [moreOpen, setMoreOpen] = useState(false)
+  const moreSummary = [
+    COACHING.find((c) => c.mode === settings.coaching)?.label,
+    settings.countAloud ? 'Count out loud' : null,
+    settings.showDetails ? 'Details shown' : 'Details hidden',
+  ]
+    .filter(Boolean)
+    .join(' · ')
   const pickVoice = (key: string) => {
     chooseVoice(key)
     setVoiceKey(key)
-    void audition(key, 'Six. Chest up.') // hear it straight away (the tap also unlocks sound)
+    const name = VOICE_OPTIONS.find((v) => v.key === key)?.name ?? key
+    void audition(key, introLine(name)) // the coach introduces themselves (the tap also unlocks sound)
   }
 
   return (
@@ -102,6 +113,14 @@ export function Setup({
           ))}
         </ul>
 
+        {/* What a good rep looks like, before starting. */}
+        <section aria-label="A good rep" className="mt-6 border border-line">
+          <p className="label border-b border-line px-4 py-3 text-muted">A good rep</p>
+          <div className="dot-grid px-4 pt-4 pb-3">
+            <ExerciseDemo exercise={exercise.id} />
+          </div>
+        </section>
+
         {/* Options: set here, because mid-set the device is out of reach. */}
         <section aria-label="Options" className="mt-6 border border-line">
           <div className="border-b border-line p-4">
@@ -131,30 +150,6 @@ export function Setup({
             </p>
           </div>
           <div className="p-4">
-            <p className="label text-muted" id="coaching-label">
-              Coaching
-            </p>
-            <div role="radiogroup" aria-labelledby="coaching-label" className="mt-3 grid grid-cols-3 gap-px border border-line bg-line">
-              {COACHING.map(({ mode, label }) => {
-                const on = settings.coaching === mode
-                return (
-                  <button
-                    key={mode}
-                    role="radio"
-                    aria-checked={on}
-                    onClick={() => onSettings({ coaching: mode })}
-                    className={`press h-11 text-[14px] ${on ? 'bg-ink text-paper' : 'bg-paper text-muted hover:text-ink'}`}
-                  >
-                    {label}
-                  </button>
-                )
-              })}
-            </div>
-            <p className="mt-2 text-[13px] text-pretty text-muted">
-              {COACHING.find((c) => c.mode === settings.coaching)?.detail} We'll always say why a rep didn't count.
-            </p>
-          </div>
-          <div className="border-t border-line p-4">
             <p className="label text-muted" id="voice-label">
               Coach voice
             </p>
@@ -175,20 +170,63 @@ export function Setup({
                 )
               })}
             </div>
-            <p className="mt-2 text-[13px] text-muted">Tap a voice to hear it.</p>
+            <p className="mt-2 text-[13px] text-muted">Tap a voice to meet your coach.</p>
           </div>
-          <SwitchRow
-            label="Count reps out loud"
-            hint="Hear each rep number, handy when you're away from the screen"
-            on={settings.countAloud}
-            onToggle={() => onSettings({ countAloud: !settings.countAloud })}
-          />
-          <SwitchRow
-            label="Show details"
-            hint="Live joint angles on screen"
-            on={settings.showDetails}
-            onToggle={() => onSettings({ showDetails: !settings.showDetails })}
-          />
+          {/* Less-used options, folded away so Start stays close. */}
+          <button
+            aria-expanded={moreOpen}
+            aria-controls="more-options"
+            onClick={() => setMoreOpen((o) => !o)}
+            className="press flex min-h-14 w-full items-center justify-between gap-4 border-t border-line px-4 py-3 text-left"
+          >
+            <span>
+              <span className="text-[15px]">More options</span>
+              <span className="block text-[13px] text-pretty text-muted">{moreSummary}</span>
+            </span>
+            <span aria-hidden="true" className={`text-muted transition-transform duration-150 ${moreOpen ? 'rotate-180' : ''}`}>
+              ⌄
+            </span>
+          </button>
+          {moreOpen && (
+            <div id="more-options">
+            <div className="border-t border-line p-4">
+              <p className="label text-muted" id="coaching-label">
+                Coaching
+              </p>
+              <div role="radiogroup" aria-labelledby="coaching-label" className="mt-3 grid grid-cols-3 gap-px border border-line bg-line">
+                {COACHING.map(({ mode, label }) => {
+                  const on = settings.coaching === mode
+                  return (
+                    <button
+                      key={mode}
+                      role="radio"
+                      aria-checked={on}
+                      onClick={() => onSettings({ coaching: mode })}
+                      className={`press h-11 text-[14px] ${on ? 'bg-ink text-paper' : 'bg-paper text-muted hover:text-ink'}`}
+                    >
+                      {label}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="mt-2 text-[13px] text-pretty text-muted">
+                {COACHING.find((c) => c.mode === settings.coaching)?.detail} We'll always say why a rep didn't count.
+              </p>
+            </div>
+            <SwitchRow
+              label="Count reps out loud"
+              hint="Hear each rep number, handy when you're away from the screen"
+              on={settings.countAloud}
+              onToggle={() => onSettings({ countAloud: !settings.countAloud })}
+            />
+            <SwitchRow
+              label="Show details"
+              hint="Live joint angles on screen"
+              on={settings.showDetails}
+              onToggle={() => onSettings({ showDetails: !settings.showDetails })}
+            />
+            </div>
+          )}
         </section>
 
         <div className="mt-auto pt-10">
