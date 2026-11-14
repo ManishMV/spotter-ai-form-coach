@@ -20,6 +20,8 @@ import { moveBackPrompt, POSITION } from '../voice/lines'
 
 /** Prompts about where to stand. Spoken when they appear, at most every few seconds each. */
 const PROMPT_REPEAT_MS = 6000
+/** Keep counting through a drop out of view this short in the middle of a rep (deep squat bottoms). */
+const OUT_OF_VIEW_GRACE_MS = 1500
 /** Each where-to-stand prompt is spoken at most this many times per set; after that it's shown only. */
 const MAX_PROMPT_REPEATS = 2
 
@@ -77,12 +79,22 @@ export function Workout({
     }
   }, [])
   const lastPhase = useRef<RepPhase>('waiting')
+  const outOfViewSince = useRef<number | null>(null) // when a needed body part left the picture (mid-rep grace)
 
   const onFrame = useCallback<FrameHandler>(
     (angles, timeMs, facing, inView) => {
       // Pause counting when a needed body part is out of frame (can't judge what we can't see)
-      // or when facing the camera (side-view checks don't work).
-      if (!counter || facing || !inView || !counting.current) return
+      // or when facing the camera (side-view checks don't work). Exception: a brief drop out of view in
+      // the middle of a rep. At the bottom of a very deep squat the feet or knees can slip out of sight
+      // for a moment; pausing then missed the deepest point and wrongly said "Sit deeper" (Nov 14).
+      // Angles for parts the tracker can't see stay empty, so nothing is guessed.
+      if (!counter || facing || !counting.current) return
+      if (inView) outOfViewSince.current = null
+      else {
+        outOfViewSince.current ??= timeMs
+        const midRep = counter.phase !== 'waiting'
+        if (!midRep || timeMs - outOfViewSince.current > OUT_OF_VIEW_GRACE_MS) return
+      }
       const rep = counter.update(angles, timeMs)
       // Going down into a rep, or finishing one, is activity: it keeps the set from auto-finishing.
       if (rep || (counter.phase === 'down' && lastPhase.current !== 'down')) {
