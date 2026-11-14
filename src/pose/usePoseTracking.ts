@@ -151,13 +151,23 @@ export function usePoseTracking(
           if (raw && rawWorld) {
             const screen = screenSmoother.smooth(raw, now)
             const world = worldSmoother.smooth(rawWorld, now)
-            side = pickSide(screen, side, world)
-            const angles = measureAngles(screen, world, side)
-            // Decide facing vs side-on only in the start position (see `isAtTop`). With no exercise
-            // rules (debug view), fall back to "standing upright".
-            const atTop = isAtTopRef.current
-              ? isAtTopRef.current(angles)
-              : angles.torsoLean !== null && angles.torsoLean < 30
+            // Which leg to track is decided only in the start position, then locked for the rep: at the
+            // bottom of a squat both knees push forward and the near/far reading gets close, and a mid-rep
+            // hop to the far (guessed, straighter) leg read deep squats as shallow (tester, Nov 14).
+            const isTop = (a: Angles) =>
+              isAtTopRef.current ? isAtTopRef.current(a) : a.torsoLean !== null && a.torsoLean < 30
+            if (side === null) side = pickSide(screen, null, world)
+            let angles = measureAngles(screen, world, side)
+            let atTop = isTop(angles)
+            if (atTop) {
+              const best = pickSide(screen, side, world)
+              if (best !== side) {
+                side = best
+                angles = measureAngles(screen, world, side)
+                atTop = isTop(angles)
+              }
+            }
+            // Decide facing vs side-on only in the start position too (see `isAtTop`).
             if (atTop) facing = isFacingCamera(shoulderSpread(screen, video.videoWidth / video.videoHeight), facing)
             const outOfView = partsOutOfView(screen, side, mustSeeRef.current ?? [])
             const nowInView = outOfView.length === 0

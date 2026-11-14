@@ -36,6 +36,8 @@ export type RepLog = {
   high: number | null
   ms: number
   flags: { text: string; kind: CueCheck['kind'] }[]
+  /** Diagnostics from the camera screen: which leg/arm was tracked, and frames where the counting joint wasn't seen. */
+  diag?: { side: string; unseen: number; frames: number }
 }
 
 export class SetTracker {
@@ -62,7 +64,7 @@ export class SetTracker {
     this.startedAt ??= now
   }
 
-  onRep(rep: Rep) {
+  onRep(rep: Rep, diag?: RepLog['diag']) {
     const angle = this.metric ? rep.stats[this.metric] : null
     this.log.push({
       counted: rep.counted,
@@ -71,6 +73,7 @@ export class SetTracker {
       high: angle?.max ?? null,
       ms: Math.round(rep.durationMs),
       flags: rep.counted ? firingCues(this.cues, rep.stats).map((c) => ({ text: c.text, kind: c.kind })) : [],
+      diag,
     })
     if (!rep.counted) {
       const reason = rep.failed?.text

@@ -81,6 +81,9 @@ export function Workout({
     }
   }, [])
   const lastPhase = useRef<RepPhase>('waiting')
+  const repMetric = exercise.reps?.metric
+  const repDiag = useRef({ sides: new Set<string>(), unseen: 0, frames: 0 })
+  const sideRef = useRef<string | null>(null)
   const outOfViewSince = useRef<number | null>(null) // when a needed body part left the picture (mid-rep grace)
   const partlyOutOfView = useRef(false) // body seen but a needed part cut off (pauses the auto-finish timer)
   const nobodyInView = useRef(false) // nobody in the picture (also pauses it, up to GONE_MS)
@@ -100,6 +103,11 @@ export function Workout({
         const midRep = counter.phase !== 'waiting'
         if (!midRep || timeMs - outOfViewSince.current > OUT_OF_VIEW_GRACE_MS) return
       }
+      // Per-rep diagnostics for tester results: which side was tracked and how often the counting joint was unseen.
+      const metric = repMetric
+      repDiag.current.frames++
+      if (metric && angles[metric] === null) repDiag.current.unseen++
+      if (sideRef.current) repDiag.current.sides.add(sideRef.current)
       const rep = counter.update(angles, timeMs)
       // Going down into a rep, or finishing one, is activity: it keeps the set from auto-finishing.
       if (rep || (counter.phase === 'down' && lastPhase.current !== 'down')) {
@@ -108,7 +116,9 @@ export function Workout({
       lastPhase.current = counter.phase
       if (rep) {
         setReps(rep.number)
-        tracker.onRep(rep)
+        const d = repDiag.current
+        tracker.onRep(rep, { side: [...d.sides].join('+') || '?', unseen: d.unseen, frames: d.frames })
+        repDiag.current = { sides: new Set(), unseen: 0, frames: 0 }
         const feedback = coach.next(rep) // research-based: may stay quiet to avoid nagging
 
         const isFinal = rep.counted && ender.reachedTarget(rep.number)
@@ -125,7 +135,7 @@ export function Workout({
       }
       setPhase(counter.phase) // React skips the re-render when the phase hasn't changed
     },
-    [counter, coach, tracker, ender, finish],
+    [counter, coach, tracker, ender, finish, repMetric],
   )
 
   // Inactivity finish: checked every 0.1 s once counting has started (keeps the 5-4-3-2-1 evenly spaced).
@@ -179,6 +189,7 @@ export function Workout({
     return stop
   }, [start, stop])
   useEffect(() => {
+    sideRef.current = readout.side
     partlyOutOfView.current = !!readout.side && !readout.inView
     nobodyInView.current = status === 'running' && !readout.side
   }, [readout, status])
