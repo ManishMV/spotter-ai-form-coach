@@ -73,7 +73,9 @@ function pushupFrames(r: PushupRep): SimFrame[] {
     bodyLine: 174 + sag * 150 * p,
     hipOffset: sag * p + jitter(0.008),
   })
+  // A short pause at the top before lowering, as real people do (arms straight, ~0.3 s).
   const frames: SimFrame[] = [{ angles: at(0), note: r.note }]
+  for (let i = 0; i < 9; i++) frames.push({ angles: at(0) })
   const down = Math.round((downS * 1000) / FRAME_MS)
   const up = Math.round((upS * 1000) / FRAME_MS)
   for (let i = 1; i <= down; i++) frames.push({ angles: at(i / down) })

@@ -22,6 +22,8 @@ export type Metric =
   //             ~0 = straight plank; negative = hips sagging; positive = hips piking.
   | 'thighTilt' // hip→knee line vs horizontal. Positive = hip above knee; 0 = thigh parallel to the floor
   //             (the squat depth standard: hips at knee height).
+  | 'kneeLiftTop' // per rep: typical knee height above the hands while at the top (arms straight); robust to
+  //               one jumpy frame, and not lowered by the bottom of the rep, where even full push-ups bring the knees down
   | 'leanAtBottom' // per rep: typical torso-vs-shin lean in the bottom half of the squat (median, so one noisy frame can't trigger a cue)
   | 'hipsRiseFirst' // per rep, not per frame: how much the torso tips further forward on the way up,
   //                 compared with the bottom (degrees). ~0 = chest and hips rise together.
