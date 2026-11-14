@@ -295,7 +295,8 @@ export function Workout({
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-black/80 to-transparent" />
 
       {/* Top bar */}
-      <header className="absolute inset-x-0 top-0 flex items-center justify-between p-4 sm:p-6">
+      {/* z-20: always above the details panel, so End is never covered (it was, on landscape phones). */}
+      <header className="absolute inset-x-0 top-0 z-20 flex items-center justify-between p-4 sm:p-6">
         <div className="flex items-center gap-3">
           <LogoMark size={24} />
           <span className="label text-white/80">{exercise.name}</span>
@@ -357,7 +358,7 @@ export function Workout({
               color: '#ffffff',
               transition: { duration: 0.28, ease: [0.2, 0, 0, 1], color: { duration: 0.7, ease: 'easeOut' } },
             }}
-            className="origin-bottom-left text-[clamp(120px,28vw,280px)] leading-[0.85] font-semibold tracking-[-0.05em] tabular-nums"
+            className="origin-bottom-left text-[clamp(64px,min(28vw,30vh),280px)] leading-[0.85] font-semibold tracking-[-0.05em] tabular-nums"
           >
             {reps}
           </motion.p>
@@ -378,7 +379,7 @@ export function Workout({
           </span>
         </button>
         {detailsOpen && (
-        <dl id="live-details" className="label mt-1 grid grid-cols-[auto_auto] gap-x-3 gap-y-1.5 border border-white/15 bg-black/50 p-3 text-white/80 tabular-nums backdrop-blur">
+        <dl id="live-details" className="label mt-1 grid max-h-[calc(100dvh-10rem)] overflow-y-auto grid-cols-[auto_auto] gap-x-3 gap-y-1.5 border border-white/15 bg-black/50 p-3 text-white/80 tabular-nums backdrop-blur">
           <dt className="text-white/45">Knee</dt>
           <dd className="text-right">{fmt(readout.angles.knee)}</dd>
           <dt className="text-white/45">Thigh</dt>
