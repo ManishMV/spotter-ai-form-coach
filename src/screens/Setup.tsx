@@ -1,6 +1,7 @@
 // Setup: show where to place the phone or laptop, then one big Start button.
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
+import { createPortal } from 'react-dom'
 import { Logo } from '../components/Logo'
 import { TesterFeedbackButton } from '../components/TesterFeedback'
 import { detectDevice, type Device } from '../device'
@@ -253,6 +254,9 @@ export function Setup({
         </div>
       </main>
 
+      {/* Rendered straight into the page body: the screen's fade-in animation would otherwise pin it to the
+          top of the page instead of the middle of the screen when you've scrolled down. */}
+      {createPortal(
       <AnimatePresence>
         {checking && (
           <QuickCheck
@@ -267,7 +271,9 @@ export function Setup({
             }}
           />
         )}
-      </AnimatePresence>
+      </AnimatePresence>,
+      document.body,
+      )}
     </div>
   )
 }
