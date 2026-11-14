@@ -2,6 +2,7 @@
 // "Copy my results" button that copies a short plain-text report of all of them, to paste into the
 // tester form. Nothing is sent anywhere by the app, and nothing personal is included.
 import type { SetSummary } from './coach/setTracker'
+import { track } from './analytics'
 
 export const isTester = new URLSearchParams(location.search).has('tester')
 
@@ -98,4 +99,11 @@ export async function copyResults(): Promise<boolean> {
     box.remove()
     return ok
   }
+}
+
+/** Copy the results (if any), then open the form in this tab (phones often block new tabs). */
+export async function openFeedbackForm(from: string) {
+  if (setCount() > 0) await copyResults()
+  track('feedback_form_opened', { from })
+  window.location.assign(FEEDBACK_FORM_URL)
 }

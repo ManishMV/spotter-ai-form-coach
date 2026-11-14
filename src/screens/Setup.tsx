@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Logo } from '../components/Logo'
+import { TesterFeedbackButton } from '../components/TesterFeedback'
 import { detectDevice, type Device } from '../device'
 import { SetupIllustration } from '../components/SetupIllustration'
 import { ExerciseDemo } from '../components/ExerciseDemo'
@@ -88,9 +89,12 @@ export function Setup({
     <div className="mx-auto flex min-h-dvh max-w-[640px] flex-col px-4 sm:px-8">
       <header className="flex h-16 items-center justify-between border-b border-line">
         <Logo onHome={onBack} />
-        <button onClick={onBack} className="label press -mr-3 h-11 px-3 text-muted hover:text-ink">
-          ← Back
-        </button>
+        <div className="flex items-center gap-1">
+          <TesterFeedbackButton />
+          <button onClick={onBack} className="label press -mr-3 h-11 px-3 text-muted hover:text-ink">
+            ← Back
+          </button>
+        </div>
       </header>
 
       <main className="flex flex-1 flex-col py-8 sm:py-12">

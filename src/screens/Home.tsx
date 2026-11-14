@@ -2,7 +2,8 @@
 import { Arrow } from '../components/Arrow'
 import { Logo } from '../components/Logo'
 import { EXERCISES, type Exercise } from '../exercises'
-import { FEEDBACK_FORM_URL } from '../tester'
+import { FEEDBACK_FORM_URL, isTester } from '../tester'
+import { TesterFeedbackButton } from '../components/TesterFeedback'
 import { LiveDemo } from '../components/LiveDemo'
 
 const FAQ: [string, string][] = [
@@ -37,10 +38,14 @@ export function Home({ onPick }: { onPick: (exercise: Exercise) => void }) {
     <div className="mx-auto flex min-h-dvh max-w-[1080px] flex-col px-4 sm:px-8">
       <header className="flex h-16 items-center justify-between border-b border-line">
         <Logo />
-        <span className="label flex items-center gap-2 text-muted">
-          <span className="size-1.5 bg-accent" aria-hidden="true" />
-          Free · Private · Beta
-        </span>
+        {isTester ? (
+          <TesterFeedbackButton />
+        ) : (
+          <span className="label flex items-center gap-2 text-muted">
+            <span className="size-1.5 bg-accent" aria-hidden="true" />
+            Free · Private · Beta
+          </span>
+        )}
       </header>
 
       <main className="flex-1">

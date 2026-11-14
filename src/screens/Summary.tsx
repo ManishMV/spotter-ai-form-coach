@@ -132,6 +132,55 @@ export function Summary({
           </p>
         )}
 
+        {/* Testers first: the feedback step is the point of their visit, so it sits above the fold. */}
+        {tester && setsSoFar > 0 && (
+          <section aria-label="Thank you for testing" className="mt-6 border border-accent/60">
+            <p className="label border-b border-line px-4 py-3 text-accent">For testers</p>
+            <div className="p-4">
+              <p className="text-[20px] leading-tight tracking-[-0.02em]">
+                {celebrate ? 'Thank you for testing Spotter!' : 'Your results so far'}
+              </p>
+              <p className="mt-1.5 text-[15px] text-pretty text-muted">
+                {setsSoFar} {setsSoFar === 1 ? 'set' : 'sets'} saved.{' '}
+                {otherToTry
+                  ? `Try ${otherToTry.name.toLowerCase()}s too, or copy your results into the 2-minute feedback form.`
+                  : 'Copy your results into the 2-minute feedback form.'}
+              </p>
+              <div className={`mt-4 grid gap-3 ${otherToTry && onTryOther ? 'sm:grid-cols-2' : ''}`}>
+                {otherToTry && onTryOther && (
+                  <button
+                    onClick={() => onTryOther(otherToTry)}
+                    className="press h-12 border border-line bg-paper text-[15px] hover:bg-paper-2"
+                  >
+                    Try {otherToTry.name.toLowerCase()}s
+                  </button>
+                )}
+                <button
+                  onClick={async () => {
+                    const ok = await copyResults()
+                    setCopied(ok)
+                    // Same tab, not a new one: phones often block a new tab opened after the copy finishes,
+                    // which left some testers unable to find the form. Results are already copied.
+                    track('feedback_form_opened', { exercise: exercise.id })
+                    window.setTimeout(() => window.location.assign(FEEDBACK_FORM_URL), 900)
+                  }}
+                  className="press h-12 bg-ink text-[15px] text-paper hover:opacity-90"
+                >
+                  Copy results & open form
+                </button>
+              </div>
+              {copied !== null && (
+                <p className="mt-3 text-[13px] text-pretty text-muted">
+                  {copied ? 'Copied. Paste them into the form’s results question. ' : 'Couldn’t copy your results. Tap the button again. '}
+                  <a href={FEEDBACK_FORM_URL} target="_blank" rel="noopener" className="underline decoration-line underline-offset-4 hover:text-ink">
+                    Form didn’t open?
+                  </a>
+                </p>
+              )}
+            </div>
+          </section>
+        )}
+
         {/* The one thing to work on, or, after a very short set, a check that nothing went wrong. */}
         <section aria-label="Next time" className="mt-8 border border-line">
           <p className="label border-b border-line px-4 py-3 text-muted">{shortSet ? 'Something not right?' : 'Next time'}</p>
@@ -186,53 +235,6 @@ export function Summary({
                 </li>
               ))}
             </ul>
-          </section>
-        )}
-
-        {tester && setsSoFar > 0 && (
-          <section aria-label="Thank you for testing" className="mt-4 border border-accent/60">
-            <p className="label border-b border-line px-4 py-3 text-accent">For testers</p>
-            <div className="p-4">
-              <p className="text-[20px] leading-tight tracking-[-0.02em]">
-                {celebrate ? 'Thank you for testing Spotter!' : 'Your results so far'}
-              </p>
-              <p className="mt-1.5 text-[15px] text-pretty text-muted">
-                {setsSoFar} {setsSoFar === 1 ? 'set' : 'sets'} saved.{' '}
-                {otherToTry
-                  ? `Try ${otherToTry.name.toLowerCase()}s too, or copy your results into the 2-minute feedback form.`
-                  : 'Copy your results into the 2-minute feedback form.'}
-              </p>
-              <div className={`mt-4 grid gap-3 ${otherToTry && onTryOther ? 'sm:grid-cols-2' : ''}`}>
-                {otherToTry && onTryOther && (
-                  <button
-                    onClick={() => onTryOther(otherToTry)}
-                    className="press h-12 border border-line bg-paper text-[15px] hover:bg-paper-2"
-                  >
-                    Try {otherToTry.name.toLowerCase()}s
-                  </button>
-                )}
-                <button
-                  onClick={async () => {
-                    // Copy first: once the form opens in a new tab, this page loses focus and can't copy.
-                    const ok = await copyResults()
-                    setCopied(ok)
-                    track('feedback_form_opened', { exercise: exercise.id })
-                    window.open(FEEDBACK_FORM_URL, '_blank', 'noopener')
-                  }}
-                  className="press h-12 bg-ink text-[15px] text-paper hover:opacity-90"
-                >
-                  Copy results & open form
-                </button>
-              </div>
-              {copied !== null && (
-                <p className="mt-3 text-[13px] text-pretty text-muted">
-                  {copied ? 'Copied. Paste them into the form’s results question. ' : 'Couldn’t copy your results. Tap the button again. '}
-                  <a href={FEEDBACK_FORM_URL} target="_blank" rel="noopener" className="underline decoration-line underline-offset-4 hover:text-ink">
-                    Form didn’t open?
-                  </a>
-                </p>
-              )}
-            </div>
           </section>
         )}
 
