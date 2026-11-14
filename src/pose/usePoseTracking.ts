@@ -151,7 +151,7 @@ export function usePoseTracking(
           if (raw && rawWorld) {
             const screen = screenSmoother.smooth(raw, now)
             const world = worldSmoother.smooth(rawWorld, now)
-            side = pickSide(screen, side)
+            side = pickSide(screen, side, world)
             const angles = measureAngles(screen, world, side)
             // Decide facing vs side-on only in the start position (see `isAtTop`). With no exercise
             // rules (debug view), fall back to "standing upright".

@@ -194,11 +194,32 @@ export function stanceDiagnostics(screen: NormalizedLandmark[], world: Landmark[
 const sideScore = (points: NormalizedLandmark[], side: Side) =>
   Object.values(POINTS[side]).reduce((sum, i) => sum + (points[i]?.visibility ?? 0), 0)
 
+/** How much closer to the camera the left side is than the right (metres; positive = left is nearer). */
+function leftNearerBy(world: Landmark[]): number | null {
+  const parts = ['shoulder', 'hip', 'knee', 'ankle'] as const
+  let sum = 0
+  for (const part of parts) {
+    const l = world[POINTS.left[part]]
+    const r = world[POINTS.right[part]]
+    if (!l || !r) return null
+    sum += r.z - l.z // smaller z = closer to the camera
+  }
+  return sum / parts.length
+}
+
 /**
- * Picks the side of the body the camera sees best. Sticks with the current side unless the
- * other one is clearly better, so the label doesn't flicker when you're square to the camera.
+ * Picks the side of the body nearest the camera (the one it actually sees; the far leg is only guessed).
+ * Mainly by depth: the tracker's confidence alone could lock onto the far leg, which read squats facing one
+ * way as much shallower (tester, Nov 14). Confidence breaks ties. Sticks with the current side unless the
+ * other is clearly nearer, so it doesn't flicker when you're square to the camera.
  */
-export function pickSide(points: NormalizedLandmark[], current: Side | null): Side {
+export function pickSide(points: NormalizedLandmark[], current: Side | null, world?: Landmark[]): Side {
+  const depth = world ? leftNearerBy(world) : null
+  if (depth !== null && Math.abs(depth) > 0.04) {
+    const nearer: Side = depth > 0 ? 'left' : 'right'
+    if (current && nearer !== current && Math.abs(depth) < 0.08) return current // not clearly nearer yet
+    return nearer
+  }
   const left = sideScore(points, 'left')
   const right = sideScore(points, 'right')
   const best: Side = left >= right ? 'left' : 'right'
