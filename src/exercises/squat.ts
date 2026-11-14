@@ -14,11 +14,13 @@ export const squat: Exercise = {
   // Standing ≈ 170–180° knee angle; thighs parallel ≈ 70–100°.
   reps: {
     metric: 'knee',
-    downBelow: 100, // must reach about parallel to count
+    // Must reach about parallel. 108°, not 100°: tester sets (Nov 14) showed real deep squats reading
+    // 101–107° when slightly turned or leaning, with the knee fully seen. Half squats read 120°+.
+    downBelow: 108,
     // and stand back up. 150, not 160: standing straight measured 158–163° for a tester (Nov 13), so 160
     // flickered and the set never started. Still well above the 140° partial-rep line.
     upAbove: 150,
-    minRepMs: 1000, // faster than 1 s = bouncing, not a controlled rep
+    minRepMs: 800, // faster than 0.8 s = bouncing. Was 1 s: brisk real reps (0.9–1.0 s) were rejected (Nov 14)
     // Went below 145° but not to depth → partial rep: not counted, tell them why. Was 140°: a quarter squat
     // (knee never past 140°) was silent and even looked like standing still, so the set could auto-finish
     // mid-movement (Nov 13). 145° keeps a safe gap below standing (150°+; standing measures 158–175°).

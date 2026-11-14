@@ -82,6 +82,14 @@ export function Workout({
   }, [])
   const lastPhase = useRef<RepPhase>('waiting')
   const repMetric = exercise.reps?.metric
+  // User pause: a ref for the per-frame handler and timers, state for the screen.
+  const [paused, setPaused] = useState(false)
+  const pausedRef = useRef(false)
+  const setPausedBoth = (on: boolean) => {
+    pausedRef.current = on
+    setPaused(on)
+    voice.say(on ? 'Paused' : 'Go', { interrupt: true })
+  }
   const repDiag = useRef({ sides: new Set<string>(), unseen: 0, frames: 0 })
   const sideRef = useRef<string | null>(null)
   const outOfViewSince = useRef<number | null>(null) // when a needed body part left the picture (mid-rep grace)
@@ -96,11 +104,13 @@ export function Workout({
       // the middle of a rep. At the bottom of a very deep squat the feet or knees can slip out of sight
       // for a moment; pausing then missed the deepest point and wrongly said "Sit deeper" (Nov 14).
       // Angles for parts the tracker can't see stay empty, so nothing is guessed.
-      if (!counter || facing || !counting.current) return
+      if (!counter || facing || !counting.current || pausedRef.current) return
       if (inView) outOfViewSince.current = null
       else {
         outOfViewSince.current ??= timeMs
-        const midRep = counter.phase !== 'waiting'
+        // Only while actually going down/up in a squat or push-up: between reps (standing, or walking up
+        // to the device) a cut-off body pauses at once, so jittery points can't make a fake rep (Nov 14).
+        const midRep = counter.phase === 'down'
         if (!midRep || timeMs - outOfViewSince.current > OUT_OF_VIEW_GRACE_MS) return
       }
       // Per-rep diagnostics for tester results: which side was tracked and how often the counting joint was unseen.
@@ -142,6 +152,11 @@ export function Workout({
   useEffect(() => {
     const timer = window.setInterval(() => {
       if (!counting.current || !counter) return
+      // Paused by the user: nothing counts, and the auto-finish waits.
+      if (pausedRef.current) {
+        ender.onActivity(Date.now())
+        return
+      }
       // Out of view (part of the body cut off, or nobody in the picture): counting is paused, so the
       // auto-finish timer waits too. Fixing the phone or a quick sip of water never ends the set. Only
       // nobody in view for a full minute ends it (they've really left).
@@ -370,10 +385,28 @@ export function Workout({
           <span className="label text-white/80">{exercise.name}</span>
         </div>
         {/* Solid white so it reads on any camera background (was see-through and got lost on bright rooms). */}
-        <button onClick={() => finish('end')} className="label press h-11 bg-white px-6 text-black shadow-[0_1px_8px_rgba(0,0,0,0.35)] hover:bg-accent hover:text-white">
-          End
-        </button>
+        <div className="flex flex-col items-end gap-2">
+          <button onClick={() => finish('end')} className="label press h-11 bg-white px-6 text-black shadow-[0_1px_8px_rgba(0,0,0,0.35)] hover:bg-accent hover:text-white">
+            End
+          </button>
+          {/* Pause: for a break mid-set without ending it. Only once counting has started. */}
+          {started && !paused && (
+            <button onClick={() => setPausedBoth(true)} className="label press h-11 border border-white/30 bg-black/50 px-5 text-white backdrop-blur hover:bg-white hover:text-black">
+              Pause
+            </button>
+          )}
+        </div>
       </header>
+
+      {paused && (
+        <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/75 px-8 text-center">
+          <p className="text-[34px] leading-tight font-medium tracking-[-0.02em]">Paused</p>
+          <p className="mt-2 text-[16px] text-white/70">Your {reps} {reps === 1 ? 'rep is' : 'reps are'} saved. Nothing counts until you resume.</p>
+          <button onClick={() => setPausedBoth(false)} className="press mt-6 h-14 bg-accent px-10 text-[18px] font-medium text-accent-ink hover:brightness-105">
+            Resume
+          </button>
+        </div>
+      )}
 
       {/* Start countdown: huge, centred, readable from across the room. */}
       <AnimatePresence>

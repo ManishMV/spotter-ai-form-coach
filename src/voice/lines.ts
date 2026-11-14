@@ -70,6 +70,7 @@ export function allLines(coachName?: string): Line[] {
   add('start', 'Two more')
   add('start', 'Last one')
   add('prompt', 'Finishing the set')
+  add('prompt', 'Paused')
   add('praise', 'Nice work')
   add('praise', 'Great set')
   add('praise', 'Good effort')
