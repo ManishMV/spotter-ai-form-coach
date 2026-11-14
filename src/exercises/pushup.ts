@@ -44,7 +44,10 @@ export const pushup: Exercise = {
         // Only needs knee + wrist, so it works with the feet out of frame. `max` = the top position.
         id: 'knees-off-floor',
         text: 'Knees up for full push-ups',
-        anyOf: [{ metric: 'kneeLift', stat: 'max', op: '>', value: 0.2 }],
+        // Typical (median) height over the rep, not the highest: near the edge of the picture the knee
+        // estimate jitters, and one high frame let a knee push-up pass (Nov 14). Full push-ups keep the
+        // knee well off the floor through most of the rep, so the median stays above 0.2.
+        anyOf: [{ metric: 'kneeLift', stat: 'median', op: '>', value: 0.2 }],
       },
       {
         // Second knee check when the ankle is visible too: legs straight, not bent.
