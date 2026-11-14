@@ -12,7 +12,7 @@ export const POSITION = {
   moveBackKnees: 'Move back so your knees are in view',
   moveBackHands: 'Move back so your hands are in view',
   turn: 'Turn to your side',
-  rotate: 'Turn your phone sideways', // push-ups on a phone held upright: the body doesn't fit
+  rotate: 'Turn your phone sideways, or move it back', // push-ups on an upright phone when the body doesn't fit
 } as const
 
 /** The "move back" prompt for what's missing: the lowest body part out of view, or the whole body. */
