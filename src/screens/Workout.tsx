@@ -80,6 +80,7 @@ export function Workout({
   }, [])
   const lastPhase = useRef<RepPhase>('waiting')
   const outOfViewSince = useRef<number | null>(null) // when a needed body part left the picture (mid-rep grace)
+  const partlyOutOfView = useRef(false) // body seen but a needed part cut off (pauses the auto-finish timer)
 
   const onFrame = useCallback<FrameHandler>(
     (angles, timeMs, facing, inView) => {
@@ -127,6 +128,13 @@ export function Workout({
   useEffect(() => {
     const timer = window.setInterval(() => {
       if (!counting.current || !counter) return
+      // Partly out of view (body seen, a needed part cut off): counting is paused, so the auto-finish
+      // timer waits too. Fixing your position should never end the set. Walking out of the picture
+      // completely still counts as stopping.
+      if (partlyOutOfView.current) {
+        if (ender.onActivity(Date.now())?.type === 'cancelled') setNotice(null)
+        return
+      }
       const event = ender.tick(Date.now(), counter.phase === 'down')
       if (!event) return
       if (event.type === 'rest') {
@@ -161,6 +169,9 @@ export function Workout({
     start()
     return stop
   }, [start, stop])
+  useEffect(() => {
+    partlyOutOfView.current = !!readout.side && !readout.inView
+  }, [readout])
   useEffect(() => {
     modelRef.current = model
     if (counting.current && fps > 0) fpsLog.current.push(fps)
@@ -386,6 +397,11 @@ export function Workout({
             <p className="mt-2 text-[13px] text-white/55">Screen not turning? Switch on auto-rotate.</p>
           </div>
         </div>
+      )}
+
+      {/* Mid-set and partly out of view: say plainly that counting is paused, and why. */}
+      {started && countdown === null && !!readout.side && !readout.inView && (
+        <p className="label absolute inset-x-0 top-[9.5rem] z-10 text-center text-accent sm:top-44">Counting paused · you're out of view</p>
       )}
 
       {/* One short cue */}
