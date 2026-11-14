@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { LogoMark } from '../components/Logo'
+import { GetSetChecklist } from '../components/GetSetChecklist'
 import { detectDevice } from '../device'
 import { track } from '../analytics'
 import type { Exercise } from '../exercises'
@@ -162,9 +163,19 @@ export function Workout({
   // In place = visible, side-on and every needed part in the picture. To start, also in the start position.
   // Once the countdown runs, only leaving your place stops it: shifting your stance or starting a rep early
   // doesn't (the rep counter waits for the start position after "Go" anyway).
-  const inPlace = status === 'running' && !!readout.side && readout.inView && !readout.facing
+  // Push-ups on a phone held upright: the body (lying down, long and flat) can't fit, so ask to turn it.
+  const [portrait, setPortrait] = useState(() => matchMedia('(orientation: portrait)').matches)
+  useEffect(() => {
+    const mq = matchMedia('(orientation: portrait)')
+    const onChange = () => setPortrait(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+  const needsRotate = exercise.camera.height === 'floor' && portrait && detectDevice() === 'phone'
+  const inPlace = status === 'running' && !needsRotate && !!readout.side && readout.inView && !readout.facing
   const ready = inPlace && isAtTop(readout.angles)
   const countdownTimer = useRef(0)
+  const [started, setStarted] = useState(false) // past "Go": the Get set checklist is no longer shown
   useEffect(() => () => window.clearInterval(countdownTimer.current), [])
   useEffect(() => {
     if (counting.current || finished.current) return
@@ -190,6 +201,7 @@ export function Workout({
           }
           if (n === 0) {
             counting.current = true // counting starts on "Go"
+            setStarted(true)
             tracker.start()
             track('counting_started', { exercise: exercise.id })
           }
@@ -217,6 +229,8 @@ export function Workout({
       ? 'Starting camera…'
       : countdown !== null
       ? ''
+      : needsRotate
+      ? POSITION.rotate
       : !readout.side
         ? POSITION.stepIntoView
         : !readout.inView
@@ -230,6 +244,14 @@ export function Workout({
             : phase === 'waiting'
             ? (exercise.reps?.startText ?? '')
             : `Tracking your ${readout.side} side`
+
+  // The Get set checklist: shown before "Go" while the camera runs (not during the countdown or the set).
+  const showChecklist = status === 'running' && !started && countdown === null && !needsRotate && !!counter
+  const checklist = [
+    { label: 'Side-on to the camera', ok: !!readout.side && !readout.facing },
+    { label: exercise.camera.height === 'floor' ? 'Head to knees in view' : 'Whole body in view', ok: !!readout.side && readout.inView },
+    { label: exercise.reps?.startText ?? 'In the start position', ok: !!readout.side && readout.inView && !readout.facing && isAtTop(readout.angles) },
+  ]
 
   // Speak where-to-stand prompts calmly: only once a prompt has stayed on screen for a moment (so a
   // flicker doesn't trigger speech), one at a time, never over the countdown, and not repeated too often.
@@ -326,8 +348,30 @@ export function Workout({
         )}
       </AnimatePresence>
 
+      {/* Before "Go": a live checklist of what Spotter needs, instead of a single prompt line. */}
+      {showChecklist && (
+        <div className="absolute inset-x-4 top-20 z-10 flex justify-center sm:top-24">
+          <GetSetChecklist items={checklist} />
+        </div>
+      )}
+
+      {/* Push-ups on an upright phone: a full-screen ask to turn it (also spoken). Goes away once turned. */}
+      {needsRotate && status !== 'error' && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 px-8 text-center">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="7" y="2.5" width="10" height="19" rx="2" />
+            <path d="M20.5 9.5a8 8 0 0 1-3 8.5M20.5 9.5V13M20.5 9.5H17" />
+          </svg>
+          <p className="mt-5 text-[26px] leading-tight font-medium tracking-[-0.02em] text-balance">Turn your phone sideways</p>
+          <p className="mt-2 max-w-[30ch] text-[16px] leading-relaxed text-pretty text-white/70">
+            Lay it on the floor in landscape so you fit from head to knees.
+          </p>
+        </div>
+      )}
+
       {/* One short cue */}
       <p
+        hidden={showChecklist || needsRotate}
         aria-live="polite"
         className={`absolute inset-x-4 top-20 text-center text-[clamp(22px,4.5vw,44px)] leading-tight font-medium tracking-[-0.02em] text-balance sm:top-24 ${notice?.good && cue === notice.text ? 'text-accent' : ''}`}
       >
