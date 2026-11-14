@@ -76,7 +76,7 @@ export function resultsText(): string {
       (r, n) =>
         `   rep ${n + 1}: ${r.counted ? 'counted' : `not counted (${r.why ?? '?'})`} | ${name} ${deg(r.low)} low, ${deg(r.high)} high | ${(r.ms / 1000).toFixed(1)} s | flags: ${
           r.flags.length ? r.flags.map((f) => `${f.text} [${f.kind}]`).join(', ') : 'none'
-        }${r.diag ? ` | side to camera: ${r.diag.side} | knee/arm unseen ${r.diag.unseen}/${r.diag.frames} frames` : ''}`,
+        }${r.diag ? ` | side to camera: ${r.diag.side} | ${s.metric === 'upperArm' ? 'arm' : 'knee'} unseen ${r.diag.unseen}/${r.diag.frames} frames` : ''}`,
     )
     return [head, ...reps].join('\n')
   })
