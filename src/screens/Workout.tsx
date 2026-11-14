@@ -22,6 +22,8 @@ import { moveBackPrompt, POSITION } from '../voice/lines'
 const PROMPT_REPEAT_MS = 6000
 /** Keep counting through a drop out of view this short in the middle of a rep (deep squat bottoms). */
 const OUT_OF_VIEW_GRACE_MS = 1500
+/** Mid-set, nobody in the picture this long = they've left: end the set. */
+const GONE_MS = 60000
 /** Each where-to-stand prompt is spoken at most this many times per set; after that it's shown only. */
 const MAX_PROMPT_REPEATS = 2
 
@@ -81,6 +83,8 @@ export function Workout({
   const lastPhase = useRef<RepPhase>('waiting')
   const outOfViewSince = useRef<number | null>(null) // when a needed body part left the picture (mid-rep grace)
   const partlyOutOfView = useRef(false) // body seen but a needed part cut off (pauses the auto-finish timer)
+  const nobodyInView = useRef(false) // nobody in the picture (also pauses it, up to GONE_MS)
+  const nobodySince = useRef<number | null>(null)
 
   const onFrame = useCallback<FrameHandler>(
     (angles, timeMs, facing, inView) => {
@@ -128,11 +132,16 @@ export function Workout({
   useEffect(() => {
     const timer = window.setInterval(() => {
       if (!counting.current || !counter) return
-      // Partly out of view (body seen, a needed part cut off): counting is paused, so the auto-finish
-      // timer waits too. Fixing your position should never end the set. Walking out of the picture
-      // completely still counts as stopping.
-      if (partlyOutOfView.current) {
-        if (ender.onActivity(Date.now())?.type === 'cancelled') setNotice(null)
+      // Out of view (part of the body cut off, or nobody in the picture): counting is paused, so the
+      // auto-finish timer waits too. Fixing the phone or a quick sip of water never ends the set. Only
+      // nobody in view for a full minute ends it (they've really left).
+      const now = Date.now()
+      if (nobodyInView.current) {
+        nobodySince.current ??= now
+        if (now - nobodySince.current >= GONE_MS) return finish('idle')
+      } else nobodySince.current = null
+      if (partlyOutOfView.current || nobodyInView.current) {
+        if (ender.onActivity(now)?.type === 'cancelled') setNotice(null)
         return
       }
       const event = ender.tick(Date.now(), counter.phase === 'down')
@@ -171,7 +180,8 @@ export function Workout({
   }, [start, stop])
   useEffect(() => {
     partlyOutOfView.current = !!readout.side && !readout.inView
-  }, [readout])
+    nobodyInView.current = status === 'running' && !readout.side
+  }, [readout, status])
   useEffect(() => {
     modelRef.current = model
     if (counting.current && fps > 0) fpsLog.current.push(fps)
@@ -400,7 +410,7 @@ export function Workout({
       )}
 
       {/* Mid-set and partly out of view: say plainly that counting is paused, and why. */}
-      {started && countdown === null && !!readout.side && !readout.inView && (
+      {started && countdown === null && (!readout.side || !readout.inView) && (
         <p className="label absolute inset-x-0 top-[9.5rem] z-10 text-center text-accent sm:top-44">Counting paused · you're out of view</p>
       )}
 
