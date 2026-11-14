@@ -273,8 +273,18 @@ export function Summary({
         {!embedded && reps + missedTotal > 0 && (
           <button
             onClick={async () => setCopiedPlain(await copyText(friendlyText(exercise.name, summary)))}
-            className="label press mx-auto mt-4 h-11 px-3 text-muted underline decoration-line underline-offset-4 hover:text-ink"
+            className="label press mx-auto mt-5 flex h-11 items-center gap-2 border border-line px-4 text-muted hover:border-ink hover:text-ink"
           >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              {copiedPlain ? (
+                <path d="M5 12l5 5L20 7" />
+              ) : (
+                <>
+                  <rect x="9" y="9" width="12" height="12" rx="1" />
+                  <path d="M5 15V4a1 1 0 0 1 1-1h11" />
+                </>
+              )}
+            </svg>
             {copiedPlain ? 'Copied' : 'Copy results'}
           </button>
         )}
