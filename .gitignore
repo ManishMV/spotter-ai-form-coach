@@ -38,3 +38,6 @@ public/sounds/_options/
 .env
 .env.*
 !.env.example
+
+# Local preview frames (never commit)
+public/_preview/
