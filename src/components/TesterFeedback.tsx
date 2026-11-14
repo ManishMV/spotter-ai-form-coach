@@ -6,7 +6,7 @@ export function TesterFeedbackButton() {
   if (!isTester) return null
   return (
     <button
-      onClick={() => void openFeedbackForm('top bar')}
+      onClick={() => openFeedbackForm('top bar')}
       className="label press h-9 border border-accent/60 px-3 text-accent hover:bg-accent hover:text-accent-ink"
     >
       Feedback

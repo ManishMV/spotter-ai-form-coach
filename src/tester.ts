@@ -105,9 +105,33 @@ export async function copyText(text: string): Promise<boolean> {
   }
 }
 
-/** Copy the results (if any), then open the form in this tab (phones often block new tabs). */
-export async function openFeedbackForm(from: string) {
-  if (setCount() > 0) await copyResults()
+/**
+ * Copy `text` and open the feedback form in a NEW tab, both inside the tap itself (phones only allow a new
+ * tab straight from a tap, not after waiting). The summary stays open in the original tab, so people can
+ * come back and copy again. If the phone still blocks the tab, open the form here instead.
+ */
+export function copyAndOpenForm(text: string | null) {
+  if (text !== null) {
+    copiedAll = true
+    void navigator.clipboard?.writeText(text).catch(() => {})
+    // Old-browser fallback, also synchronous inside the tap.
+    try {
+      const box = document.createElement('textarea')
+      box.value = text
+      document.body.appendChild(box)
+      box.select()
+      document.execCommand('copy')
+      box.remove()
+    } catch {
+      // ignore: the modern copy above usually worked
+    }
+  }
+  const tab = window.open(FEEDBACK_FORM_URL, '_blank', 'noopener')
+  if (!tab) window.location.assign(FEEDBACK_FORM_URL)
+}
+
+/** Top-bar Feedback button: copy any results so far and open the form (new tab). */
+export function openFeedbackForm(from: string) {
   track('feedback_form_opened', { from })
-  window.location.assign(FEEDBACK_FORM_URL)
+  copyAndOpenForm(setCount() > 0 ? resultsText() : null)
 }

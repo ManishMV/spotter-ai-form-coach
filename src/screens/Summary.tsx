@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Logo } from '../components/Logo'
 import type { SetSummary } from '../coach/setTracker'
 import { announceSetComplete } from '../voice/announce'
-import { copyResults, copyText, FEEDBACK_FORM_URL, isTester, logSet, setCount, testedExercises } from '../tester'
+import { copyAndOpenForm, copyText, FEEDBACK_FORM_URL, isTester, logSet, resultsText, setCount, testedExercises } from '../tester'
 import { EXERCISES, type Exercise } from '../exercises'
 import { track } from '../analytics'
 
@@ -86,7 +86,8 @@ export function Summary({
     return EXERCISES.find((e) => e.id !== exercise.id && !done.has(e.name)) ?? null
   })
   // A small celebration for testers who did a real set (3+ reps): they're going out of their way to help.
-  const celebrate = tester && setsSoFar > 0 && reps >= 3
+  // A small celebration after a real set (3+ reps), for everyone; testers get their own thank-you box.
+  const celebrate = !embedded && reps >= 3 && (!tester || setsSoFar > 0)
   useEffect(() => {
     if (!celebrate) return
     void import('canvas-confetti').then(({ default: confetti }) =>
@@ -126,6 +127,7 @@ export function Summary({
 
       <main className="flex flex-1 flex-col py-8 sm:py-12">
         <p className="label text-accent">{exercise.name} · Set complete</p>
+        {celebrate && !tester && <p className="mt-2 text-[17px] tracking-[-0.01em]">Thanks for using Spotter!</p>}
 
         <div className="mt-4 flex items-end gap-4">
           <p className="text-[clamp(96px,26vw,168px)] leading-[0.85] font-semibold tracking-[-0.05em] tabular-nums">{reps}</p>
@@ -171,13 +173,11 @@ export function Summary({
                   </button>
                 )}
                 <button
-                  onClick={async () => {
-                    const ok = await copyResults()
-                    setCopied(ok)
-                    // Same tab, not a new one: phones often block a new tab opened after the copy finishes,
-                    // which left some testers unable to find the form. Results are already copied.
+                  onClick={() => {
+                    // Copy and open the form in a new tab inside the tap (this summary stays open behind it).
                     track('feedback_form_opened', { exercise: exercise.id })
-                    window.setTimeout(() => window.location.assign(FEEDBACK_FORM_URL), 900)
+                    copyAndOpenForm(resultsText())
+                    setCopied(true)
                   }}
                   className="press h-12 bg-ink text-[15px] text-paper hover:opacity-90"
                 >
@@ -270,10 +270,13 @@ export function Summary({
           </button>
         </div>
         {/* A quiet way for anyone to keep their set: there are no accounts, so this is their copy. */}
-        {!embedded && reps + missedTotal > 0 && (
+        {/* Normal links only: testers have one clear action in their box (detailed results + the form). */}
+        {!embedded && !tester && (
+        <div className="mx-auto mt-5 flex flex-wrap justify-center gap-2">
+        {reps + missedTotal > 0 && (
           <button
             onClick={async () => setCopiedPlain(await copyText(friendlyText(exercise.name, summary)))}
-            className="label press mx-auto mt-5 flex h-11 items-center gap-2 border border-line px-4 text-muted hover:border-ink hover:text-ink"
+            className="label press flex h-11 items-center gap-2 border border-line px-4 text-muted hover:border-ink hover:text-ink"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               {copiedPlain ? (
@@ -287,6 +290,23 @@ export function Summary({
             </svg>
             {copiedPlain ? 'Copied' : 'Copy results'}
           </button>
+        )}
+        {/* Feedback for everyone (testers have their own box above). Their set is copied first, to paste in. */}
+        {!tester && (
+          <button
+            onClick={() => {
+              track('feedback_form_opened', { exercise: exercise.id, from: 'summary' })
+              copyAndOpenForm(reps + missedTotal > 0 ? friendlyText(exercise.name, summary) : null)
+            }}
+            className="label press flex h-11 items-center gap-2 border border-line px-4 text-muted hover:border-ink hover:text-ink"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M4 5h16v11H9l-5 4z" />
+            </svg>
+            Share feedback
+          </button>
+        )}
+        </div>
         )}
       </main>
     </div>
