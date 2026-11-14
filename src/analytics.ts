@@ -1,6 +1,8 @@
 // Product analytics (PostHog), kept small and private:
 //   • Only the funnel steps below are sent: no automatic click tracking, no session recording,
-//     no cookies (nothing stored on the device), and never any video or names.
+//     no cookies, and never any video or names.
+//   • A random visitor ID is kept in the browser's local storage, so a person who comes back is
+//     counted once (unique visitors). It holds nothing personal and is never linked to a name.
 //   • Loaded after the page, so the landing page stays fast.
 //   • Off on localhost, in the Test lab / debug views, and when the
 //     browser asks not to be tracked. Add ?analytics to a localhost address to test it.
@@ -44,7 +46,7 @@ if (enabled) {
       posthog.init(KEY!, {
         api_host: HOST,
         ui_host: 'https://us.posthog.com',
-        persistence: 'memory', // no cookies or local storage: each visit is anonymous
+        persistence: 'localStorage', // random visitor ID only, no cookies: returning visitors count once
         person_profiles: 'identified_only', // never builds a profile of anyone
         autocapture: false,
         capture_pageview: true,
@@ -53,8 +55,10 @@ if (enabled) {
         disable_surveys: true,
       })
       // Sent with every event: where the visit came from (PostHog adds the device type itself).
+      // A device opened once with ?ref=test stays "test" on later plain visits, so your own visits stay out.
+      const wasTest = posthog.get_property('ref') === 'test'
       posthog.register({
-        ref: params.get('ref') ?? (params.has('tester') ? 'tester' : 'direct'),
+        ref: params.get('ref') ?? (params.has('tester') ? 'tester' : wasTest ? 'test' : 'direct'),
         tester: params.has('tester'),
       })
       client = posthog
