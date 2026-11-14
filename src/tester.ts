@@ -85,8 +85,12 @@ export function resultsText(): string {
 
 /** Copy to the clipboard; falls back to a hidden text box on older browsers. */
 export async function copyResults(): Promise<boolean> {
-  const text = resultsText()
   copiedAll = true
+  return copyText(resultsText())
+}
+
+/** Copy any text to the clipboard; falls back to a hidden text box on older browsers. */
+export async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text)
     return true

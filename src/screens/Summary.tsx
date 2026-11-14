@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Logo } from '../components/Logo'
 import type { SetSummary } from '../coach/setTracker'
 import { announceSetComplete } from '../voice/announce'
-import { copyResults, FEEDBACK_FORM_URL, isTester, logSet, setCount, testedExercises } from '../tester'
+import { copyResults, copyText, FEEDBACK_FORM_URL, isTester, logSet, setCount, testedExercises } from '../tester'
 import { EXERCISES, type Exercise } from '../exercises'
 import { track } from '../analytics'
 
@@ -13,6 +13,20 @@ function formatTime(ms: number) {
   const m = Math.floor(total / 60)
   const s = total % 60
   return m > 0 ? `${m}:${String(s).padStart(2, '0')}` : `${s} s`
+}
+
+/** A readable copy of the set for anyone to keep (notes, a spreadsheet, an AI chat). No diagnostics. */
+function friendlyText(exerciseName: string, s: SetSummary): string {
+  const day = new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+  const lines = [`Spotter · ${exerciseName} · ${day}`]
+  const form = s.reps > 0 ? `, ${s.cleanReps} with good form` : ''
+  lines.push(`${s.reps} ${s.reps === 1 ? 'rep' : 'reps'}${s.target !== null ? ` of ${s.target}` : ''} in ${formatTime(s.durationMs)}${form}`)
+  if (s.missed.length) lines.push(`Didn't count: ${s.missed.map((m) => `${m.reason} ×${m.count}`).join(', ')}`)
+  if (s.focus) lines.push(`Tip: ${s.focus.cue.text}. ${s.focus.cue.tip}`)
+  const part = s.metric === 'upperArm' ? 'upper arm vs level' : 'knee'
+  const reps = (s.log ?? []).filter((r) => r.low !== null).map((r) => `${Math.round(r.low!)}°${r.counted ? '' : ' (not counted)'}`)
+  if (reps.length) lines.push(`Rep by rep (${part} at the bottom): ${reps.join(', ')}`)
+  return lines.join('\n')
 }
 
 export function Summary({
@@ -65,6 +79,7 @@ export function Summary({
     return setCount()
   })
   const [copied, setCopied] = useState<boolean | null>(null)
+  const [copiedPlain, setCopiedPlain] = useState(false)
   // The exercise they haven't tried yet (if any), offered as a one-tap next step.
   const [otherToTry] = useState(() => {
     const done = testedExercises()
@@ -254,6 +269,15 @@ export function Summary({
             {shortSet ? 'Try again' : 'Go again'}
           </button>
         </div>
+        {/* A quiet way for anyone to keep their set: there are no accounts, so this is their copy. */}
+        {!embedded && reps + missedTotal > 0 && (
+          <button
+            onClick={async () => setCopiedPlain(await copyText(friendlyText(exercise.name, summary)))}
+            className="label press mx-auto mt-4 h-11 px-3 text-muted underline decoration-line underline-offset-4 hover:text-ink"
+          >
+            {copiedPlain ? 'Copied' : 'Copy results'}
+          </button>
+        )}
       </main>
     </div>
   )
