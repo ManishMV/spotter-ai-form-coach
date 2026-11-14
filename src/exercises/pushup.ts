@@ -56,11 +56,13 @@ export const pushup: Exercise = {
         anyOf: [{ metric: 'knee', stat: 'median', op: '>', value: 150 }],
       },
       {
-        // Lockout: arms fully straight at the top (standards: full extension; counters use 145–160°).
-        // `max` includes the top position.
+        // Lockout: arms straight at the top (standards: full extension; counters use 145–160°). Only clearly
+        // bent arms stop a rep counting (135°): a tester's real push-ups failed at 150° (Nov 14), since many
+        // people keep a slight bend and one camera reads a straight arm a few degrees short. Slightly short of
+        // straight gets a tip instead (see the cues). `max` includes the top position.
         id: 'lockout',
         text: 'Straighten your arms at the top',
-        anyOf: [{ metric: 'elbow', stat: 'max', op: '>', value: 150 }],
+        anyOf: [{ metric: 'elbow', stat: 'max', op: '>', value: 135 }],
       },
       {
         // Shoulder–hip–ankle roughly straight (no big sag or pike). Standards say "rigid torso";
@@ -84,6 +86,8 @@ export const pushup: Exercise = {
     // Removed Nov 13: a "Chest to floor" tip for counted reps that were only just deep enough. The count
     // already uses the fitness-test standard (elbows at about 90°, upper arm about level); the chest doesn't
     // need to touch or nearly touch the floor, so nudging further was too strict.
+    // Counted, but the arms stopped a little short of straight at the top (135–155°). A tip, once it's a pattern.
+    { id: 'lockout-tip', metric: 'elbow', stat: 'max', op: '<', value: 155, text: 'Straighten your arms at the top', praise: 'Strong finish', tip: 'Push all the way up until your arms are straight at the top.', kind: 'technique', priority: 4 },
     { id: 'hips-down', metric: 'hipOffset', stat: 'max', op: '>', value: 0.06, text: 'Hips down', praise: 'Nice straight line', tip: 'Bring your hips down so your body forms one straight line.', kind: 'technique', priority: 5 },
   ],
 }
