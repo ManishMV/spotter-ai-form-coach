@@ -309,7 +309,8 @@ export function Workout({
   // The Get set checklist: shown before "Go" while the camera runs (not during the countdown or the set).
   const showChecklist = status === 'running' && !started && countdown === null && !needsRotate && !!counter
   const checklist = [
-    { label: 'Side-on to the camera', ok: !!readout.side && !readout.facing },
+    // Only ticked once Spotter has actually checked (standing in view); not by default (Nov 14).
+    { label: 'Side-on to the camera', ok: !!readout.side && readout.facingKnown && !readout.facing },
     { label: exercise.camera.height === 'floor' ? 'Head to knees in view' : 'Whole body in view', ok: !!readout.side && readout.inView },
     { label: exercise.reps?.startText ?? 'In the start position', ok: !!readout.side && readout.inView && !readout.facing && isAtTop(readout.angles) },
   ]

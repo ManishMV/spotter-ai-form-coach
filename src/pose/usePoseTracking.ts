@@ -18,6 +18,8 @@ export type Readout = {
   side: Side | null
   facing: boolean
   inView: boolean
+  /** Whether side-on vs facing has actually been checked yet (only possible standing in the start position). */
+  facingKnown: boolean
   /** While out of view: which needed body parts are missing (so the prompt can say "feet", "knees"…). */
   missing: BodyPart[]
   angles: Angles
@@ -28,7 +30,7 @@ export type Readout = {
   roomTightest: number | null
 }
 
-export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, missing: [], angles: NO_ANGLES, diag: null, room: null, roomTightest: null }
+export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, facingKnown: false, missing: [], angles: NO_ANGLES, diag: null, room: null, roomTightest: null }
 
 /** Called on every frame where a person is visible (used for rep counting). */
 export type FrameHandler = (angles: Angles, timeMs: number, facing: boolean, inView: boolean) => void
@@ -118,6 +120,7 @@ export function usePoseTracking(
       let facing = false
       // In view / out of view, debounced so a single flickering frame doesn't toggle the prompt.
       let inView = true
+      let facingKnown = false // reset when nobody is in view
       let missing: BodyPart[] = []
       let viewStreak = 0
       let lastReadout = 0
@@ -168,7 +171,10 @@ export function usePoseTracking(
               }
             }
             // Decide facing vs side-on only in the start position too (see `isAtTop`).
-            if (atTop) facing = isFacingCamera(shoulderSpread(screen, video.videoWidth / video.videoHeight), facing)
+            if (atTop) {
+              facing = isFacingCamera(shoulderSpread(screen, video.videoWidth / video.videoHeight), facing)
+              facingKnown = true
+            }
             const outOfView = partsOutOfView(screen, side, mustSeeRef.current ?? [])
             const nowInView = outOfView.length === 0
             if (!nowInView) missing = outOfView
@@ -180,6 +186,7 @@ export function usePoseTracking(
             current = {
               side,
               facing,
+              facingKnown,
               inView,
               missing: inView ? [] : missing,
               angles,
@@ -202,6 +209,7 @@ export function usePoseTracking(
             worldSmoother.reset()
             side = null
             facing = false
+            facingKnown = false
             inView = true
             viewStreak = 0
             drawSkeleton(ctx, [])
