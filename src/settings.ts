@@ -21,7 +21,7 @@ export type Settings = {
   targetReps: number | null
 }
 
-export const DEFAULT_SETTINGS: Settings = { coaching: 'all', showDetails: true, countAloud: false, targetReps: null }
+export const DEFAULT_SETTINGS: Settings = { coaching: 'all', showDetails: false, countAloud: false, targetReps: null } // details closed by default: clutter for most users; one tap opens them mid-set
 
 /** Target choices on the setup screen. */
 export const TARGET_OPTIONS: (number | null)[] = [null, 5, 10, 15, 20]
