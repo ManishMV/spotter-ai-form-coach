@@ -19,6 +19,10 @@ const FAQ: [string, string][] = [
     'No. Open the link in Chrome, Safari or Edge on your phone or laptop, allow the camera, and start.',
   ],
   [
+    'Which devices does it work on?',
+    'Phones, laptops and tablets like an iPad. Use whichever is easiest to prop up side-on, a couple of metres away, so your body is in view.',
+  ],
+  [
     'Why didn’t a rep count?',
     'Spotter says why out loud, for example not deep enough or too fast. If reps aren’t counting at all, stand side-on in a bright room with your body in view.',
   ],
