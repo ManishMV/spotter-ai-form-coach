@@ -248,6 +248,7 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - User-ready mode: angle details hidden by default for real users. For now the workout screen has a Details button to open or close them any time.
 - Post-set coach note: a short written summary after each set from Chrome's built-in on-device AI, with the fixed lines as a fallback.
 - Hands-free voice commands ("start", "end set") using the browser's speech recognition.
+- Phone push-up speed (testers averaged 11 fps): ask the camera for 30 fps, a shorter pause between analyses, and log ms per frame + camera fps in tester results to see whether the camera or the model is the bottleneck. Built and waiting on branch `backlog/phone-speed`.
 
 ## Schedule guide
 Done by Nov 13: 1–2, 3–10b, 11, 12a, 13 (live). Remaining, in order: 11b voice → 14 phone speed → 15 summary → 15b hands-free end → 20 demo → 21 evals → 16 polish → 22 less space → 23 AI demo video → 17 tester round → 24 analytics + v1 note → 26 preview card → 25 launch (recruit testers now).
