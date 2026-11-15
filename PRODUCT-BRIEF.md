@@ -6,7 +6,7 @@
 **Spotter** — named after the gym partner who watches your lift. Descriptor: *AI Form Coach*.
 
 ## Who
-Gym-goers aged 18–30 who train without a personal trainer and learn form from YouTube, especially
+People who train without a personal trainer, at home or at the gym, and learn form from YouTube, especially
 when they're starting an exercise or unsure their form is right.
 
 ## How it's used

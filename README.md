@@ -12,7 +12,7 @@ browser. There's no app or account, and your video never leaves your phone.
 
 ## Why
 
-Most people aged 18–30 who train without a personal trainer learn form from YouTube, and nobody checks
+Most people who train without a personal trainer learn form from YouTube, and nobody checks
 their reps. Mirrors, filming yourself or asking a friend are all inconsistent. Pose-tracking AI now
 runs free inside any phone browser, so a private, real-time coach costs nothing to deliver.
 Full brief: [PRODUCT-BRIEF.md](PRODUCT-BRIEF.md).
