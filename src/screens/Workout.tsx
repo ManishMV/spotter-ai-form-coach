@@ -447,9 +447,9 @@ export function Workout({
               <p className="text-[18px] leading-tight font-medium tracking-[-0.01em]">Turn your phone sideways</p>
             </div>
             <p className="mt-2 text-[15px] leading-relaxed text-pretty text-white/75">
-              Push-ups fit best in landscape. Or keep it upright and move it further back, so you fit from head to knees.
+              Switch on <span className="text-white">auto-rotate</span>, then lay the phone on its side. Or keep it upright and
+              move it further back, so you fit from head to knees.
             </p>
-            <p className="mt-2 text-[13px] text-white/55">Screen not turning? Switch on auto-rotate.</p>
           </div>
         </div>
       )}

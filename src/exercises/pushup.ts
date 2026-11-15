@@ -86,8 +86,10 @@ export const pushup: Exercise = {
     // Removed Nov 13: a "Chest to floor" tip for counted reps that were only just deep enough. The count
     // already uses the fitness-test standard (elbows at about 90°, upper arm about level); the chest doesn't
     // need to touch or nearly touch the floor, so nudging further was too strict.
-    // Counted, but the arms stopped a little short of straight at the top (135–155°). A tip, once it's a pattern.
-    { id: 'lockout-tip', metric: 'elbow', stat: 'max', op: '<', value: 155, text: 'Straighten your arms at the top', praise: 'Strong finish', tip: 'Push all the way up until your arms are straight at the top.', kind: 'technique', priority: 4 },
+    // Counted, but the arms stopped a little short of straight at the top (135–145°). Minor: mentioned only if it keeps
+    // happening, and it doesn't count against good form. Was 155° and technique: on a phone it flagged every rep of a
+    // tester whose push-ups were fine (Nov 14), since phone tracking reads straight arms a few degrees short.
+    { id: 'lockout-tip', metric: 'elbow', stat: 'max', op: '<', value: 145, text: 'Straighten your arms at the top', praise: 'Strong finish', tip: 'Push all the way up until your arms are straight at the top.', kind: 'minor', priority: 4 },
     { id: 'hips-down', metric: 'hipOffset', stat: 'max', op: '>', value: 0.06, text: 'Hips down', praise: 'Nice straight line', tip: 'Bring your hips down so your body forms one straight line.', kind: 'technique', priority: 5 },
   ],
 }

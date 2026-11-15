@@ -303,7 +303,7 @@ function quickCheckItems(exercise: Exercise, device: Device): string[] {
     'Make sure the room is bright',
     pushup
       ? device === 'phone'
-        ? 'Turn your phone sideways and stay in view from head to knees'
+        ? 'Turn auto-rotate on, then lay your phone sideways so you fit from head to knees'
         : 'Stay in view from head to knees'
       : 'Stay in view from head to feet',
     pushup
