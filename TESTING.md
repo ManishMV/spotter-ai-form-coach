@@ -49,6 +49,7 @@ What testers said and did, as it happens (dates, rough numbers, direct quotes wh
 | Nov 14 | Push-ups on phones ran at about 11 fps on average; one tester said tracking didn't feel smooth. | 9 sets / 1 tester | Phone performance for push-ups needs tuning (lite model, camera resolution). |
 | Nov 14 | Testers opened the form but only half submitted; some pasted a rep count instead of their results. | 8 opened, 4 submitted | Shorter form, results pre-copied (done), clearer results question. |
 | Nov 14 | Some friends hesitated to try it, worried their video would be recorded or sent to Manish. Stronger among women. | _a few of the first ~N asked_ | Camera trust is a real barrier, even with privacy stated on the site. Ideas: skeleton-only mode (hide the camera picture), "works offline once loaded" proof (test first), visible open-source link, a "processing on this device" badge on the live screen, a watch-only demo before the camera, named social proof. |
+| Nov 16 | One iPhone stayed on "Starting camera…" for good; another tester said it took a while to recognise their body. | 2 testers | The AI only started loading after Start. Now it loads on the setup screen, warms up early, and falls back to a slower mode if the iPhone's graphics setup hangs. Fixed: the iPhone tester retried and it worked. |
 
 ## Summary
 
