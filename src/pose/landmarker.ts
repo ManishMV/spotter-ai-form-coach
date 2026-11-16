@@ -21,10 +21,10 @@ export function pickModelSize(): ModelSize {
 
 let filesetPromise: ReturnType<typeof FilesetResolver.forVisionTasks> | null = null
 
-async function create(size: ModelSize, delegate: 'GPU' | 'CPU') {
+async function create(delegate: 'GPU' | 'CPU', model: Uint8Array) {
   filesetPromise ??= FilesetResolver.forVisionTasks(WASM_URL)
   return PoseLandmarker.createFromOptions(await filesetPromise, {
-    baseOptions: { modelAssetPath: modelUrl(size), delegate },
+    baseOptions: { modelAssetBuffer: model.slice(), delegate },
     runningMode: 'VIDEO',
     numPoses: 1,
     minPoseDetectionConfidence: MIN_CONFIDENCE,
@@ -37,8 +37,18 @@ async function create(size: ModelSize, delegate: 'GPU' | 'CPU') {
 // Some iPhones never finish it, and the screen sat on "Starting camera…" for good (tester, Nov 16).
 const GPU_TIMEOUT_MS = 12000
 
+/** Download both files first, so the timeout below measures only the set-up, not a slow connection. */
+async function download(size: ModelSize): Promise<Uint8Array> {
+  const [model] = await Promise.all([
+    fetch(modelUrl(size)).then((r) => r.arrayBuffer()),
+    fetch(`${WASM_URL}/vision_wasm_internal.wasm`).then((r) => r.blob()), // into the browser's cache
+  ])
+  return new Uint8Array(model)
+}
+
 async function createSafely(size: ModelSize): Promise<PoseLandmarker> {
-  const gpu = create(size, 'GPU') // fast path: use the graphics chip
+  const model = await download(size)
+  const gpu = create('GPU', model) // fast path: use the graphics chip
   const timedOut = Symbol()
   const winner = await Promise.race([
     gpu.catch(() => null), // no GPU support: fall back right away
@@ -46,7 +56,7 @@ async function createSafely(size: ModelSize): Promise<PoseLandmarker> {
   ])
   if (winner && winner !== timedOut) return winner
   if (winner === timedOut) gpu.then((late) => late.close()).catch(() => {}) // finished too late: discard
-  return create(size, 'CPU')
+  return create('CPU', model)
 }
 
 /** One quick analysis of a blank picture, so the first real frames aren't slowed by first-time set-up. */
