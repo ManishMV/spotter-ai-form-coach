@@ -40,19 +40,40 @@ const GPU_TIMEOUT_MS = 12000
 /** Download both files first, so the timeout below measures only the set-up, not a slow connection. */
 async function download(size: ModelSize): Promise<Uint8Array> {
   const [model] = await Promise.all([
-    fetch(modelUrl(size)).then((r) => r.arrayBuffer()),
-    fetch(`${WASM_URL}/vision_wasm_internal.wasm`).then((r) => r.blob()), // into the browser's cache
+    fetch(modelUrl(size)).then((r) => {
+      if (!r.ok) throw new Error(`Couldn't download the pose model (${r.status})`)
+      return r.arrayBuffer()
+    }),
+    // Only a head start into the browser's cache: if it fails, MediaPipe fetches it itself.
+    fetch(`${WASM_URL}/vision_wasm_internal.wasm`)
+      .then((r) => r.blob())
+      .catch(() => {}),
   ])
   return new Uint8Array(model)
+}
+
+/** Resolves after `ms` of the page being on screen. Phones pause hidden tabs, so hidden time doesn't count. */
+function visibleFor(ms: number, until: Promise<unknown>): Promise<void> {
+  return new Promise((resolve) => {
+    let left = ms
+    const tick = setInterval(() => {
+      if (document.visibilityState === 'visible') left -= 500
+      if (left <= 0) {
+        clearInterval(tick)
+        resolve()
+      }
+    }, 500)
+    until.finally(() => clearInterval(tick)).catch(() => {}) // set-up done (or failed): stop counting
+  })
 }
 
 async function createSafely(size: ModelSize): Promise<PoseLandmarker> {
   const model = await download(size)
   const gpu = create('GPU', model) // fast path: use the graphics chip
-  const timedOut = Symbol()
+  const timedOut = 'timed out' as const
   const winner = await Promise.race([
     gpu.catch(() => null), // no GPU support: fall back right away
-    new Promise<typeof timedOut>((r) => setTimeout(() => r(timedOut), GPU_TIMEOUT_MS)),
+    visibleFor(GPU_TIMEOUT_MS, gpu).then(() => timedOut),
   ])
   if (winner && winner !== timedOut) return winner
   if (winner === timedOut) gpu.then((late) => late.close()).catch(() => {}) // finished too late: discard

@@ -85,6 +85,7 @@ export function usePoseTracking(
     setLoadingStep('camera')
     let stream: MediaStream | null = null
     let landmarker: PoseLandmarker | null = null
+    let modelReady: Promise<PoseLandmarker> | null = null
     let frameId = 0
     let stopped = false
     stopRef.current = () => {
@@ -97,7 +98,7 @@ export function usePoseTracking(
       const video = videoRef.current!
       const canvas = canvasRef.current!
       const size = pickModelSize()
-      const modelReady = loadPoseLandmarker(size)
+      modelReady = loadPoseLandmarker(size)
       modelReady.catch(() => {}) // a camera error is the one to report; the model's is seen below
       stream = await startCamera(video)
       if (stopped) {
@@ -257,6 +258,9 @@ export function usePoseTracking(
       frameId = requestAnimationFrame(loop)
       setStatus('running')
     } catch (e) {
+      // The camera failed (e.g. permission denied) after the model started loading: free the model, so
+      // a retry doesn't leave a second copy in memory.
+      if (!landmarker) modelReady?.then((l) => l.close()).catch(() => {})
       if (stopped) return
       setError(e instanceof Error ? e.message : String(e))
       setStatus('error')
