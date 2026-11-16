@@ -69,6 +69,8 @@ export function usePoseTracking(
   const [analysisMs, setAnalysisMs] = useState(0)
   const [model, setModel] = useState<ModelSize>(pickModelSize)
   const [readout, setReadout] = useState<Readout>(EMPTY_READOUT)
+  // While loading: the camera comes first, then the AI model (usually already loaded on the setup screen).
+  const [loadingStep, setLoadingStep] = useState<'camera' | 'model'>('camera')
   const stopRef = useRef<() => void>(() => {})
 
   const stop = useCallback(() => {
@@ -80,6 +82,7 @@ export function usePoseTracking(
   const start = useCallback(async () => {
     stop()
     setStatus('loading')
+    setLoadingStep('camera')
     let stream: MediaStream | null = null
     let landmarker: PoseLandmarker | null = null
     let frameId = 0
@@ -94,7 +97,16 @@ export function usePoseTracking(
       const video = videoRef.current!
       const canvas = canvasRef.current!
       const size = pickModelSize()
-      ;[stream, landmarker] = await Promise.all([startCamera(video), loadPoseLandmarker(size)])
+      const modelReady = loadPoseLandmarker(size)
+      modelReady.catch(() => {}) // a camera error is the one to report; the model's is seen below
+      stream = await startCamera(video)
+      if (stopped) {
+        stopCamera(stream)
+        modelReady.then((l) => l.close()).catch(() => {})
+        return
+      }
+      setLoadingStep('model')
+      landmarker = await modelReady
       if (stopped) {
         stopCamera(stream)
         landmarker.close()
@@ -251,5 +263,5 @@ export function usePoseTracking(
     }
   }, [videoRef, canvasRef, stop, debug])
 
-  return { status, error, fps, analysisMs, model, readout, start, stop }
+  return { status, loadingStep, error, fps, analysisMs, model, readout, start, stop }
 }

@@ -62,6 +62,7 @@ export default function App() {
             <Home
               onPick={(exercise) => {
                 preloadWorkout() // start fetching camera code while they read the setup screen
+                void import('./pose/landmarker').then((m) => m.preloadPoseLandmarker()) // and the AI model
                 track('exercise_picked', { exercise: exercise.id })
                 go({ name: 'setup', exercise })
               }}

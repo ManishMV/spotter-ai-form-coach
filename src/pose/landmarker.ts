@@ -33,10 +33,59 @@ async function create(size: ModelSize, delegate: 'GPU' | 'CPU') {
   })
 }
 
-export async function loadPoseLandmarker(size: ModelSize): Promise<PoseLandmarker> {
+// If the graphics-chip set-up hasn't finished in this long, use the slower but dependable CPU path.
+// Some iPhones never finish it, and the screen sat on "Starting camera…" for good (tester, Nov 16).
+const GPU_TIMEOUT_MS = 12000
+
+async function createSafely(size: ModelSize): Promise<PoseLandmarker> {
+  const gpu = create(size, 'GPU') // fast path: use the graphics chip
+  const timedOut = Symbol()
+  const winner = await Promise.race([
+    gpu.catch(() => null), // no GPU support: fall back right away
+    new Promise<typeof timedOut>((r) => setTimeout(() => r(timedOut), GPU_TIMEOUT_MS)),
+  ])
+  if (winner && winner !== timedOut) return winner
+  if (winner === timedOut) gpu.then((late) => late.close()).catch(() => {}) // finished too late: discard
+  return create(size, 'CPU')
+}
+
+/** One quick analysis of a blank picture, so the first real frames aren't slowed by first-time set-up. */
+function warmUp(landmarker: PoseLandmarker) {
   try {
-    return await create(size, 'GPU') // fast path: use the graphics chip
+    const blank = document.createElement('canvas')
+    blank.width = blank.height = 256
+    blank.getContext('2d')!.fillRect(0, 0, 256, 256)
+    landmarker.detectForVideo(blank, performance.now())
   } catch {
-    return await create(size, 'CPU') // fallback for devices without GPU support
+    // Warming up is only a speed-up; tracking works without it.
   }
+}
+
+// A model loaded ahead of time (on the setup screen), handed over when the set starts.
+let early: { size: ModelSize; promise: Promise<PoseLandmarker> } | null = null
+
+/** Start downloading and setting up the model before the camera turns on. Safe to call more than once. */
+export function preloadPoseLandmarker() {
+  if (early) return
+  const size = pickModelSize()
+  const promise = createSafely(size).then((l) => (warmUp(l), l))
+  promise.catch(() => {
+    if (early?.promise === promise) early = null // failed: the set will try again itself
+  })
+  early = { size, promise }
+}
+
+export async function loadPoseLandmarker(size: ModelSize): Promise<PoseLandmarker> {
+  if (early && early.size === size) {
+    const { promise } = early
+    early = null // each model is used by one set only (it's closed when the set ends)
+    try {
+      return await promise
+    } catch {
+      // fall through and try again
+    }
+  }
+  const landmarker = await createSafely(size)
+  warmUp(landmarker)
+  return landmarker
 }

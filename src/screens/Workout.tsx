@@ -193,7 +193,7 @@ export function Workout({
     },
     [exercise.reps],
   )
-  const { status, error, fps, analysisMs, model, readout, start, stop } = usePoseTracking(videoRef, canvasRef, {
+  const { status, loadingStep, error, fps, analysisMs, model, readout, start, stop } = usePoseTracking(videoRef, canvasRef, {
     onFrame,
     isAtTop,
     mustSee: exercise.mustSee,
@@ -284,10 +284,22 @@ export function Workout({
     }
   }, [ready, inPlace, countdown, tracker, exercise.id])
 
+  // Loading that drags on (slow mobile data): say so, so it doesn't look stuck.
+  const [slowLoad, setSlowLoad] = useState(false)
+  useEffect(() => {
+    if (status !== 'loading') return setSlowLoad(false)
+    const t = window.setTimeout(() => setSlowLoad(true), 10000)
+    return () => window.clearTimeout(t)
+  }, [status])
+
   // The cue line: set-up and positioning first, then the latest rep feedback, then status.
   const cue =
     status === 'loading'
-      ? 'Starting camera…'
+      ? loadingStep === 'camera'
+        ? 'Starting camera…'
+        : slowLoad
+          ? 'Still getting your coach ready. On slow internet, this can take up to a minute.'
+          : 'Getting your coach ready…'
       : countdown !== null
       ? ''
       : needsRotate
