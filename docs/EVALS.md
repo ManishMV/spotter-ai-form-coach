@@ -32,11 +32,18 @@ One line per clip in [`evals/labels.csv`](../evals/labels.csv): file, exercise, 
 
 ```
 sq-01.mp4, squat, phone, good good half good chest
-pu-03.mp4, pushup, laptop, good knee knee good sag
+sq-02.mp4, squat, laptop, good half(stopped early, legs tired) good ? | dim room, facing left
+pu-03.mp4, pushup, laptop, good knee(on purpose) knee good sag
 ```
 
+- Every rep needs one label word: that's what gets scored.
+- A note for one rep goes in brackets right after its word: `half(stopped early, legs tired)`.
+- A note for the whole clip goes at the end after `|`.
+- Not sure about a rep? Write `?`: it's lined up with Spotter's reps but not scored.
+- Notes are shown next to Spotter's verdict in the report, so we can read them together.
+
 Label what you actually did (your judgement, as if you were the coach), not what Spotter said. Labels:
-`good half fast chest hips knee sag pike bent`. A tablet counts as `phone`.
+`good half fast chest hips knee sag pike bent`, or `?`. A tablet counts as `phone`.
 
 ## 3. Run it
 

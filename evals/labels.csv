@@ -1,5 +1,7 @@
 # Spotter eval labels: one line per clip in evals/clips/ (the clips themselves stay off GitHub).
-# file, exercise (squat | pushup), device (phone | laptop), every rep in order, separated by spaces
+# file, exercise (squat | pushup), device (phone | laptop), every rep in order | optional note about the whole clip
+# One label word per rep. Add a note to any rep in brackets right after it (commas are fine inside).
+# Not sure about a rep? Write ? and it's lined up but not scored.
 #
 # Rep labels:
 #   good   a proper rep
@@ -11,7 +13,10 @@
 #   sag    push-up: hips sagging
 #   pike   push-up: hips piked up
 #   bent   push-up: arms not straight at the top
+#   ?      not sure (not scored)
 #
-# Example:
+# Examples:
 # sq-01.mp4, squat, phone, good good half good chest
+# sq-02.mp4, squat, laptop, good half(stopped early, legs tired) good ? | dim room, facing left
+# pu-01.mp4, pushup, phone, good knee(on purpose) sag good | phone propped on a shoe
 file, exercise, device, reps

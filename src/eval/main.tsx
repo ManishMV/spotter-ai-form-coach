@@ -28,8 +28,11 @@ function report(results: ClipResult[]): string {
   }
   lines.push('## Per clip')
   for (const r of results) {
-    lines.push(`${r.clip.file} (${r.clip.exercise}, ${r.clip.device})${r.error ? ` ERROR: ${r.error}` : !r.started ? ' NEVER STARTED: no ready start position found' : ''}`)
-    for (const p of r.pairs) lines.push(`  ${p.label ?? '(none)'} → ${p.verdict.kind}${p.verdict.note ? `: ${p.verdict.note}` : ''}`)
+    lines.push(`${r.clip.file} (${r.clip.exercise}, ${r.clip.device})${r.clip.note ? ` — your note: ${r.clip.note}` : ''}${r.error ? ` ERROR: ${r.error}` : !r.started ? ' NEVER STARTED: no ready start position found' : ''}`)
+    for (const p of r.pairs) {
+      const yours = p.index !== null ? r.clip.notes[p.index] : null
+      lines.push(`  ${p.label ?? '(none)'}${yours ? ` (${yours})` : ''} → ${p.verdict.kind}${p.verdict.note ? `: ${p.verdict.note}` : ''}`)
+    }
   }
   return lines.join('\n')
 }
@@ -133,6 +136,7 @@ function EvalPage() {
           <details key={r.clip.file} className="border border-white/10 p-3" open={!!r.error || r.pairs.some((p) => p.verdict.kind !== 'correct')}>
             <summary className="cursor-pointer text-[15px]">
               {r.clip.file} <span className="text-white/50">· {r.clip.exercise}, {r.clip.device}</span>
+              {r.clip.note && <span className="text-white/50"> · “{r.clip.note}”</span>}
               {r.error && <span className="text-[var(--accent)]"> · {r.error}</span>}
               {!r.error && !r.started && <span className="text-[var(--accent)]"> · never got to a ready start position</span>}
             </summary>
@@ -140,7 +144,10 @@ function EvalPage() {
               <tbody>
                 {r.pairs.map((p, i) => (
                   <tr key={i} className={p.verdict.kind === 'correct' ? 'text-white/60' : 'text-[var(--accent)]'}>
-                    <td className="py-0.5 pr-3">{p.label ?? '—'}</td>
+                    <td className="py-0.5 pr-3">
+                      {p.label ?? '—'}
+                      {p.index !== null && r.clip.notes[p.index] && <span className="text-white/45"> ({r.clip.notes[p.index]})</span>}
+                    </td>
                     <td className="pr-3">{p.verdict.kind}</td>
                     <td>{p.verdict.note ?? ''}</td>
                   </tr>

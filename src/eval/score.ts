@@ -17,6 +17,7 @@ export type Label =
   | 'sag' // push-up: hips sagging
   | 'pike' // push-up: hips piked up
   | 'bent' // push-up: arms not straight at the top
+  | 'skip' // not sure / doesn't matter: lined up with Spotter's reps but not scored
 
 export const LABELS: Record<Label, string> = {
   good: 'Good rep',
@@ -28,6 +29,7 @@ export const LABELS: Record<Label, string> = {
   sag: 'Hips sagging (push-up)',
   pike: 'Hips piked (push-up)',
   bent: 'Arms bent at the top (push-up)',
+  skip: 'Not scored',
 }
 
 /** One rep as Spotter judged it. */
@@ -61,11 +63,13 @@ export type Verdict =
   | { kind: 'missed-rep'; note: string } // a labelled rep Spotter never registered
   | { kind: 'phantom'; note: string } // Spotter registered a rep that wasn't there
 
-export type Pair = { label: Label | null; rep: SpotterRep | null; verdict: Verdict }
+/** `index`: which labelled rep this is (to show its note), null for an extra rep Spotter made up. */
+export type Pair = { label: Label | null; index: number | null; rep: SpotterRep | null; verdict: Verdict }
 
 const fixes = (rep: SpotterRep) => rep.flags.filter((f) => f.kind !== 'minor')
 
 export function judge(label: Label, rep: SpotterRep): Verdict {
+  if (label === 'skip') return { kind: 'correct', note: `not scored (Spotter: ${rep.counted ? 'counted' : rep.failedText})` }
   if (label === 'good') {
     if (!rep.counted) return { kind: 'false-alarm', note: `not counted: ${rep.failedText}` }
     const f = fixes(rep)
@@ -103,15 +107,15 @@ export function align(labels: Label[], reps: SpotterRep[]): Pair[] {
   let j = m
   while (i > 0 || j > 0) {
     if (i > 0 && j > 0 && dp[i][j] === dp[i - 1][j - 1] + cost(labels[i - 1], reps[j - 1])) {
-      out.push({ label: labels[i - 1], rep: reps[j - 1], verdict: judge(labels[i - 1], reps[j - 1]) })
+      out.push({ label: labels[i - 1], index: i - 1, rep: reps[j - 1], verdict: judge(labels[i - 1], reps[j - 1]) })
       i--
       j--
     } else if (i > 0 && dp[i][j] === dp[i - 1][j] + GAP) {
-      out.push({ label: labels[i - 1], rep: null, verdict: { kind: 'missed-rep', note: 'Spotter registered no rep here' } })
+      out.push({ label: labels[i - 1], index: i - 1, rep: null, verdict: { kind: 'missed-rep', note: 'Spotter registered no rep here' } })
       i--
     } else {
       const r = reps[j - 1]
-      out.push({ label: null, rep: r, verdict: { kind: 'phantom', note: r.counted ? 'counted a rep that wasn’t there' : `extra: ${r.failedText}` } })
+      out.push({ label: null, index: null, rep: r, verdict: { kind: 'phantom', note: r.counted ? 'counted a rep that wasn’t there' : `extra: ${r.failedText}` } })
       j--
     }
   }
@@ -141,6 +145,7 @@ export function scorecard(pairs: Pair[]): Scorecard {
     phantoms: { counted: 0, extra: 0 },
   }
   for (const p of pairs) {
+    if (p.label === 'skip') continue
     if (p.label === null) {
       if (p.rep?.counted) s.phantoms.counted++
       else s.phantoms.extra++
@@ -166,8 +171,21 @@ export function scorecard(pairs: Pair[]): Scorecard {
   return s
 }
 
-/** `file, exercise, device, rep labels` → one entry per clip. Lines starting with # are comments. */
-export type ClipLabel = { file: string; exercise: 'squat' | 'pushup'; device: 'phone' | 'laptop'; labels: Label[] }
+/**
+ * One line per clip: `file, exercise, device, reps | note about the whole clip`.
+ * Reps: one label word each, optionally followed by a note in brackets: `good half(stopped early, tired) good`.
+ * Lines starting with # are comments. Commas are fine inside notes.
+ */
+export type ClipLabel = {
+  file: string
+  exercise: 'squat' | 'pushup'
+  device: 'phone' | 'laptop'
+  labels: Label[]
+  /** Your note for each rep (same order as `labels`), or null. */
+  notes: (string | null)[]
+  /** Your note about the whole clip, or null. */
+  note: string | null
+}
 
 export function parseLabels(csv: string): { clips: ClipLabel[]; errors: string[] } {
   const clips: ClipLabel[] = []
@@ -175,15 +193,30 @@ export function parseLabels(csv: string): { clips: ClipLabel[]; errors: string[]
   csv.split(/\r?\n/).forEach((line, n) => {
     const t = line.trim()
     if (!t || t.startsWith('#') || /^file\s*,/i.test(t)) return
-    const [file, exercise, device, reps] = t.split(',').map((x) => x.trim())
     const where = `line ${n + 1}`
-    if (!file || !reps) return errors.push(`${where}: needs file, exercise, device, reps`)
+    const m = t.match(/^([^,]+),([^,]+),([^,]+),(.*)$/)
+    if (!m) return errors.push(`${where}: needs file, exercise, device, reps`)
+    const [exercise, device] = [m[2], m[3]].map((x) => x.trim().toLowerCase())
     if (exercise !== 'squat' && exercise !== 'pushup') return errors.push(`${where}: exercise must be squat or pushup`)
     if (device !== 'phone' && device !== 'laptop') return errors.push(`${where}: device must be phone or laptop`)
-    const labels = reps.split(/\s+/).map((x) => x.toLowerCase()) as Label[]
-    const bad = labels.filter((l) => !(l in LABELS))
-    if (bad.length) return errors.push(`${where}: unknown label ${bad.join(', ')} (use ${Object.keys(LABELS).join(', ')})`)
-    clips.push({ file, exercise, device, labels })
+    const bar = m[4].indexOf('|')
+    const repsText = bar >= 0 ? m[4].slice(0, bar) : m[4]
+    const note = bar >= 0 ? m[4].slice(bar + 1).trim() || null : null
+    const labels: Label[] = []
+    const notes: (string | null)[] = []
+    const bad: string[] = []
+    // A label word, then an optional (note). Anything else between them is a mistake worth reporting.
+    const rest = repsText.replace(/([a-z?]+)\s*(?:\(([^)]*)\))?/gi, (_, word: string, repNote?: string) => {
+      const w = (word === '?' ? 'skip' : word.toLowerCase()) as Label
+      if (!(w in LABELS)) bad.push(word)
+      labels.push(w)
+      notes.push(repNote?.trim() || null)
+      return ''
+    })
+    if (rest.trim()) bad.push(rest.trim())
+    if (bad.length) return errors.push(`${where}: couldn't read "${bad.join('", "')}" (labels: ${Object.keys(LABELS).join(', ')}, or ? if unsure)`)
+    if (!labels.length) return errors.push(`${where}: no reps listed`)
+    clips.push({ file: m[1].trim(), exercise, device, labels, notes, note })
   })
   return { clips, errors }
 }
