@@ -10,7 +10,8 @@
     "lint": "oxlint",
     "voice:generate": "tsx scripts/generate-voice.ts",
     "sounds:generate": "tsx scripts/generate-sounds.ts",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "eval": "vite --open /eval.html"
   },
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",

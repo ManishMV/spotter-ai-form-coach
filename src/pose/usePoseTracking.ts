@@ -4,9 +4,11 @@ import type { PoseLandmarker } from '@mediapipe/tasks-vision'
 import { startCamera, stopCamera } from './camera'
 import { loadPoseLandmarker, pickModelSize, type ModelSize } from './landmarker'
 import { drawSkeleton } from './drawSkeleton'
-import { PointSmoother } from './smoothing'
 import type { BodyPart } from '../exercises/types'
-import { bodyFill, edgeRoom, isFacingCamera, measureAngles, NO_ANGLES, partsOutOfView, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
+import type { Angles } from '../coach/angles'
+import { FrameAnalyzer, type Readout, EMPTY_READOUT } from './frameAnalyzer'
+
+export { EMPTY_READOUT, type Readout }
 
 /** Analyses right after a model loads that are left out of speed measurements (set-up time). */
 const WARMUP_ANALYSES = 5
@@ -14,26 +16,6 @@ const WARMUP_ANALYSES = 5
 export type TrackingStatus = 'idle' | 'loading' | 'running' | 'error'
 /** `facing` = person faces the camera instead of standing side-on (side-view checks don't work then). */
 /** `inView` = every body part the exercise needs is inside the picture. */
-export type Readout = {
-  side: Side | null
-  facing: boolean
-  inView: boolean
-  /** Whether side-on vs facing has actually been checked yet (only possible standing in the start position). */
-  facingKnown: boolean
-  /** While out of view: which needed body parts are missing (so the prompt can say "feet", "knees"…). */
-  missing: BodyPart[]
-  angles: Angles
-  diag: StanceDiag | null
-  /** Debug view: room left between the needed body parts and the picture's edge (0–0.5), or null. */
-  room: number | null
-  /** Debug view: the tightest `room` over the last 5 s (covers a whole rep); null if a part left the picture. */
-  roomTightest: number | null
-  /** Distance guide: over the last second, the typical room to the picture's edge and how much of the
-   *  picture the body fills (see `bodyFill`). null until the needed parts have been seen. */
-  fit: { room: number; fill: number } | null
-}
-
-export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, facingKnown: false, missing: [], angles: NO_ANGLES, diag: null, room: null, roomTightest: null, fit: null }
 
 /** Called on every frame where a person is visible (used for rep counting). */
 export type FrameHandler = (angles: Angles, timeMs: number, facing: boolean, inView: boolean) => void
@@ -129,19 +111,13 @@ export function usePoseTracking(
       const startedAt = performance.now()
       let slowSeconds = 0
       let switching = false
-      // Smoothing + angles.
-      const screenSmoother = new PointSmoother()
-      const worldSmoother = new PointSmoother()
-      let side: Side | null = null
-      let facing = false
-      // In view / out of view, debounced so a single flickering frame doesn't toggle the prompt.
-      let inView = true
-      let facingKnown = false // reset when nobody is in view
-      let missing: BodyPart[] = []
-      let viewStreak = 0
+      // Smoothing, side picking, in-view and distance: shared with the accuracy evals (src/eval).
+      const analyzer = new FrameAnalyzer({
+        isAtTop: (a) => (isAtTopRef.current ? isAtTopRef.current(a) : a.torsoLean !== null && a.torsoLean < 30),
+        mustSee: () => mustSeeRef.current ?? [],
+        debug,
+      })
       let lastReadout = 0
-      let roomLog: { at: number; room: number | null }[] = [] // debug view: last 5 s of `room`
-      let fitLog: { at: number; room: number; fill: number }[] = [] // distance guide: last 1 s
       // Speed: average analysis time, and when the last analysis ran. On a slow device, back-to-back
       // analyses would leave no time for the screen, sounds and voice, so leave a short gap after each.
       // The first analyses after a model loads are very slow (the graphics card is being set up: seconds,
@@ -165,81 +141,13 @@ export function usePoseTracking(
           const took = performance.now() - t0
           if (warmupLeft > 0) warmupLeft--
           else avgMs = avgMs === 0 ? took : avgMs * 0.9 + took * 0.1
-          const raw = result.landmarks[0]
-          const rawWorld = result.worldLandmarks[0]
-          let current: Readout = EMPTY_READOUT
-          if (raw && rawWorld) {
-            const screen = screenSmoother.smooth(raw, now)
-            const world = worldSmoother.smooth(rawWorld, now)
-            // Which leg to track is decided only in the start position, then locked for the rep: at the
-            // bottom of a squat both knees push forward and the near/far reading gets close, and a mid-rep
-            // hop to the far (guessed, straighter) leg read deep squats as shallow (tester, Nov 14).
-            const isTop = (a: Angles) =>
-              isAtTopRef.current ? isAtTopRef.current(a) : a.torsoLean !== null && a.torsoLean < 30
-            if (side === null) side = pickSide(screen, null, world)
-            let angles = measureAngles(screen, world, side)
-            let atTop = isTop(angles)
-            if (atTop) {
-              const best = pickSide(screen, side, world)
-              if (best !== side) {
-                side = best
-                angles = measureAngles(screen, world, side)
-                atTop = isTop(angles)
-              }
-            }
-            // Decide facing vs side-on only in the start position too (see `isAtTop`).
-            if (atTop) {
-              facing = isFacingCamera(shoulderSpread(screen, video.videoWidth / video.videoHeight), facing)
-              facingKnown = true
-            }
-            const outOfView = partsOutOfView(screen, side, mustSeeRef.current ?? [])
-            const nowInView = outOfView.length === 0
-            if (!nowInView) missing = outOfView
-            viewStreak = nowInView === inView ? 0 : viewStreak + 1
-            if (viewStreak >= (inView ? 8 : 4)) {
-              inView = nowInView // ~0.25 s out to pause, ~0.1 s back in to resume
-              viewStreak = 0
-            }
-            current = {
-              side,
-              facing,
-              facingKnown,
-              inView,
-              missing: inView ? [] : missing,
-              angles,
-              diag: debug ? stanceDiagnostics(screen, world, side, video.videoWidth / video.videoHeight) : null,
-              room: null,
-              roomTightest: null,
-              fit: null,
-            }
-            {
-              const parts = mustSeeRef.current ?? []
-              const room = edgeRoom(screen, side, parts)
-              const fill = bodyFill(screen, side, parts)
-              fitLog = fitLog.filter((x) => now - x.at < 1000)
-              if (room !== null && fill !== null) fitLog.push({ at: now, room, fill })
-              const mid = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)]
-              current.fit = fitLog.length >= 3 ? { room: mid(fitLog.map((x) => x.room)), fill: mid(fitLog.map((x) => x.fill)) } : null
-            }
-            if (debug) {
-              const room = edgeRoom(screen, side, mustSeeRef.current ?? [])
-              roomLog = [...roomLog.filter((x) => now - x.at < 5000), { at: now, room }]
-              const out = roomLog.some((x) => x.room === null)
-              current.room = room
-              current.roomTightest = out ? null : Math.min(...roomLog.map((x) => x.room!))
-            }
-            onFrameRef.current?.(current.angles, now, facing, inView)
-            drawSkeleton(ctx, [screen], debug ? null : side === 'left' ? 'right' : 'left') // draw only the side we track
+          const analysed = analyzer.analyze(result.landmarks[0], result.worldLandmarks[0], now, video.videoWidth / video.videoHeight)
+          const current = analysed?.readout ?? EMPTY_READOUT
+          if (analysed) {
+            const { readout, screen } = analysed
+            onFrameRef.current?.(readout.angles, now, readout.facing, readout.inView)
+            drawSkeleton(ctx, [screen], debug ? null : readout.side === 'left' ? 'right' : 'left') // draw only the side we track
           } else {
-            // Nobody in frame: start smoothing fresh next time.
-            screenSmoother.reset()
-            worldSmoother.reset()
-            fitLog = []
-            side = null
-            facing = false
-            facingKnown = false
-            inView = true
-            viewStreak = 0
             drawSkeleton(ctx, [])
           }
           // Update on-screen numbers ~10x a second (every frame would slow React down).

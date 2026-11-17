@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { LogoMark } from '../components/Logo'
 import { GetSetChecklist, type DistanceGuide } from '../components/GetSetChecklist'
+import { CountGate } from '../coach/countGate'
 import { detectDevice } from '../device'
 import { track } from '../analytics'
 import type { Exercise } from '../exercises'
@@ -20,8 +21,6 @@ import { moveBackPrompt, POSITION } from '../voice/lines'
 
 /** Prompts about where to stand. Spoken when they appear, at most every few seconds each. */
 const PROMPT_REPEAT_MS = 6000
-/** Keep counting through a drop out of view this short in the middle of a rep (deep squat bottoms). */
-const OUT_OF_VIEW_GRACE_MS = 1500
 /** Mid-set, nobody in the picture this long = they've left: end the set. */
 const GONE_MS = 60000
 /** Each where-to-stand prompt is spoken at most this many times per set; after that it's shown only. */
@@ -99,27 +98,15 @@ export function Workout({
   }
   const repDiag = useRef({ sides: new Set<string>(), unseen: 0, frames: 0 })
   const sideRef = useRef<string | null>(null)
-  const outOfViewSince = useRef<number | null>(null) // when a needed body part left the picture (mid-rep grace)
+  const gate = useRef(new CountGate()) // when frames reach the counter (out of view, facing): see countGate.ts
   const partlyOutOfView = useRef(false) // body seen but a needed part cut off (pauses the auto-finish timer)
   const nobodyInView = useRef(false) // nobody in the picture (also pauses it, up to GONE_MS)
   const nobodySince = useRef<number | null>(null)
 
   const onFrame = useCallback<FrameHandler>(
     (angles, timeMs, facing, inView) => {
-      // Pause counting when a needed body part is out of frame (can't judge what we can't see)
-      // or when facing the camera (side-view checks don't work). Exception: a brief drop out of view in
-      // the middle of a rep. At the bottom of a very deep squat the feet or knees can slip out of sight
-      // for a moment; pausing then missed the deepest point and wrongly said "Sit deeper" (Nov 14).
-      // Angles for parts the tracker can't see stay empty, so nothing is guessed.
-      if (!counter || facing || !counting.current || pausedRef.current) return
-      if (inView) outOfViewSince.current = null
-      else {
-        outOfViewSince.current ??= timeMs
-        // Only while actually going down/up in a squat or push-up: between reps (standing, or walking up
-        // to the device) a cut-off body pauses at once, so jittery points can't make a fake rep (Nov 14).
-        const midRep = counter.phase === 'down'
-        if (!midRep || timeMs - outOfViewSince.current > OUT_OF_VIEW_GRACE_MS) return
-      }
+      if (!counter || !counting.current || pausedRef.current) return
+      if (!gate.current.allow(counter.phase, facing, inView, timeMs)) return
       // Per-rep diagnostics for tester results: which side was tracked and how often the counting joint was unseen.
       const metric = repMetric
       repDiag.current.frames++
