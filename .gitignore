@@ -41,3 +41,6 @@ public/sounds/_options/
 
 # Local preview frames (never commit)
 public/_preview/
+
+# Eval clips (recordings of people): stay on this laptop
+evals/clips/

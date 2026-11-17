@@ -199,9 +199,29 @@ Adding an exercise = adding one file in `exercises/`. Swapping the voice = one n
 - **Done when:** both exercises show a looping demo that matches the rules (depth, body line).
 - **Status (Nov 13): ✅ done** — squat reaches parallel; push-up locks out at the top and reaches a 90° elbow with a vertical forearm at the bottom. Same day: each coach introduces themselves when picked, and less-used options fold under "More options".
 
-### Step 21 — Accuracy evals on recorded video
-- Run the app on recorded clips instead of the live camera, to measure rep and cue accuracy repeatably.
-- **Done when:** a set of labelled clips produces a rep-accuracy and cue-accuracy report (the brief's 90% target).
+### Step 21 — Accuracy evals: a scorecard for every rule change
+Why: fixing rules from complaints only fixes false alarms (good reps flagged). Missed faults (bad reps passed)
+never get reported, so complaint-driven tuning slowly loosens the rules. A labelled set of clips measures both,
+so a change ships only if it cuts false alarms **without** letting more bad reps through.
+
+1. **Record and label clips (Manish, ~30 min).** Short clips, a few reps each, on a phone and a laptop, facing
+   left and right, in a couple of rooms. Good reps *and* deliberate faults:
+   - Squats: good, half squat, chest dropping, bouncing (too fast).
+   - Push-ups: good, knee push-up, half push-up, hips sagging, hips piked, arms not straight at the top.
+   Clips stay on the laptop in `evals/clips/` (git-ignored: they show your face). One label line per clip in
+   `evals/labels.csv` (committed, no video): `file, exercise, rep labels in order` e.g. `sq-phone-left-1.mp4, squat, good good half good`.
+2. **Build the eval runner (Claude).** `npm run eval` plays each clip as the camera through the real tracking and
+   rule code in a headless browser, and compares every rep with its label. Output: a scorecard per exercise and
+   per rule — reps counted correctly, **false alarms** (good reps flagged or not counted) and **misses** (faulty
+   reps that passed).
+3. **Baseline (together).** Run it on today's rules, save the scorecard in `docs/EVALS.md`, and check the rules we
+   loosened after tester complaints (lockout, partial reps, knees) for misses.
+4. **Make it the rule.** Every rule change from now on: run the eval, add before/after numbers to the changelog in
+   `docs/EVALS.md`, and ship only if misses don't go up. Complaints are first sorted: *measurement* problem (the
+   camera read the body wrong: fix the reading, keep the standard) or *standard* problem (rule too strict: change
+   only with a source and an eval result).
+
+- **Done when:** `npm run eval` prints the scorecard, the baseline is in `docs/EVALS.md`, and rule changes are logged there with before/after numbers.
 
 ### Step 22 — Less space needed
 - Test how close "close enough" is now that feet can be out of frame for push-ups; update setup distances.
