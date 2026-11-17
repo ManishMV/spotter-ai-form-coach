@@ -6,7 +6,7 @@ import type { RepStats } from './repCounter'
  *  hidden joint can't make a good rep fail. */
 export function holds(c: Condition, stats: RepStats): boolean {
   const v = stats[c.metric][c.stat]
-  if (v === null) return true
+  if (v === null) return !c.needsData
   return c.op === '<' ? v < c.value : v > c.value
 }
 

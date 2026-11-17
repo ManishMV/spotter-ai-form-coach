@@ -22,9 +22,12 @@ export const pushup: Exercise = {
     downBelow: 20, // within ~20° of parallel
     upAbove: 60, // arms back up under the body
     minRepMs: 800, // test cadences are 2.4–3 s per rep; under 0.8 s is a bounce or a glitch
-    // Went partway down (below 50°) but not to depth → partial rep: not counted, tell them why. Was 45°:
-    // raised so small dips also count as an attempt (Nov 13), keeping a 10° gap below the top (60°+).
-    partialBelow: 50,
+    // Went partway down (below 40°) but not to depth → partial rep: not counted, tell them why. Was 50°
+    // (Nov 13), but a tester whose arms read only ~65–75° at the top had small wobbles crossing 60° and 50°:
+    // 14 "Go a bit lower" in a set of 4 real push-ups, most under 0.8 s (Samsung S25, Nov 17). A real
+    // attempt also takes as long as a rep, so quick dips are ignored.
+    partialBelow: 40,
+    partialMinMs: 800,
     partialText: 'Go a bit lower', // not 'Chest to floor': a ~90° elbow is enough, the chest needn't touch
     startText: 'Get into a plank, arms straight',
     // Medians over the rep, so a brief tracking error can't decide the result.
@@ -47,7 +50,13 @@ export const pushup: Exercise = {
         // Judged at the top (arms straight), using the typical height over that moment: one jumpy frame
         // near the edge of the picture let a knee push-up pass (Nov 14), and the bottom of a full push-up
         // brings the knees low too, so the whole rep's height can't be used either.
-        anyOf: [{ metric: 'kneeLiftTop', stat: 'median', op: '>', value: 0.15 }], // knees resting ≈ 0.1; full ≈ 0.3–0.5; low-but-lifted knees pass
+        // Or, when the ankle is seen, straight legs: a knee push-up bends the knee to ~90–120°. The knee-height
+        // reading depends on how the phone is tilted (a phone propped low and angled up reads lifted knees as
+        // low), but the knee angle doesn't: a tester's full push-ups were rejected as knee push-ups (Nov 17).
+        anyOf: [
+          { metric: 'kneeLiftTop', stat: 'median', op: '>', value: 0.15 }, // knees resting ≈ 0.1; full ≈ 0.3–0.5
+          { metric: 'knee', stat: 'median', op: '>', value: 150, needsData: true }, // ankle out of view: no say
+        ],
       },
       {
         // Second knee check when the ankle is visible too: legs straight, not bent.

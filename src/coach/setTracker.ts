@@ -38,6 +38,8 @@ export type RepLog = {
   flags: { text: string; kind: CueCheck['kind'] }[]
   /** Diagnostics from the camera screen: which leg/arm was tracked, and frames where the counting joint wasn't seen. */
   diag?: { side: string; unseen: number; frames: number }
+  /** Push-ups: knee height above the hands at the top, and the knee angle (to check the knees rule). */
+  knees?: { lift: number | null; angle: number | null }
 }
 
 export class SetTracker {
@@ -74,6 +76,7 @@ export class SetTracker {
       ms: Math.round(rep.durationMs),
       flags: rep.counted ? firingCues(this.cues, rep.stats).map((c) => ({ text: c.text, kind: c.kind })) : [],
       diag,
+      knees: this.metric === 'upperArm' ? { lift: rep.stats.kneeLiftTop.median, angle: rep.stats.knee.median } : undefined,
     })
     if (!rep.counted) {
       const reason = rep.failed?.text

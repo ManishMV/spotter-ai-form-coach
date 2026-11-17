@@ -89,13 +89,13 @@ export class RepCounter {
     if (this.phase === 'up') {
       if (atTop) {
         // Back at the top without reaching depth: was it a partial rep?
-        const { partialBelow, partialText } = this.rule
+        const { partialBelow, partialText, partialMinMs = minRepMs / 2 } = this.rule
         const lowest = this.stats[this.rule.metric].min
         const durationMs = timeMs - this.startMs
         const stats = this.finishStats()
         // Half the full-rep time: a shallow dip spends less time below the standing line than a full rep,
         // and a quick one was missed (silent) in testing. Still long enough to ignore a wobble.
-        if (partialBelow !== undefined && lowest !== null && lowest < partialBelow && durationMs >= minRepMs / 2) {
+        if (partialBelow !== undefined && lowest !== null && lowest < partialBelow && durationMs >= partialMinMs) {
           this.restart(timeMs, angles) // a finished (partial) rep: start the next one fresh
           const failed: RepRequirement = { id: 'partial', text: partialText ?? 'Go deeper', anyOf: [] }
           return { number: this.count, durationMs, stats, counted: false, failed, partial: true }

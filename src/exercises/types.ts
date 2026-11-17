@@ -63,6 +63,8 @@ export type RepRule = {
    */
   partialBelow?: number
   partialText?: string
+  /** A partial rep must take at least this long (default: half of `minRepMs`). Shorter dips are wobbles. */
+  partialMinMs?: number
   /** Shown before the first rep, until the user is in the start position. */
   startText: string
 }
@@ -77,6 +79,9 @@ export type Condition = {
   stat: 'min' | 'max' | 'median'
   op: '<' | '>'
   value: number
+  /** Only holds when actually measured. By default an unmeasured metric holds (a hidden joint can't fail a
+   *  good rep); set this for an "or" alternative that must not pass just because it wasn't seen. */
+  needsData?: boolean
 }
 
 /**
