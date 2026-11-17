@@ -19,7 +19,7 @@ export type SetSummary = {
   /** Form cues shown during the set, most frequent first (for tester results). */
   cues: { text: string; count: number }[]
   /** Device and tracking speed, added by the workout screen (for tester results). */
-  tech?: { device: string; model: string; fps: number }
+  tech?: { device: string; model: string; fps: number; fill?: number }
   /** Every rep, for checking the rules against real sets (tester results). */
   log: RepLog[]
   /** The measurement reps are counted on (knee for squats, upper arm for push-ups). */

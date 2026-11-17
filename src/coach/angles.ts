@@ -168,6 +168,23 @@ export function edgeRoom(screen: NormalizedLandmark[], side: Side, parts: BodyPa
   return room === Infinity ? null : room
 }
 
+/**
+ * How much of the picture the needed body parts span: the larger of their width and height, as a share of
+ * the picture (1 = edge to edge). Small = standing far away, so tracking is less precise. null if one isn't seen.
+ */
+export function bodyFill(screen: NormalizedLandmark[], side: Side, parts: BodyPart[]): number | null {
+  const xs: number[] = []
+  const ys: number[] = []
+  for (const part of parts) {
+    const p = screen[POINTS[side][part]]
+    if (!p || (p.visibility ?? 0) < MIN_VISIBILITY) return null
+    xs.push(p.x)
+    ys.push(p.y)
+  }
+  if (!xs.length) return null
+  return Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys))
+}
+
 /** Diagnostics for tuning the lunge check (shown in the ?debug view only). */
 export type StanceDiag = {
   nearAnkleVis: number

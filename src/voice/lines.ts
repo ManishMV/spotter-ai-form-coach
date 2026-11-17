@@ -12,6 +12,10 @@ export const POSITION = {
   moveBackKnees: 'Move back so your knees are in view',
   moveBackHands: 'Move back so your hands are in view',
   turn: 'Turn to your side',
+  // Distance guide (Nov 17, tester: "a hassle to check how far away to be"): in view, but right at the
+  // picture's edge, or so far away that tracking gets less precise.
+  backALittle: 'A little further back',
+  closer: 'Come a bit closer',
   rotate: 'Turn your phone sideways, with auto-rotate on', // push-ups on an upright phone when the body doesn't fit (tester: auto-rotate was the missing step)
 } as const
 

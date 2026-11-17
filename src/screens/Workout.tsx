@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { LogoMark } from '../components/Logo'
-import { GetSetChecklist } from '../components/GetSetChecklist'
+import { GetSetChecklist, type DistanceGuide } from '../components/GetSetChecklist'
 import { detectDevice } from '../device'
 import { track } from '../analytics'
 import type { Exercise } from '../exercises'
@@ -65,13 +65,20 @@ export function Workout({
   const finished = useRef(false)
   // Tracking speed during the set (median fps), reported in tester results.
   const fpsLog = useRef<number[]>([])
+  const fillLog = useRef<number[]>([]) // how much of the picture the body filled (to tune the distance guide)
   const modelRef = useRef('')
   const finish = useCallback((endedBy: 'target' | 'idle' | 'end') => {
     if (finished.current) return
     finished.current = true
     counting.current = false
-    const speeds = [...fpsLog.current].sort((a, b) => a - b)
-    const tech = { device: detectDevice(), model: modelRef.current, fps: speeds[Math.floor(speeds.length / 2)] ?? 0 }
+    const median = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)]
+    const fill = median(fillLog.current)
+    const tech = {
+      device: detectDevice(),
+      model: modelRef.current,
+      fps: median(fpsLog.current) ?? 0,
+      fill: fill === undefined ? undefined : Math.round(fill * 100) / 100,
+    }
     onEnd({ ...tracker.summary(), tech, endedBy })
   }, [onEnd, tracker])
   useEffect(() => {
@@ -204,6 +211,7 @@ export function Workout({
     return stop
   }, [start, stop])
   useEffect(() => {
+    if (counting.current && readout.fit) fillLog.current.push(readout.fit.fill)
     sideRef.current = readout.side
     partlyOutOfView.current = !!readout.side && !readout.inView
     nobodyInView.current = status === 'running' && !readout.side
@@ -292,6 +300,24 @@ export function Workout({
     return () => window.clearTimeout(t)
   }, [status])
 
+  // Distance guide (before "Go"): too close (cut off, or right at the edge) / good / too far (small in the
+  // picture, so less precise). Only a guide: it never holds up the countdown. Thresholds are shares of the
+  // picture; the fill is in tester results, to tune them.
+  const TIGHT_ROOM = 0.03 // closer than this to the edge: the body may leave the picture mid-rep
+  const FAR_FILL = 0.4 // body spans less than this much of the picture
+  const fit = readout.fit
+  const distanceState = !readout.side
+    ? null
+    : !readout.inView
+      ? 'close'
+      : !fit
+        ? null
+        : fit.room < TIGHT_ROOM
+          ? 'tight'
+          : fit.fill < FAR_FILL
+            ? 'far'
+            : 'good'
+
   // The cue line: set-up and positioning first, then the latest rep feedback, then status.
   const cue =
     status === 'loading'
@@ -310,6 +336,10 @@ export function Workout({
           ? moveBackPrompt(readout.missing)
           : readout.facing
           ? POSITION.turn
+          : !started && distanceState === 'tight'
+          ? POSITION.backALittle
+          : !started && distanceState === 'far'
+          ? POSITION.closer
           : !counter
           ? `${exercise.name} counting is coming soon`
           : notice
@@ -326,6 +356,18 @@ export function Workout({
     { label: exercise.camera.height === 'floor' ? 'Head to knees in view' : 'Whole body in view', ok: !!readout.side && readout.inView },
     { label: exercise.reps?.startText ?? 'In the start position', ok: !!readout.side && readout.inView && !readout.facing && isAtTop(readout.angles) },
   ]
+  // Where the dot sits on the guide's track: 0–0.2 too close, 0.2–0.8 good, 0.8–1 too far.
+  const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
+  const distance: DistanceGuide | null =
+    distanceState === 'close'
+      ? { good: false, at: 0.08, text: moveBackPrompt(readout.missing) }
+      : distanceState === 'tight'
+        ? { good: false, at: 0.16, text: POSITION.backALittle }
+        : distanceState === 'far' && fit
+          ? { good: false, at: 0.8 + ((FAR_FILL - clamp(fit.fill, 0.15, FAR_FILL)) / (FAR_FILL - 0.15)) * 0.14, text: POSITION.closer }
+          : distanceState === 'good' && fit
+            ? { good: true, at: 0.25 + ((0.95 - clamp(fit.fill, FAR_FILL, 0.95)) / (0.95 - FAR_FILL)) * 0.5, text: 'Good distance' }
+            : null
 
   // Speak where-to-stand prompts calmly: only once a prompt has stayed on screen for a moment (so a
   // flicker doesn't trigger speech), one at a time, never over the countdown, and not repeated too often.
@@ -443,7 +485,7 @@ export function Workout({
       {/* Before "Go": a live checklist of what Spotter needs, instead of a single prompt line. */}
       {showChecklist && (
         <div className="absolute inset-x-4 top-20 z-10 flex justify-center sm:top-24">
-          <GetSetChecklist items={checklist} />
+          <GetSetChecklist items={checklist} distance={distance} />
         </div>
       )}
 

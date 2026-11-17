@@ -66,7 +66,7 @@ export function resultsText(): string {
   const lines = sets.map(({ exercise, summary: s }, i) => {
     const secs = Math.round(s.durationMs / 1000)
     const target = s.target === null ? 'no target' : `target ${s.target}`
-    const tech = s.tech ? ` | ${s.tech.device}, ${s.tech.model} model, ${s.tech.fps} fps` : ''
+    const tech = s.tech ? ` | ${s.tech.device}, ${s.tech.model} model, ${s.tech.fps} fps${s.tech.fill !== undefined ? `, body fills ${Math.round(s.tech.fill * 100)}% of picture` : ''}` : ''
     const form = s.reps > 0 ? ` | good form: ${s.cleanReps}/${s.reps}` : ''
     const head = `${i + 1}. ${exercise}: ${s.reps} counted (${target}) in ${secs} s | didn't count: ${list(s.missed)} | cues: ${list(s.cues)}${form}${tech}`
     // One line per rep, so the rules can be checked against what really happened.

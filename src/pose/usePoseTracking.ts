@@ -6,7 +6,7 @@ import { loadPoseLandmarker, pickModelSize, type ModelSize } from './landmarker'
 import { drawSkeleton } from './drawSkeleton'
 import { PointSmoother } from './smoothing'
 import type { BodyPart } from '../exercises/types'
-import { edgeRoom, isFacingCamera, measureAngles, NO_ANGLES, partsOutOfView, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
+import { bodyFill, edgeRoom, isFacingCamera, measureAngles, NO_ANGLES, partsOutOfView, pickSide, shoulderSpread, stanceDiagnostics, type Angles, type Side, type StanceDiag } from '../coach/angles'
 
 /** Analyses right after a model loads that are left out of speed measurements (set-up time). */
 const WARMUP_ANALYSES = 5
@@ -28,9 +28,12 @@ export type Readout = {
   room: number | null
   /** Debug view: the tightest `room` over the last 5 s (covers a whole rep); null if a part left the picture. */
   roomTightest: number | null
+  /** Distance guide: over the last second, the typical room to the picture's edge and how much of the
+   *  picture the body fills (see `bodyFill`). null until the needed parts have been seen. */
+  fit: { room: number; fill: number } | null
 }
 
-export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, facingKnown: false, missing: [], angles: NO_ANGLES, diag: null, room: null, roomTightest: null }
+export const EMPTY_READOUT: Readout = { side: null, facing: false, inView: true, facingKnown: false, missing: [], angles: NO_ANGLES, diag: null, room: null, roomTightest: null, fit: null }
 
 /** Called on every frame where a person is visible (used for rep counting). */
 export type FrameHandler = (angles: Angles, timeMs: number, facing: boolean, inView: boolean) => void
@@ -138,6 +141,7 @@ export function usePoseTracking(
       let viewStreak = 0
       let lastReadout = 0
       let roomLog: { at: number; room: number | null }[] = [] // debug view: last 5 s of `room`
+      let fitLog: { at: number; room: number; fill: number }[] = [] // distance guide: last 1 s
       // Speed: average analysis time, and when the last analysis ran. On a slow device, back-to-back
       // analyses would leave no time for the screen, sounds and voice, so leave a short gap after each.
       // The first analyses after a model loads are very slow (the graphics card is being set up: seconds,
@@ -206,6 +210,16 @@ export function usePoseTracking(
               diag: debug ? stanceDiagnostics(screen, world, side, video.videoWidth / video.videoHeight) : null,
               room: null,
               roomTightest: null,
+              fit: null,
+            }
+            {
+              const parts = mustSeeRef.current ?? []
+              const room = edgeRoom(screen, side, parts)
+              const fill = bodyFill(screen, side, parts)
+              fitLog = fitLog.filter((x) => now - x.at < 1000)
+              if (room !== null && fill !== null) fitLog.push({ at: now, room, fill })
+              const mid = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)]
+              current.fit = fitLog.length >= 3 ? { room: mid(fitLog.map((x) => x.room)), fill: mid(fitLog.map((x) => x.fill)) } : null
             }
             if (debug) {
               const room = edgeRoom(screen, side, mustSeeRef.current ?? [])
@@ -220,6 +234,7 @@ export function usePoseTracking(
             // Nobody in frame: start smoothing fresh next time.
             screenSmoother.reset()
             worldSmoother.reset()
+            fitLog = []
             side = null
             facing = false
             facingKnown = false
