@@ -13,6 +13,7 @@ export type Label =
   | 'fast' // bounced or rushed
   | 'chest' // squat: chest dropped / leaned too far forward
   | 'hips' // squat: hips shot up first on the way up
+  | 'lunge' // squat: one foot clearly behind the other, more lunge than squat
   | 'knee' // push-up: knees on the floor
   | 'sag' // push-up: hips sagging
   | 'pike' // push-up: hips piked up
@@ -25,6 +26,7 @@ export const LABELS: Record<Label, string> = {
   fast: 'Too fast / bounced',
   chest: 'Chest dropped (squat)',
   hips: 'Hips rose first (squat)',
+  lunge: 'Lunge, not a squat (squat)',
   knee: 'Knees on the floor (push-up)',
   sag: 'Hips sagging (push-up)',
   pike: 'Hips piked (push-up)',
@@ -54,7 +56,7 @@ const CATCHES: Partial<Record<Label, string[]>> = {
 }
 
 /** For faults that should never count (not just get a tip). */
-const MUST_NOT_COUNT: Label[] = ['half', 'knee', 'fast']
+const MUST_NOT_COUNT: Label[] = ['half', 'knee', 'fast', 'lunge']
 
 export type Verdict =
   | { kind: 'correct'; note?: string }

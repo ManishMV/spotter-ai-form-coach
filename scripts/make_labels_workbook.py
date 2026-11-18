@@ -16,6 +16,7 @@ SQUAT = [
     ("chest", "Chest dropped: leaned the chest far forward."),
     ("hips", "Hips rose first: on the way up, hips shot up before the chest."),
     ("fast", "Bounced or rushed: dropped and popped up with no control."),
+    ("lunge", "One foot clearly behind the other: more a lunge than a squat."),
     ("?", "Not sure what it was: lined up with Spotter's reps but not scored."),
 ]
 PUSHUP = [

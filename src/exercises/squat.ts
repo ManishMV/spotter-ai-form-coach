@@ -42,6 +42,15 @@ export const squat: Exercise = {
           { metric: 'balance', stat: 'median', op: '<', value: 0.3 },
         ],
       },
+      {
+        // One foot clearly behind the other, even without the weight shifting back: more a lunge than a squat.
+        // Typical feet split over the rep: normal squats read 0.01–0.07 of leg length, squats with a foot behind
+        // 0.11–0.32 (eval, Nov 18, all 10 squat clips). Uses the far ankle's guessed position, so the margin is
+        // kept on the safe side; an unmeasured split never rejects a rep.
+        id: 'feet-side-by-side',
+        text: 'Keep your feet side by side',
+        anyOf: [{ metric: 'stanceSplit', stat: 'median', op: '<', value: 0.1 }],
+      },
     ],
   },
   // Form cues after each counted rep. Wording follows coaching research: 1–3 words, say what to do,
