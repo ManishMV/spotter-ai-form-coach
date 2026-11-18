@@ -33,7 +33,7 @@ const isRestingOnFloor = (a: Angles) => a.upperArm !== null && a.upperArm < -15
 /** Anything shorter than this is a tracking blip, not a movement. */
 const GLITCH_MS = 350
 
-const METRICS: Metric[] = ['knee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance', 'upperArm', 'kneeLift', 'leanVsShin', 'heelLift', 'hipOffset', 'thighTilt', 'hipsRiseFirst', 'leanAtBottom', 'torsoAtBottom', 'kneeLiftTop', 'footTilt', 'descentMs', 'collapsedMs']
+const METRICS: Metric[] = ['knee', 'farKnee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance', 'upperArm', 'kneeLift', 'leanVsShin', 'heelLift', 'hipOffset', 'thighTilt', 'hipsRiseFirst', 'leanAtBottom', 'torsoAtBottom', 'kneeLiftTop', 'footTilt', 'descentMs', 'collapsedMs']
 
 const freshStats = (): RepStats =>
   Object.fromEntries(METRICS.map((m) => [m, { min: null, max: null, median: null }])) as RepStats

@@ -71,6 +71,15 @@ export const pushup: Exercise = {
         anyOf: [{ metric: 'knee', stat: 'median', op: '>', value: 150 }],
       },
       {
+        // The other knee, away from the camera, on the floor (one-knee push-up). That leg is mostly hidden, so
+        // its reading is a guess: judged on the typical value over the rep, and only a clearly bent knee counts.
+        // On the floor it read 130–136°, straight legs 164–174° across all push-up clips (eval, Nov 18).
+        // Not caught: a far leg tucked right behind the near one still reads as straight.
+        id: 'far-knee-up',
+        text: 'Knees up for full push-ups',
+        anyOf: [{ metric: 'farKnee', stat: 'median', op: '>', value: 150 }],
+      },
+      {
         // Lockout: arms straight at the top (standards: full extension; counters use 145–160°). Only clearly
         // bent arms stop a rep counting (135°): a tester's real push-ups failed at 150° (Nov 14), since many
         // people keep a slight bend and one camera reads a straight arm a few degrees short. Slightly short of

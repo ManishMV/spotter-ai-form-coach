@@ -3,6 +3,7 @@
 /** Body measurements Spotter tracks every frame. Angles are in degrees. */
 export type Metric =
   | 'knee' // hip–knee–ankle. 180 = straight leg.
+  | 'farKnee' // same, on the leg away from the camera (often hidden: a low-confidence guess, so only for clear cases).
   | 'hip' // shoulder–hip–knee. 180 = standing tall.
   | 'elbow' // shoulder–elbow–wrist. 180 = straight arm.
   | 'torsoLean' // shoulder–hip line vs. vertical. 0 = upright, 90 = horizontal.

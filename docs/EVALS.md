@@ -98,7 +98,13 @@ Every rule change: what changed, why, and the before/after numbers.
 | Nov 18 | Squats: "Keep your chest up" also needs the chest itself over 52° from vertical at the bottom (as well as 30° past the shins). | Facing left, the camera read the shins almost upright (8–12° vs ~20° facing right), so normal squats looked 30–39° past the shins. Good reps lean 33–49°, real chest drops 56–67°. | Squats 13 → 7 | Squats 1 → 1 (chest still caught 4/4) |
 
 | Nov 18 | Push-ups: shortest counted rep 0.7 s (was 0.8 s). | Quick but full push-ups took 0.7–0.8 s and got "Slow down". Fast drops still get "Lower with control". | Push-ups 9 → 8 | Push-ups 2 → 2 |
+| Nov 18 | Push-ups: the knee away from the camera also has to be off the floor (its knee angle, typical over the rep, over 150°). | Relabelled pu-07 and pu-09 (far knee down or tucked) as `knee`. With the far knee on the floor it read 130–136°; straight legs read 164–174° in every push-up clip. | Push-ups 8 → 8 | Push-ups 9 → 6 (knee reps caught 1/8 → 4/8 on pu-07/09) |
 The 5 remaining squat false alarms are sq-07, labelled good with a note that the chest was slightly forward:
 those reps lean 59–64°, the same as the labelled chest drops, so the label is the likelier mistake.
 
 Left for later (push-ups): two quick good reps in pu-08 still don't register; one knee push-up counted; the bent-arms rep isn't caught.
+
+Known limit: in pu-07 the far leg is tucked up right behind the near one, and MediaPipe reads it as straight
+(about 168°), so those 5 knee reps can't be caught with this model. Spotter judges the leg it can see; a fault on
+the hidden leg is only caught when it shows (like a knee on the floor). The squat lunge check has the same limit:
+sq-08/09 (one foot behind) all counted as squats, and are labelled ? because no label fits.

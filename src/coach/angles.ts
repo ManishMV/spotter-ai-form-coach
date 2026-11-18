@@ -15,7 +15,7 @@ const POINTS = {
 export type Angles = Record<Metric, number | null>
 
 export const NO_ANGLES: Angles = {
-  knee: null, hip: null, elbow: null, torsoLean: null, bodyLine: null, stanceSplit: null, balance: null,
+  knee: null, farKnee: null, hip: null, elbow: null, torsoLean: null, bodyLine: null, stanceSplit: null, balance: null,
   upperArm: null, kneeLift: null, leanVsShin: null, heelLift: null, hipOffset: null, thighTilt: null,
   hipsRiseFirst: null, leanAtBottom: null, torsoAtBottom: null, kneeLiftTop: null, footTilt: null, descentMs: null, collapsedMs: null,
 }
@@ -55,6 +55,17 @@ function stanceSplit(screen: NormalizedLandmark[], world: Landmark[], side: Side
   const leg = dist(world[near.hip], world[near.knee]) + dist(world[near.knee], world[near.ankle])
   if (leg === 0) return null
   return Math.abs(world[near.ankle].x - world[far.ankle].x) / leg
+}
+
+/**
+ * Knee angle of the leg away from the camera. That leg is usually behind the near one, so MediaPipe only
+ * guesses it (low visibility); like stanceSplit, accept a low bar. A knee on the floor reads ~130°, a
+ * straight leg ~165–175° (eval, Nov 18). A leg tucked right behind the near one can still read as straight.
+ */
+function farKnee(screen: NormalizedLandmark[], world: Landmark[], side: Side): number | null {
+  const far = POINTS[side === 'left' ? 'right' : 'left']
+  if (![far.hip, far.knee, far.ankle].every((i) => (screen[i]?.visibility ?? 0) >= 0.2)) return null
+  return angleAt(world[far.hip], world[far.knee], world[far.ankle])
 }
 
 /**
@@ -255,6 +266,7 @@ export function measureAngles(screen: NormalizedLandmark[], world: Landmark[], s
   const at = (a: number, b: number, c: number) => (seen(a, b, c) ? angleAt(world[a], world[b], world[c]) : null)
   return {
     knee: at(p.hip, p.knee, p.ankle),
+    farKnee: farKnee(screen, world, side),
     hip: at(p.shoulder, p.hip, p.knee),
     elbow: at(p.shoulder, p.elbow, p.wrist),
     torsoLean: seen(p.shoulder, p.hip) ? tiltFromVertical(world[p.shoulder], world[p.hip]) : null,

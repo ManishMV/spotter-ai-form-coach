@@ -20,7 +20,7 @@ export async function runClip(
   model: 'lite' | 'full',
   onProgress?: (share: number) => void,
   /** Debugging: called with what Spotter saw on every frame (`?trace` on the eval page). */
-  trace?: (f: { ms: number; seen: boolean; side: string | null; facing: boolean; inView: boolean; missing: string[]; angles: Angles; started: boolean; gate: boolean; phase: string }) => void,
+  trace?: (f: { ms: number; seen: boolean; side: string | null; facing: boolean; inView: boolean; missing: string[]; angles: Angles; started: boolean; gate: boolean; phase: string; pts?: Record<number, number[]> }) => void,
 ): Promise<{ reps: SpotterRep[]; startedAtMs: number | null; frames: number }> {
   const rule = exercise.reps!
   const video = document.createElement('video')
@@ -65,8 +65,18 @@ export async function runClip(
         continue
       }
       const { readout } = analysed
+      // Raw body points for shoulders, arms and both legs: [x, y, visibility, world x, world y, world z].
+      const pts = trace
+        ? Object.fromEntries(
+            [11, 12, 13, 14, 15, 16, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32].map((k) => {
+              const a = result.landmarks[0][k]
+              const w = result.worldLandmarks[0][k]
+              return [k, [a.x, a.y, a.visibility ?? 0, w.x, w.y, w.z].map((v) => Math.round(v * 1000) / 1000)]
+            }),
+          )
+        : undefined
       const log = (gate: boolean) =>
-        trace?.({ ms, seen: true, side: readout.side, facing: readout.facing, inView: readout.inView, missing: readout.missing, angles: readout.angles, started: startedAtMs !== null, gate, phase: counter.phase })
+        trace?.({ ms, seen: true, side: readout.side, facing: readout.facing, inView: readout.inView, missing: readout.missing, angles: readout.angles, started: startedAtMs !== null, gate, phase: counter.phase, pts })
       if (startedAtMs === null) {
         const ready = !!readout.side && readout.inView && !readout.facing && isAtTop(readout.angles)
         readySince = ready ? (readySince ?? ms) : null
