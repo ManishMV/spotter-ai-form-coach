@@ -52,6 +52,9 @@ export type CameraHint = {
 export type RepRule = {
   metric: Metric
   downBelow: number
+  /** Another way to reach depth: `metric` below `below`, while the main metric is also below `mainBelow`
+   *  (so one glitchy frame of the other metric can't fake depth). */
+  alsoDown?: { metric: Metric; below: number; mainBelow: number }
   upAbove: number
   /** Ignore "reps" faster than this (usually tracking glitches). */
   minRepMs: number

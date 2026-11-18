@@ -75,12 +75,26 @@ extra one (a wobble) is an "extra rep" or "extra message".
 
 ## 4. Results
 
-### Baseline
-_Run once the clips are in, and paste the report here._
+### Baseline (Nov 18)
+20 clips on one Android phone, one person (the builder), 79 labelled reps.
+
+| | Squats | Push-ups |
+|---|---|---|
+| Good reps judged right | 13/26 (50%) | 11/28 (39%) |
+| Faulty reps caught | 15/16 | 7/9 |
+| False alarms | 13 | 17 |
+| Misses | 1 | 2 |
+| Reps not registered | 1 | 10 |
+
+Known limits: pu-01 had the hands below the picture for most of each rep (a setup problem, which the live app
+points out), so its 5 reps can't register. One person and one phone, so this is a starting point.
 
 ### Changelog
 Every rule change: what changed, why, and the before/after numbers.
 
 | Date | Change | Why | False alarms | Misses |
 |---|---|---|---|---|
-| | | | | |
+| Nov 18 | Push-ups: depth also reached with the elbow bent to under 100° (upper arm under 40°). "Hips up" only below -0.10 at the lowest point (was -0.06); "Hips down" on the typical reading over 0.08 (was the highest frame over 0.06). | With the phone on the floor, real 90° push-ups read the upper arm 21–27° from level, so reps weren't registered. Good reps dip to -0.095 and settle at the top, which fired the hip tips; real sag reps read -0.11 to -0.13. | Push-ups 17 → 9 | Push-ups 2 → 2 (sag still caught 2/2) |
+
+Left for later (push-ups): good reps under 0.8 s get "Slow down" or don't register (3 reps); one knee push-up
+counted; the bent-arms rep isn't caught.

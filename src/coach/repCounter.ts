@@ -105,7 +105,7 @@ export class RepCounter {
         this.restart(timeMs, angles, stats)
         return null
       }
-      if (value < downBelow) this.phase = 'down'
+      if (value < downBelow || this.alsoDown(angles, value)) this.phase = 'down'
       this.record(angles)
       return null
     }
@@ -177,6 +177,12 @@ export class RepCounter {
     const leanAtBottom = median(this.bottomLeans)
     if (leanAtBottom !== null) this.stats.leanAtBottom = one(leanAtBottom)
     return this.stats
+  }
+
+  private alsoDown(angles: Angles, value: number) {
+    const a = this.rule.alsoDown
+    const v = a ? angles[a.metric] : null
+    return !!a && v !== null && v < a.below && value < a.mainBelow
   }
 
   /**

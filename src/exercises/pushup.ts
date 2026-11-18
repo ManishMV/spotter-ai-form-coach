@@ -20,6 +20,10 @@ export const pushup: Exercise = {
     // unlike the elbow angle, which changes with hand position (found in testing).
     metric: 'upperArm',
     downBelow: 20, // within ~20° of parallel
+    // Or the elbows bent to about 90° (the ACE / FitnessGram cue), with the upper arm at least well on its way
+    // down. With the phone on the floor, real 90° push-ups read the upper arm 21–27° from level, so three good
+    // reps in a row weren't registered at all (eval, Nov 18). Half push-ups keep the elbow at ~110–130°.
+    alsoDown: { metric: 'elbow', below: 100, mainBelow: 40 },
     upAbove: 60, // arms back up under the body
     minRepMs: 800, // test cadences are 2.4–3 s per rep; under 0.8 s is a bounce or a glitch
     // Went partway down (below 40°) but not to depth → partial rep: not counted, tell them why. Was 50°
@@ -86,9 +90,12 @@ export const pushup: Exercise = {
   // external focus where possible (Wulf; Winkelman; NASM: "lower until the chest nears the floor").
   // Lower-back safety first, then depth, then piking. Sagging hips (lower-back extension: ACE, Army) is a
   // safety cue and speaks up on the first rep; the others wait for a pattern. See docs/COACHING.md.
-  // Hip offset 0.06 ≈ body line 165°; bigger faults (< 155°) don't count at all.
+  // Hip offset 0.06 ≈ body line 165°, 0.08 ≈ 160°; bigger faults (< 155°) don't count at all.
   cues: [
-    { id: 'hips-up', metric: 'hipOffset', stat: 'min', op: '<', value: -0.06, text: 'Hips up', praise: 'Nice straight line', tip: 'Squeeze your stomach and glutes so your hips don’t sag.', kind: 'technique', priority: 1 }, // technique (review, Nov 13); a severe sag (body line under 155°) already doesn't count
+    // Lowest hip point of the rep. Was -0.06: good push-ups dip to -0.06…-0.095 at the bottom and got "Hips up"
+    // (eval, Nov 18), while real sagging reps (hips touching the floor first) read -0.11…-0.13. The typical
+    // (median) reading didn't work: sagging shows mostly at the bottom, so it missed both sag reps.
+    { id: 'hips-up', metric: 'hipOffset', stat: 'min', op: '<', value: -0.1, text: 'Hips up', praise: 'Nice straight line', tip: 'Squeeze your stomach and glutes so your hips don’t sag.', kind: 'technique', priority: 1 }, // technique (review, Nov 13); a severe sag (body line under 155°) already doesn't count
     // Removed Nov 13: "Stay off the floor". A pause at the bottom is a choice, not a form fault.
     // Fast drop to the bottom. Controlled descents are ~0.7–1.5 s; under 0.4 s is a drop. Rep still counts.
     { id: 'control-descent', metric: 'descentMs', stat: 'max', op: '<', value: 400, text: 'Lower with control', praise: 'Nice control', tip: 'Lower yourself slowly, taking about a second on the way down.', kind: 'technique', priority: 3 },
@@ -99,6 +106,8 @@ export const pushup: Exercise = {
     // happening, and it doesn't count against good form. Was 155° and technique: on a phone it flagged every rep of a
     // tester whose push-ups were fine (Nov 14), since phone tracking reads straight arms a few degrees short.
     { id: 'lockout-tip', metric: 'elbow', stat: 'max', op: '<', value: 145, text: 'Straighten your arms at the top', praise: 'Strong finish', tip: 'Push all the way up until your arms are straight at the top.', kind: 'minor', priority: 4 },
-    { id: 'hips-down', metric: 'hipOffset', stat: 'max', op: '>', value: 0.06, text: 'Hips down', praise: 'Nice straight line', tip: 'Bring your hips down so your body forms one straight line.', kind: 'technique', priority: 5 },
+    // Typical hip position, not the highest frame: a rep includes settling into the plank at the top, where hips
+    // read up to 0.17 for a moment, and a good rep got "Hips down" (eval, Nov 18). Was max > 0.06; 0.08 ≈ 160°.
+    { id: 'hips-down', metric: 'hipOffset', stat: 'median', op: '>', value: 0.08, text: 'Hips down', praise: 'Nice straight line', tip: 'Bring your hips down so your body forms one straight line.', kind: 'technique', priority: 5 },
   ],
 }

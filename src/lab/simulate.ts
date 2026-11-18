@@ -66,7 +66,8 @@ function pushupFrames(r: PushupRep): SimFrame[] {
   const at = (p: number): Angles => ({
     ...NO_ANGLES,
     upperArm: 85 - (85 - arm) * p + jitter(1.5),
-    elbow: 170 - 80 * p + jitter(1.5),
+    // The elbow bends as far as the arm goes down: ~90° at full depth, ~125° on a half push-up (arm 35°).
+    elbow: 170 - 80 * p * ((85 - arm) / 90) + jitter(1.5),
     knee,
     kneeLift: kneeLift - (kneeLift - Math.min(kneeLift, 0.12)) * p,
     torsoLean: torso + jitter(1),
@@ -130,8 +131,8 @@ export const SCENARIOS: Scenario[] = [
     name: 'Push-ups: mixed form',
     reps: [
       { note: 'Clean rep' },
-      { note: 'Hips sagging', sag: -0.09 },
-      { note: 'Hips sagging again (pattern)', sag: -0.09 },
+      { note: 'Hips sagging', sag: -0.12 },
+      { note: 'Hips sagging again (pattern)', sag: -0.12 },
       { note: 'Clean rep (fix should be praised)' },
       { note: 'Half push-up (won’t count)', arm: 35 },
       { note: 'Knee push-up (won’t count)', kneeLift: 0.09 },
