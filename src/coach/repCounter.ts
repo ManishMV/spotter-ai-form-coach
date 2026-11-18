@@ -33,7 +33,7 @@ const isRestingOnFloor = (a: Angles) => a.upperArm !== null && a.upperArm < -15
 /** Anything shorter than this is a tracking blip, not a movement. */
 const GLITCH_MS = 350
 
-const METRICS: Metric[] = ['knee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance', 'upperArm', 'kneeLift', 'leanVsShin', 'heelLift', 'hipOffset', 'thighTilt', 'hipsRiseFirst', 'leanAtBottom', 'kneeLiftTop', 'footTilt', 'descentMs', 'collapsedMs']
+const METRICS: Metric[] = ['knee', 'hip', 'elbow', 'torsoLean', 'bodyLine', 'stanceSplit', 'balance', 'upperArm', 'kneeLift', 'leanVsShin', 'heelLift', 'hipOffset', 'thighTilt', 'hipsRiseFirst', 'leanAtBottom', 'torsoAtBottom', 'kneeLiftTop', 'footTilt', 'descentMs', 'collapsedMs']
 
 const freshStats = (): RepStats =>
   Object.fromEntries(METRICS.map((m) => [m, { min: null, max: null, median: null }])) as RepStats
@@ -59,6 +59,8 @@ export class RepCounter {
   private collapsedMs = 0
   /** Torso-vs-shin lean on each frame in the bottom half of the rep (for leanAtBottom). */
   private bottomLeans: number[] = []
+  /** Torso lean from vertical on each frame in the bottom half (for torsoAtBottom). */
+  private bottomTorso: number[] = []
   /** Knee height at the top position, last ~0.5 s of it (kept across reps; for kneeLiftTop). */
   private topKneeLifts: number[] = []
   private lastFrameMs: number | null = null
@@ -113,6 +115,7 @@ export class RepCounter {
     // phase === 'down'
     this.record(angles)
     if (angles.leanVsShin !== null) this.bottomLeans.push(angles.leanVsShin)
+    if (angles.torsoLean !== null) this.bottomTorso.push(angles.torsoLean)
     this.trackAscent(value, angles.torsoLean, timeMs)
     if (!atTop) return null
 
@@ -146,6 +149,7 @@ export class RepCounter {
     this.bottom = null
     this.collapsedMs = 0
     this.bottomLeans = []
+    this.bottomTorso = []
     // A rep just finished (no top extremes carried over): the next rep is judged on its own top position.
     if (!carryTopExtremes) this.topKneeLifts = []
     // Still at the top: carry over the top's min/max (not medians) so the next rep's stats
@@ -176,6 +180,8 @@ export class RepCounter {
     if (kneeLiftTop !== null) this.stats.kneeLiftTop = one(kneeLiftTop)
     const leanAtBottom = median(this.bottomLeans)
     if (leanAtBottom !== null) this.stats.leanAtBottom = one(leanAtBottom)
+    const torsoAtBottom = median(this.bottomTorso)
+    if (torsoAtBottom !== null) this.stats.torsoAtBottom = one(torsoAtBottom)
     return this.stats
   }
 

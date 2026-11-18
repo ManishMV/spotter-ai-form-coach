@@ -53,7 +53,10 @@ export const squat: Exercise = {
     // Typical lean over the bottom half (median), not the single worst frame: a peak flagged normal squats
     // in testing (Nov 13). 30° leaves room for longer thighs and arms held forward, which need more lean. Technique, not safety:
     // with body weight the back load is low, so it waits for a pattern instead of speaking on the first rep.
-    { id: 'chest-up', metric: 'leanAtBottom', stat: 'max', op: '>', value: 30, text: 'Keep your chest up', praise: 'Nice posture', tip: 'Keep your chest lifted as you sit down, so your back stays safe.', kind: 'technique', priority: 1 },
+    // And the chest itself clearly forward (over 52° from vertical at the bottom): facing left, the camera read the
+    // shins almost upright (8–12°, vs ~20° facing right), so normal squats looked like 30–39° past the shins and
+    // 6 good reps got this cue. Good reps lean 33–49°, real chest drops 56–67° (eval, Nov 18).
+    { id: 'chest-up', metric: 'leanAtBottom', stat: 'max', op: '>', value: 30, and: [{ metric: 'torsoAtBottom', stat: 'max', op: '>', value: 52 }], text: 'Keep your chest up', praise: 'Nice posture', tip: 'Keep your chest lifted as you sit down, so your back stays safe.', kind: 'technique', priority: 1 },
     // Torso tips > 12° further forward on the way up = hips rising first (Myer criterion 10). Technique, not
     // safety (review, Nov 13): torso angle naturally changes during a squat, so one rep isn't proof; it waits
     // for a pattern. A sharper check (hips rising faster than shoulders) can come after the evals.

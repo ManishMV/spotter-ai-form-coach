@@ -44,7 +44,9 @@ function squatFrames(r: SquatRep): SimFrame[] {
     knee: 175 - (175 - knee) * p + jitter(1.5),
     hip: 170 - 100 * p,
     thighTilt: 85 - (85 - thigh) * p + jitter(1.5),
-    torsoLean: 10 + 35 * p + (rising ? hipsFirst * 4 * p * (1 - p) : 0) + jitter(1),
+    // Leaning the chest past the shins also tips the torso further: ~45° at the bottom normally, ~64° for a
+    // chest drop (lean 38), like real chest drops (56–67°, eval Nov 18).
+    torsoLean: 10 + (35 + (lean - 6) * 0.6) * p + (rising ? hipsFirst * 4 * p * (1 - p) : 0) + jitter(1),
     leanVsShin: lean * p + jitter(2),
     footTilt: Math.abs(foot * p + jitter(1.5)),
     stanceSplit: split + jitter(0.02),

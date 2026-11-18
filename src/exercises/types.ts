@@ -24,6 +24,7 @@ export type Metric =
   //             (the squat depth standard: hips at knee height).
   | 'kneeLiftTop' // per rep: typical knee height above the hands while at the top (arms straight); robust to
   //               one jumpy frame, and not lowered by the bottom of the rep, where even full push-ups bring the knees down
+  | 'torsoAtBottom' // per rep: typical torso lean from vertical in the bottom half of the squat (median)
   | 'leanAtBottom' // per rep: typical torso-vs-shin lean in the bottom half of the squat (median, so one noisy frame can't trigger a cue)
   | 'hipsRiseFirst' // per rep, not per frame: how much the torso tips further forward on the way up,
   //                 compared with the bottom (degrees). ~0 = chest and hips rise together.
@@ -101,6 +102,8 @@ export type RepRequirement = {
 /** A form check run at the end of each counted rep (from Step 10). Fires when the condition is true. */
 export type CueCheck = Condition & {
   id: string
+  /** Further conditions that must all hold too (e.g. two readings that must agree). */
+  and?: Condition[]
   /** Short line shown on screen and spoken: what to do, 1–3 words, external focus where possible. */
   text: string
   /** Said on the first clean rep after this cue, naming the fix (e.g. "Nice depth"). */
