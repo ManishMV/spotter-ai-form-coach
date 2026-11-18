@@ -8,6 +8,9 @@ import { pushup } from '../exercises/pushup'
 import { runClip } from './runClip'
 import { align, LABELS, parseLabels, scorecard, type ClipLabel, type Pair, type Scorecard } from './score'
 
+/** Clips are played from evals/clips/ready/ (H.264 copies made by scripts/prepare_clips.py), by file name. */
+const readyName = (file: string) => `${file.split(/[\\/]/).pop()!.replace(/\.[^.]+$/, '')}.mp4`
+
 const EXERCISES = { squat, pushup }
 type ClipResult = { clip: ClipLabel; pairs: Pair[]; error?: string; started: boolean }
 
@@ -84,7 +87,7 @@ function EvalPage() {
       setRunning(`${clip.file} …`)
       try {
         const ex = EXERCISES[clip.exercise]
-        const { reps, startedAtMs } = await runClip(`/evals/clips/${clip.file}`, ex, clip.device === 'phone' ? 'lite' : 'full', (p) =>
+        const { reps, startedAtMs } = await runClip(`/evals/clips/ready/${readyName(clip.file)}`, ex, clip.device === 'phone' ? 'lite' : 'full', (p) =>
           setRunning(`${clip.file} ${Math.round(p * 100)}%`),
         )
         out.push({ clip, pairs: align(clip.labels, reps), started: startedAtMs !== null })

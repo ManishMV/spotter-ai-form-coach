@@ -22,13 +22,17 @@ About 20 clips (10 squats, 10 push-ups), 4 to 8 reps each, 10 to 30 seconds.
 - **Start and end calmly:** start recording, get into the start position (standing tall / plank with straight arms) and
   hold it about 2 seconds, do the reps, hold the start position again for 2 seconds, then stop. Walking up to the
   phone at the end can add a fake rep.
-- **Format:** MP4 (H.264). iPhone: Settings → Camera → Formats → *Most Compatible*, or the eval may not open the file.
-  Landscape for push-ups, like in the app.
-- Put the files in `evals/clips/`. That folder is git-ignored: the clips never leave your laptop.
+- **Format:** any phone video works (MP4 or MOV, HEVC included). Landscape for push-ups, like in the app.
+- Put the files anywhere in `evals/clips/` (subfolders are fine), each with its own name. That folder is
+  git-ignored: the clips never leave your laptop.
+- `npm run eval` first makes eval-ready copies in `evals/clips/ready/` (H.264, upright, 720p, 30 fps, like a live
+  camera feed) with `scripts/prepare_clips.py`. It needs ffmpeg (on PATH, or `pip install imageio-ffmpeg`) and only
+  converts new or changed clips.
 
 ## 2. Label them
 
-One line per clip in [`evals/labels.csv`](../evals/labels.csv): file, exercise, device, then every rep in order.
+Fill in [`evals/labels.xlsx`](../evals/labels.xlsx) (one row per rep, label words in a drop-down). `npm run eval`
+turns it into [`evals/labels.csv`](../evals/labels.csv), one line per clip: file, exercise, device, then every rep in order.
 
 ```
 sq-01.mp4, squat, phone, good good half good chest
