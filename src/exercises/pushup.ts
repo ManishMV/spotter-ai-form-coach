@@ -25,7 +25,9 @@ export const pushup: Exercise = {
     // reps in a row weren't registered at all (eval, Nov 18). Half push-ups keep the elbow at ~110–130°.
     alsoDown: { metric: 'elbow', below: 100, mainBelow: 40 },
     upAbove: 60, // arms back up under the body
-    minRepMs: 800, // test cadences are 2.4–3 s per rep; under 0.8 s is a bounce or a glitch
+    // Test cadences are 2.4–3 s per rep; under 0.7 s is a bounce or a glitch. Was 0.8 s: quick but full push-ups
+    // took ~0.7–0.8 s and got "Slow down" (eval, Nov 18). Fast drops still get "Lower with control".
+    minRepMs: 700,
     // Went partway down (below 40°) but not to depth → partial rep: not counted, tell them why. Was 50°
     // (Nov 13), but a tester whose arms read only ~65–75° at the top had small wobbles crossing 60° and 50°:
     // 14 "Go a bit lower" in a set of 4 real push-ups, most under 0.8 s (Samsung S25, Nov 17). A real

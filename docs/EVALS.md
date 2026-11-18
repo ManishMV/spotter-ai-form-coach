@@ -97,8 +97,8 @@ Every rule change: what changed, why, and the before/after numbers.
 | Nov 18 | Push-ups: depth also reached with the elbow bent to under 100° (upper arm under 40°). "Hips up" only below -0.10 at the lowest point (was -0.06); "Hips down" on the typical reading over 0.08 (was the highest frame over 0.06). | With the phone on the floor, real 90° push-ups read the upper arm 21–27° from level, so reps weren't registered. Good reps dip to -0.095 and settle at the top, which fired the hip tips; real sag reps read -0.11 to -0.13. | Push-ups 17 → 9 | Push-ups 2 → 2 (sag still caught 2/2) |
 | Nov 18 | Squats: "Keep your chest up" also needs the chest itself over 52° from vertical at the bottom (as well as 30° past the shins). | Facing left, the camera read the shins almost upright (8–12° vs ~20° facing right), so normal squats looked 30–39° past the shins. Good reps lean 33–49°, real chest drops 56–67°. | Squats 13 → 7 | Squats 1 → 1 (chest still caught 4/4) |
 
+| Nov 18 | Push-ups: shortest counted rep 0.7 s (was 0.8 s). | Quick but full push-ups took 0.7–0.8 s and got "Slow down". Fast drops still get "Lower with control". | Push-ups 9 → 8 | Push-ups 2 → 2 |
 The 5 remaining squat false alarms are sq-07, labelled good with a note that the chest was slightly forward:
 those reps lean 59–64°, the same as the labelled chest drops, so the label is the likelier mistake.
 
-Left for later (push-ups): good reps under 0.8 s get "Slow down" or don't register (3 reps); one knee push-up
-counted; the bent-arms rep isn't caught.
+Left for later (push-ups): two quick good reps in pu-08 still don't register; one knee push-up counted; the bent-arms rep isn't caught.
