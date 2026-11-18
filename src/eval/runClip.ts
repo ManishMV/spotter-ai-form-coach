@@ -19,6 +19,8 @@ export async function runClip(
   exercise: Exercise,
   model: 'lite' | 'full',
   onProgress?: (share: number) => void,
+  /** Debugging: called with what Spotter saw on every frame (`?trace` on the eval page). */
+  trace?: (f: { ms: number; seen: boolean; side: string | null; facing: boolean; inView: boolean; missing: string[]; angles: Angles; started: boolean; gate: boolean; phase: string }) => void,
 ): Promise<{ reps: SpotterRep[]; startedAtMs: number | null; frames: number }> {
   const rule = exercise.reps!
   const video = document.createElement('video')
@@ -58,17 +60,25 @@ export async function runClip(
       const analysed = analyzer.analyze(result.landmarks[0], result.worldLandmarks[0], ms, video.videoWidth / video.videoHeight)
       if (i % 15 === 0) onProgress?.(i / total)
       if (!analysed) {
+        trace?.({ ms, seen: false, side: null, facing: false, inView: false, missing: [], angles: {} as Angles, started: startedAtMs !== null, gate: false, phase: counter.phase })
         readySince = null
         continue
       }
       const { readout } = analysed
+      const log = (gate: boolean) =>
+        trace?.({ ms, seen: true, side: readout.side, facing: readout.facing, inView: readout.inView, missing: readout.missing, angles: readout.angles, started: startedAtMs !== null, gate, phase: counter.phase })
       if (startedAtMs === null) {
         const ready = !!readout.side && readout.inView && !readout.facing && isAtTop(readout.angles)
         readySince = ready ? (readySince ?? ms) : null
         if (readySince !== null && ms - readySince >= READY_MS) startedAtMs = ms
-        else continue
+        else {
+          log(false)
+          continue
+        }
       }
-      if (!gate.allow(counter.phase, readout.facing, readout.inView, ms)) continue
+      const open = gate.allow(counter.phase, readout.facing, readout.inView, ms)
+      log(open)
+      if (!open) continue
       const rep = counter.update(readout.angles, ms)
       if (!rep) continue
       reps.push({

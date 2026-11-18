@@ -8,6 +8,8 @@ import { pushup } from '../exercises/pushup'
 import { runClip } from './runClip'
 import { align, LABELS, parseLabels, scorecard, type ClipLabel, type Pair, type Scorecard } from './score'
 
+const TRACE: Record<string, unknown[]> | null = new URLSearchParams(location.search).has('trace') ? ((window as unknown as { __trace: Record<string, unknown[]> }).__trace = {}) : null
+
 /** Clips are played from evals/clips/ready/ (H.264 copies made by scripts/prepare_clips.py), by file name. */
 const readyName = (file: string) => `${file.split(/[\\/]/).pop()!.replace(/\.[^.]+$/, '')}.mp4`
 
@@ -75,7 +77,11 @@ function EvalPage() {
         const { clips, errors } = parseLabels(t)
         setClips(clips)
         setErrors(errors)
-        if (new URLSearchParams(location.search).has('run')) void run(clips)
+        // ?only=pu-01,pu-08 runs just those clips; ?trace also keeps every frame in window.__trace (debugging).
+        const only = new URLSearchParams(location.search).get('only')?.split(',')
+        const picked = only ? clips.filter((c) => only.some((o) => c.file.startsWith(o))) : clips
+        setClips(picked)
+        if (new URLSearchParams(location.search).has('run')) void run(picked)
       })
       .catch((e) => setErrors([String(e.message ?? e)]))
   }, [])
@@ -89,6 +95,7 @@ function EvalPage() {
         const ex = EXERCISES[clip.exercise]
         const { reps, startedAtMs } = await runClip(`/evals/clips/ready/${readyName(clip.file)}`, ex, clip.device === 'phone' ? 'lite' : 'full', (p) =>
           setRunning(`${clip.file} ${Math.round(p * 100)}%`),
+          TRACE ? (f) => (TRACE[clip.file] ??= []).push(f) : undefined,
         )
         out.push({ clip, pairs: align(clip.labels, reps), started: startedAtMs !== null })
       } catch (e) {
