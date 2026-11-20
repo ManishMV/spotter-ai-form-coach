@@ -149,6 +149,26 @@ export function Summary({
           </p>
         )}
 
+        {/* Feedback for everyone else, near the top so it isn't missed below the buttons (testers have
+            their own box below). Their set is copied first, to paste into the form. */}
+        {!embedded && !tester && (
+          <section aria-label="Share feedback" className="mt-6 flex flex-wrap items-center justify-between gap-3 border border-line px-4 py-3">
+            <p className="text-[15px] text-pretty text-muted">How did it go? Your feedback helps make Spotter better.</p>
+            <button
+              onClick={() => {
+                track('feedback_form_opened', { exercise: exercise.id, from: 'summary' })
+                copyAndOpenForm(reps + missedTotal > 0 ? friendlyText(exercise.name, summary) : null)
+              }}
+              className="label press flex h-11 shrink-0 items-center gap-2 border border-ink px-4 text-ink hover:bg-paper-2"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M4 5h16v11H9l-5 4z" />
+              </svg>
+              Share feedback
+            </button>
+          </section>
+        )}
+
         {/* Testers first: the feedback step is the point of their visit, so it sits above the fold. */}
         {tester && setsSoFar > 0 && (
           <section aria-label="Thank you for testing" className="mt-6 border border-accent/60">
@@ -289,21 +309,6 @@ export function Summary({
               )}
             </svg>
             {copiedPlain ? 'Copied' : 'Copy results'}
-          </button>
-        )}
-        {/* Feedback for everyone (testers have their own box above). Their set is copied first, to paste in. */}
-        {!tester && (
-          <button
-            onClick={() => {
-              track('feedback_form_opened', { exercise: exercise.id, from: 'summary' })
-              copyAndOpenForm(reps + missedTotal > 0 ? friendlyText(exercise.name, summary) : null)
-            }}
-            className="label press flex h-11 items-center gap-2 border border-line px-4 text-muted hover:border-ink hover:text-ink"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M4 5h16v11H9l-5 4z" />
-            </svg>
-            Share feedback
           </button>
         )}
         </div>
